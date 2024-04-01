@@ -1,0 +1,30 @@
+{
+    "name": "rapid/laplus",
+    "description": "Laravel Plus+",
+    "type": "library",
+    "require": {
+        "laravel/framework": "^11.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Rapid\\Laplus\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Mahdi Saremi",
+            "email": "mahdisarmi00@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Rapid\\Laplus\\Providers\\LaplusServiceProvider"
+            ]
+        }
+    }
+}
