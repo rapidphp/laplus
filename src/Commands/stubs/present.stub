@@ -1,0 +1,22 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Eloquent\Model;
+use Rapid\Laplus\Present\Present;
+
+class {{ class }} extends Present
+{
+
+    /**
+     * Present the model
+     *
+     * @return void
+     */
+    public function present()
+    {
+        $this->id();
+        $this->timestamps();
+    }
+
+}
