@@ -3,6 +3,7 @@
 namespace Rapid\Laplus\Commands;
 
 use Illuminate\Support\Facades\File;
+use Rapid\Laplus\Present\Generate\MigrationGenerator;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand('laplus:regenerate')]

@@ -245,7 +245,7 @@ class MigrationGenerator
             // Table is not exists -> Drop table
             if (!isset($this->tables[$name]))
             {
-                if ($this->includeDropTables && !in_array($name, ['password_reset_tokens', 'sessions']))
+                if ($this->includeDropTables && !in_array($name, ['password_reset_tokens', 'sessions', 'cache', 'cache_locks', 'jobs', 'job_batches', 'failed_jobs']))
                 {
                     $migrations["{$date()}_drop_{$name}_table"] = [
                         'table'   => $name,

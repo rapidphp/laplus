@@ -45,7 +45,7 @@ abstract class LaplusBaseResourceCommand extends Command
             $resource = Laplus::getResources();
             if (!$resource)
             {
-                $this->error("Missing resource configuration. fill 'laplus.resource' config");
+                $this->error("Missing resource configuration. fill 'laplus.resources' config");
                 return 1;
             }
 
