@@ -8,18 +8,17 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\ColumnDefinition;
 use Rapid\Laplus\Present\Present;
 
-class BelongsTo extends Attribute
+class BelongsToAttr extends Column
 {
     public function __construct(
         public Model $related,
         string $foreignKey,
         public string $ownerKey,
         public string $relationName,
-        public string $columnType,
+        string $columnType,
     )
     {
-        parent::__construct($foreignKey);
-        $this->fillable = true;
+        parent::__construct($foreignKey, $columnType);
     }
 
     /**
@@ -32,7 +31,13 @@ class BelongsTo extends Attribute
     {
         parent::boot($present);
 
-        $present->instance::resolveRelationUsing($this->relationName, $this->getRelation(...));
+        if ($this->includeAttr)
+        {
+            $present->instance::resolveRelationUsing(
+                $this->relationName,
+                $this->getRelation(...),
+            );
+        }
     }
 
     /**
@@ -47,14 +52,10 @@ class BelongsTo extends Attribute
 
         $table = $present->getGeneratingBlueprint();
 
-        /** @var ColumnDefinition $column */
-        $table->{$this->columnType}($this->name)
-            ->nullable($this->nullable);
-
         $table->foreign($this->name)
             ->references($this->ownerKey)
             ->on($this->related->getTable())
-            ->onDelete($this->onDelete);
+            ->onDelete($this->onDelete ?? 'restrict');
     }
 
     /**
@@ -73,18 +74,31 @@ class BelongsTo extends Attribute
     }
 
 
-
-    protected bool $nullable = false;
-
+    /**
+     * Make foreign key and relation nullable
+     *
+     * @param bool $value
+     * @return BelongsToAttr
+     */
     public function nullable(bool $value = true)
     {
-        $this->nullable = $value;
-        return $this;
+        if (is_null($this->onDelete))
+        {
+            $this->nullOnDelete();
+        }
+
+        return parent::nullable($value);
     }
 
 
     protected $withDefault = false;
 
+    /**
+     * Set default value
+     *
+     * @param array|Closure|bool $callback
+     * @return $this
+     */
     public function withDefault(array|Closure|bool $callback = true)
     {
         $this->withDefault = $callback;
@@ -92,8 +106,13 @@ class BelongsTo extends Attribute
     }
 
 
-    protected string $onDelete = 'restrict';
+    protected ?string $onDelete = null;
 
+    /**
+     * Cascade on delete
+     *
+     * @return $this
+     */
     public function cascadeOnDelete()
     {
         $this->onDelete = 'cascade';
@@ -101,6 +120,11 @@ class BelongsTo extends Attribute
         return $this;
     }
 
+    /**
+     * Set null on delete
+     *
+     * @return $this
+     */
     public function nullOnDelete()
     {
         $this->nullable();
@@ -109,6 +133,11 @@ class BelongsTo extends Attribute
         return $this;
     }
 
+    /**
+     * No action on delete
+     *
+     * @return $this
+     */
     public function noActionOnDelete()
     {
         $this->onDelete = 'no action';
@@ -116,6 +145,11 @@ class BelongsTo extends Attribute
         return $this;
     }
 
+    /**
+     * Restrict on delete
+     *
+     * @return $this
+     */
     public function restrictOnDelete()
     {
         $this->onDelete = 'restrict';
@@ -155,6 +189,33 @@ class BelongsTo extends Attribute
         }
 
         return $arg;
+    }
+
+    
+    protected $includeAttr = true;
+
+    /**
+     * Include creating relation attribute in the model
+     * 
+     * @param bool $value
+     * @return $this
+     */
+    public function includeAttr(bool $value = true)
+    {
+        $this->includeAttr = $value;
+        return $this;
+    }
+
+    /**
+     * Exclude creating relation attribute in the model (only foreign key)
+     *
+     * @param bool $value
+     * @return $this
+     */
+    public function excludeAttr(bool $value = true)
+    {
+        $this->includeAttr = !$value;
+        return $this;
     }
 
 }

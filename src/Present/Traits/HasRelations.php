@@ -5,10 +5,16 @@ namespace Rapid\Laplus\Present\Traits;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Rapid\Laplus\Present\Attributes\BelongsTo;
-use Rapid\Laplus\Present\Attributes\BelongsToMany;
-use Rapid\Laplus\Present\Attributes\HasMany;
-use Rapid\Laplus\Present\Attributes\HasOne;
+use Rapid\Laplus\Present\Attributes\BelongsToAttr;
+use Rapid\Laplus\Present\Attributes\BelongsToManyAttr;
+use Rapid\Laplus\Present\Attributes\HasManyAttr;
+use Rapid\Laplus\Present\Attributes\HasManyThroughAttr;
+use Rapid\Laplus\Present\Attributes\HasOneAttr;
+use Rapid\Laplus\Present\Attributes\HasOneThroughAttr;
+use Rapid\Laplus\Present\Attributes\MorphManyAttr;
+use Rapid\Laplus\Present\Attributes\MorphOneAttr;
+use Rapid\Laplus\Present\Attributes\MorphsAttr;
+use Rapid\Laplus\Present\Attributes\MorphToManyAttr;
 
 trait HasRelations
 {
@@ -26,7 +32,7 @@ trait HasRelations
      * @param string|null $foreignKey
      * @param string|null $ownerKey
      * @param string      $columnType
-     * @return BelongsTo
+     * @return BelongsToAttr
      */
     public function belongsTo(string $model, string $relation = null, string $foreignKey = null, string $ownerKey = null, string $columnType = 'unsignedBigInteger')
     {
@@ -37,8 +43,22 @@ trait HasRelations
         $foreignKey ??= isset($relation) || isset($ownerKey) ? $relationR . '_' . $ownerKeyR : $model->getForeignKey();
 
         return $this->attribute(
-            new BelongsTo($model, $foreignKey, $ownerKeyR, $relationR, $columnType)
+            new BelongsToAttr($model, $foreignKey, $ownerKeyR, $relationR, $columnType)
         );
+    }
+
+    /**
+     * Create a foreign key
+     *
+     * @param string      $model
+     * @param string|null $foreignKey
+     * @param string|null $ownerKey
+     * @param string      $columnType
+     * @return BelongsToAttr
+     */
+    public function foreignTo(string $model, string $foreignKey = null, string $ownerKey = null, string $columnType = 'unsignedBigInteger')
+    {
+        return $this->belongsTo($model, '', $foreignKey, $ownerKey, $columnType)->excludeAttr();
     }
 
     /**
@@ -48,7 +68,7 @@ trait HasRelations
      * @param string|null $relation
      * @param string|null $foreignKey
      * @param string|null $localKey
-     * @return HasOne
+     * @return HasOneAttr
      */
     public function hasOne(string $model, string $relation = null, string $foreignKey = null, string $localKey = null)
     {
@@ -58,7 +78,7 @@ trait HasRelations
         $foreignKey ??= $this->instance->getForeignKey();
         $relation ??= Str::camel(class_basename($model));
 
-        return $this->attribute(new HasOne($model, $foreignKey, $localKey, $relation));
+        return $this->attribute(new HasOneAttr($model, $foreignKey, $localKey, $relation));
     }
 
     /**
@@ -68,7 +88,7 @@ trait HasRelations
      * @param string|null $relation
      * @param string|null $foreignKey
      * @param string|null $localKey
-     * @return HasMany
+     * @return HasManyAttr
      */
     public function hasMany(string $model, string $relation = null, string $foreignKey = null, string $localKey = null)
     {
@@ -78,7 +98,7 @@ trait HasRelations
         $foreignKey ??= $this->instance->getForeignKey();
         $relation ??= Str::camel(Str::plural(class_basename($model)));
 
-        return $this->attribute(new HasMany($model, $foreignKey, $localKey, $relation));
+        return $this->attribute(new HasManyAttr($model, $foreignKey, $localKey, $relation));
     }
 
     /**
@@ -86,17 +106,17 @@ trait HasRelations
      *
      * @param string      $model
      * @param string|null $relation
-     * @param string|null $table
+     * @param string|null $pivot
      * @param string|null $foreignPivotKey
      * @param string|null $relatedPivotKey
      * @param string|null $parentKey
      * @param string|null $relatedKey
-     * @return BelongsToMany
+     * @return BelongsToManyAttr
      */
     public function belongsToMany(
         string $model,
         string $relation = null,
-        string $table = null,
+        string $pivot = null,
         string $foreignPivotKey = null,
         string $relatedPivotKey = null,
         string $parentKey = null,
@@ -104,12 +124,201 @@ trait HasRelations
     )
     {
         $model = $model::getPresentInstance();
+        if (isset($pivot)) $pivot = $pivot::getPresentInstance();
 
         $relation ??= Str::camel(Str::plural(class_basename($model)));
 
         return $this->attribute(
-            new BelongsToMany($model, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $relation)
+            new BelongsToManyAttr($model, $pivot, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $relation)
         );
     }
 
+    /**
+     * Create new hasOneThrough relationship
+     *
+     * @param string      $related
+     * @param string      $through
+     * @param string|null $relation
+     * @param string|null $firstKey
+     * @param string|null $secondKey
+     * @param string|null $localKey
+     * @param string|null $secondLocalKey
+     * @return HasOneThroughAttr
+     */
+    public function hasOneThrough(
+        string $related,
+        string $through,
+        string $relation = null,
+        string $firstKey = null,
+        string $secondKey = null,
+        string $localKey = null,
+        string $secondLocalKey = null
+    )
+    {
+        $related = $related::getPresentInstance();
+        $through = $through::getPresentInstance();
+
+        $localKey ??= $this->instance->getKeyName();
+        $secondLocalKey ??= $through->getKeyName();
+        $firstKey ??= $this->instance->getForeignKey();
+        $secondKey ??= $through->getForeignKey();
+
+        $relation ??= Str::camel(class_basename($through)) . Str::camel(class_basename($related));
+
+        return $this->attribute(
+            new HasOneThroughAttr($related, $through, $firstKey, $secondKey, $localKey, $secondLocalKey, $relation)
+        );
+    }
+
+    /**
+     * Create new hasManyThrough relationship
+     *
+     * @param string      $related
+     * @param string      $through
+     * @param string|null $relation
+     * @param string|null $firstKey
+     * @param string|null $secondKey
+     * @param string|null $localKey
+     * @param string|null $secondLocalKey
+     * @return HasManyThroughAttr
+     */
+    public function hasManyThrough(
+        string $related,
+        string $through,
+        string $relation = null,
+        string $firstKey = null,
+        string $secondKey = null,
+        string $localKey = null,
+        string $secondLocalKey = null,
+    )
+    {
+        $related = $related::getPresentInstance();
+        $through = $through::getPresentInstance();
+
+        $localKey ??= $this->instance->getKeyName();
+        $secondLocalKey ??= $through->getKeyName();
+        $firstKey ??= $this->instance->getForeignKey();
+        $secondKey ??= $through->getForeignKey();
+
+        $relation ??= Str::camel(class_basename($through)) . Str::camel(Str::plural(class_basename($related)));
+
+        return $this->attribute(
+            new HasManyThroughAttr($related, $through, $firstKey, $secondKey, $localKey, $secondLocalKey, $relation)
+        );
+    }
+
+    /**
+     * Define morphs columns and relationship
+     *
+     * @param string      $name
+     * @param string|null $relation
+     * @param string|null $indexName
+     * @return MorphsAttr
+     */
+    public function morphs(string $name, string $relation = null, string $indexName = null)
+    {
+        $relation ??= $name;
+
+        return $this->attribute(
+            new MorphsAttr($name, $relation, $indexName)
+        );
+    }
+
+    /**
+     * Create new morphMany relationship
+     *
+     * @param string $related
+     * @param string $name
+     * @param string $relation
+     * @return MorphManyAttr
+     */
+    public function morphMany(string $related, string $name, string $relation)
+    {
+        $related = $related::getPresentInstance();
+
+        return $this->attribute(
+            new MorphManyAttr($related, $name, $relation)
+        );
+    }
+
+    /**
+     * Create new morphOne relationship
+     *
+     * @param string $related
+     * @param string $name
+     * @param string $relation
+     * @return MorphOneAttr
+     */
+    public function morphOne(string $related, string $name, string $relation)
+    {
+        $related = $related::getPresentInstance();
+
+        return $this->attribute(
+            new MorphOneAttr($related, $name, $relation)
+        );
+    }
+
+    /**
+     * Create new morphToMany relationship
+     *
+     * @param string      $related
+     * @param string      $name
+     * @param string      $relation
+     * @param string|null $pivot
+     * @param string|null $foreignPivotKey
+     * @param string|null $relatedPivotKey
+     * @param string|null $parentKey
+     * @param string|null $relatedKey
+     * @param bool        $inverse
+     * @return MorphToManyAttr
+     */
+    public function morphToMany(
+        string $related, string $name, string $relation, string $pivot = null, string $foreignPivotKey = null,
+        string $relatedPivotKey = null, string $parentKey = null,
+        string $relatedKey = null, bool $inverse = false
+    )
+    {
+        $related = $related::getPresentInstance();
+        $pivot = $pivot::getPresentInstance();
+
+        return $this->attribute(
+            new MorphToManyAttr(
+                $related, $name, $relation, $pivot,
+                $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $inverse,
+            )
+        );
+    }
+
+    /**
+     * Create new morphedByMany relationship
+     *
+     * @param string      $related
+     * @param string      $name
+     * @param string      $relation
+     * @param string|null $pivot
+     * @param string|null $foreignPivotKey
+     * @param string|null $relatedPivotKey
+     * @param string|null $parentKey
+     * @param string|null $relatedKey
+     * @return MorphToManyAttr
+     */
+    public function morphedByMany(
+        string $related, string $name, string $relation, string $pivot = null, string $foreignPivotKey = null,
+        string $relatedPivotKey = null, string $parentKey = null,
+        string $relatedKey = null
+    )
+    {
+        $related = $related::getPresentInstance();
+        $pivot = $pivot::getPresentInstance();
+
+        $foreignPivotKey ??= $this->instance->getForeignKey();
+        $relatedPivotKey ??= $name.'_id';
+
+        return $this->attribute(
+            new MorphToManyAttr(
+                $related, $name, $relation, $pivot,
+                $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, true,
+            )
+        );
+    }
 }

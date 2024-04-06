@@ -5,11 +5,13 @@ namespace Rapid\Laplus\Present;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Support\Traits\Macroable;
 use Rapid\Laplus\Present\Attributes\Attribute;
 use Rapid\Laplus\Present\Attributes\Column;
 
 abstract class Present
 {
+    use Macroable;
     use Traits\HasColumns,
         Traits\HasRelations,
         Traits\HasGenerations;
@@ -22,6 +24,7 @@ abstract class Present
     }
 
     public array $fillable;
+    public array $hidden;
     public array $casts;
     public array $getters;
     public array $setters;
@@ -34,6 +37,7 @@ abstract class Present
     public function collectPresent()
     {
         $this->fillable = [];
+        $this->hidden = [];
         $this->casts = [];
         $this->getters = [];
         $this->setters = [];
@@ -45,6 +49,10 @@ abstract class Present
             if ($attribute->isFillable())
             {
                 $this->fillable[] = $attribute->name;
+            }
+            if ($attribute->isHidden())
+            {
+                $this->hidden[] = $attribute->name;
             }
             if ($cast = $attribute->getCast())
             {
@@ -125,6 +133,11 @@ abstract class Present
         if (is_string($attribute))
         {
             $attribute = new Attribute($attribute);
+        }
+
+        if (array_key_exists($attribute->name, $this->attributes))
+        {
+            throw new \InvalidArgumentException("Duplicated attribute name [$attribute->name]");
         }
 
         if (isset($get))
@@ -237,6 +250,18 @@ abstract class Present
     public static function getPresentOfType(Model $model, string $class)
     {
         return static::$presents_model_cache[$class] ??= new $class($model);
+    }
+
+    /**
+     * Make inline present
+     *
+     * @param Model $instance
+     * @param       $callback `function(Present $present)`
+     * @return InlinePresent
+     */
+    public static function inline(Model $instance, $callback)
+    {
+        return new InlinePresent($instance, $callback);
     }
 
 }

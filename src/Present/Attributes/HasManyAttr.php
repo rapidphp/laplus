@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Rapid\Laplus\Present\Present;
 
-class HasOne extends Attribute
+class HasManyAttr extends Attribute
 {
 
     public function __construct(
@@ -36,32 +36,17 @@ class HasOne extends Attribute
      * Get relation value
      *
      * @param Model $model
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function getRelation(Model $model)
     {
         return $this->fireUsing(
-            $model->hasOne($this->related::class, $this->foreignKey, $this->localKey)
-                ->withDefault($this->withDefault),
+            $model->hasMany($this->related::class, $this->foreignKey, $this->localKey),
             $model
         );
     }
 
 
-
-    protected $withDefault = false;
-
-    /**
-     * Set default value
-     *
-     * @param array|Closure|bool $callback
-     * @return $this
-     */
-    public function withDefault(array|Closure|bool $callback = true)
-    {
-        $this->withDefault = $callback;
-        return $this;
-    }
 
 
     protected array $using = [];
@@ -69,7 +54,7 @@ class HasOne extends Attribute
     /**
      * Fire callback when creating relation
      *
-     * `fn (HasOne $relation) => $relation`
+     * `fn (HasMany $relation) => $relation`
      *
      * @param $callback
      * @return $this

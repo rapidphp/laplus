@@ -4,6 +4,7 @@ namespace Rapid\Laplus\Present\Traits;
 
 use Closure;
 use Rapid\Laplus\Present\Attributes\Column;
+use Rapid\Laplus\Present\Attributes\FileColumn;
 
 trait HasColumns
 {
@@ -316,6 +317,23 @@ trait HasColumns
     public function computed(string $column, $expression)
     {
         return $this->column($column, 'computed', $expression);
+    }
+
+    public function rememberToken()
+    {
+        return $this->string('remember_token', 100)->nullable();
+    }
+
+
+    /**
+     * Create new file column
+     *
+     * @param string $column
+     * @return FileColumn
+     */
+    public function file(string $column)
+    {
+        return $this->attribute(new FileColumn($column));
     }
 
 }

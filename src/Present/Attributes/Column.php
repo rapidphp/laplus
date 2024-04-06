@@ -28,11 +28,11 @@ class Column extends Attribute
 
         if (is_string($this->createUsingMethod))
         {
-            $column = $table->{$this->createUsingMethod}($this->name, ...$this->createUsingArgs);
+            $column = $table->{$this->createUsingMethod}(...$this->createUsingArgs);
         }
         else
         {
-            $column = ($this->createUsingMethod)($table, $this->name, ...$this->createUsingArgs);
+            $column = ($this->createUsingMethod)($table, ...$this->createUsingArgs);
         }
 
         foreach ($this->columnData as $method => $arg)

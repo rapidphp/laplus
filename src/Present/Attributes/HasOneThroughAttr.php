@@ -2,20 +2,21 @@
 
 namespace Rapid\Laplus\Present\Attributes;
 
+use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Rapid\Laplus\Present\Present;
 
-class BelongsToMany extends Attribute
+class HasOneThroughAttr extends Attribute
 {
 
     public function __construct(
         public Model $related,
-        public ?string $table = null,
-        public ?string $foreignPivotKey = null,
-        public ?string $relatedPivotKey = null,
-        public ?string $parentKey = null,
-        public ?string $relatedKey = null,
-        string $relationName = '',
+        public Model $through,
+        public string $firstKey,
+        public string $secondKey,
+        public string $localKey,
+        public string $secondLocalKey,
+        string $relationName,
     )
     {
         parent::__construct($relationName);
@@ -38,16 +39,32 @@ class BelongsToMany extends Attribute
      * Get relation value
      *
      * @param Model $model
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
      */
     public function getRelation(Model $model)
     {
         return $this->fireUsing(
-            $model->belongsToMany($this->related::class, $this->table, $this->foreignPivotKey, $this->relatedPivotKey, $this->parentKey, $this->relatedKey, $this->name),
+            $model->hasOneThrough($this->related::class, $this->through::class, $this->firstKey, $this->secondKey, $this->localKey, $this->secondLocalKey)
+                ->withDefault($this->withDefault),
             $model
         );
     }
 
+
+
+    protected $withDefault = false;
+
+    /**
+     * Set default value
+     *
+     * @param array|Closure|bool $callback
+     * @return $this
+     */
+    public function withDefault(array|Closure|bool $callback = true)
+    {
+        $this->withDefault = $callback;
+        return $this;
+    }
 
 
     protected array $using = [];
@@ -55,7 +72,7 @@ class BelongsToMany extends Attribute
     /**
      * Fire callback when creating relation
      *
-     * `fn (BelongsToMany $relation) => $relation`
+     * `fn (HasOneThrough $relation) => $relation`
      *
      * @param $callback
      * @return $this

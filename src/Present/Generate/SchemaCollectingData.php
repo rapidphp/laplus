@@ -62,12 +62,14 @@ class SchemaCollectingData
                 case 'index':
                 case 'fulltext':
                 case 'primary':
+                case 'foreign':
                     $this->tables[$tableName]['indexes'][$command->index] = $command;
                     break;
 
                 case 'dropIndex':
                 case 'dropFullText':
                 case 'dropPrimary':
+                case 'dropForeign':
                     unset($this->tables[$tableName]['indexes'][$command->index]);
                     break;
 

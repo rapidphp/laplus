@@ -2,17 +2,15 @@
 
 namespace Rapid\Laplus\Present\Attributes;
 
-use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Rapid\Laplus\Present\Present;
 
-class HasMany extends Attribute
+class MorphManyAttr extends Attribute
 {
 
     public function __construct(
         public Model $related,
-        public string $foreignKey,
-        public string $localKey,
+        public string $morphName,
         string $relationName,
     )
     {
@@ -36,32 +34,16 @@ class HasMany extends Attribute
      * Get relation value
      *
      * @param Model $model
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function getRelation(Model $model)
     {
         return $this->fireUsing(
-            $model->hasMany($this->related::class, $this->foreignKey, $this->localKey)
-                ->withDefault($this->withDefault),
+            $model->morphMany($this->related::class, $this->morphName),
             $model
         );
     }
 
-
-
-    protected $withDefault = false;
-
-    /**
-     * Set default value
-     *
-     * @param array|Closure|bool $callback
-     * @return $this
-     */
-    public function withDefault(array|Closure|bool $callback = true)
-    {
-        $this->withDefault = $callback;
-        return $this;
-    }
 
 
     protected array $using = [];
@@ -69,7 +51,7 @@ class HasMany extends Attribute
     /**
      * Fire callback when creating relation
      *
-     * `fn (HasMany $relation) => $relation`
+     * `fn (MorphMany $relation) => $relation`
      *
      * @param $callback
      * @return $this

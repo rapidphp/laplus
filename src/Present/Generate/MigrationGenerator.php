@@ -344,7 +344,7 @@ class MigrationGenerator
 
     public function generateMigrationStubs(array $files)
     {
-        $stub = file_get_contents(__DIR__ . '/stubs/migration.stub');
+        $stub = file_get_contents(__DIR__ . '/../../Commands/stubs/migration.stub');
 
         foreach ($files as $name => $value)
         {

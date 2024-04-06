@@ -7,7 +7,7 @@ use Rapid\Laplus\Present\Generate\MigrationGenerator;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand('laplus:regenerate')]
-class LaplusRegenerateCommand extends LaplusBaseResourceCommand
+class LaplusRegenerateCommand extends LaplusGenerateCommand
 {
 
     /**
@@ -36,31 +36,16 @@ class LaplusRegenerateCommand extends LaplusBaseResourceCommand
 
     public function generate(string $modelPath, string $migrationPath)
     {
-        $generator = new MigrationGenerator();
-
-        // Pass models & generate new migrations
-        $generator->pass(iterator_to_array($this->discoverModels($modelPath)));
-        $files = $generator->generateMigrationFiles();
-        $stubs = $generator->generateMigrationStubs($files);
-
         // Delete old migrations
         foreach (glob($migrationPath . '/*') as $path)
         {
-            if (!is_dir($path))
+            if (!is_dir($path) && !str_contains($path, '0001_01_01'))
             {
                 @unlink($path);
             }
         }
 
-        // Save new migrations
-        foreach ($stubs as $name => $stub)
-        {
-            file_put_contents("$migrationPath/$name.php", $stub);
-        }
-
-        $this->output->success("Migrations generated successfully!");
-
-        return 0;
+        return parent::generate($modelPath, $migrationPath);
     }
 
 }
