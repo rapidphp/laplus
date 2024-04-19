@@ -11,12 +11,12 @@ class FileColumn extends Column
 
     public function __construct(string $name)
     {
-        parent::__construct($name, 'text');
+        parent::__construct($name, 'text', [$name]);
 
-        $this->castUsing(
-            get: $this->getFileValue(...),
-            set: $this->setFileValue(...),
-        );
+        // $this->castUsing(
+        //     get: $this->getFileValue(...),
+        //     set: $this->setFileValue(...),
+        // );
     }
 
     /**
@@ -36,6 +36,25 @@ class FileColumn extends Column
                 $model->getAttribute($this->name)->delete();
             });
         }
+
+        // if (isset($this->withNameAttribute))
+        // {
+        //     $present->getters[$this->withNameAttribute] = function ($value, Model $model)
+        //     {
+        //         $file = $model->getAttribute($this->name);
+        //         if (is_object($file))
+        //         {
+        //             return $file->name;
+        //         }
+        //
+        //         return (string) $file;
+        //     };
+        //
+        //     $present->setters[$this->withNameAttribute] = function ($value, Model $model)
+        //     {
+        //         $model->setAttribute($this->name, $value);
+        //     };
+        // }
     }
 
 
@@ -72,6 +91,22 @@ class FileColumn extends Column
     {
         return $this->urlUsing;
     }
+
+
+    // protected ?string $withNameAttribute = null;
+    //
+    // /**
+    //  * Add file name attribute to access the string file value.
+    //  *
+    //  * @param string|null $attribute
+    //  * @return $this
+    //  */
+    // public function withName(string $attribute = null)
+    // {
+    //     $this->withNameAttribute = $attribute ?? $this->name . '_name';
+    //
+    //     return $this;
+    // }
 
 
 

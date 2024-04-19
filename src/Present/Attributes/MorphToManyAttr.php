@@ -46,7 +46,7 @@ class MorphToManyAttr extends Attribute
     {
         return $this->fireUsing(
             $model->morphToMany(
-                $this->related::class, $this->morphName, $this->pivot->getTable(),
+                $this->related::class, $this->morphName, $this->pivot?->getTable(),
                 $this->foreignPivotKey, $this->relatedPivotKey, $this->parentKey,
                 $this->relatedKey, $this->name,
                 $this->inverse,

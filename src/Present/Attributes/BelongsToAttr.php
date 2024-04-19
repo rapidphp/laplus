@@ -74,22 +74,6 @@ class BelongsToAttr extends Column
     }
 
 
-    /**
-     * Make foreign key and relation nullable
-     *
-     * @param bool $value
-     * @return BelongsToAttr
-     */
-    public function nullable(bool $value = true)
-    {
-        if (is_null($this->onDelete))
-        {
-            $this->nullOnDelete();
-        }
-
-        return parent::nullable($value);
-    }
-
 
     protected $withDefault = false;
 

@@ -4,6 +4,7 @@ namespace Rapid\Laplus\Present;
 
 use Illuminate\Database\Eloquent\Model;
 use Rapid\Laplus\Present\Attributes\Attribute;
+use Rapid\Laplus\Present\Attributes\FileColumn;
 
 trait HasPresent
 {
@@ -169,5 +170,21 @@ trait HasPresent
     }
 
 
+    /**
+     * Get file value
+     *
+     * @param string $attribute
+     * @return Types\File
+     */
+    public function file(string $attribute)
+    {
+        $attr = $this->getPresentObject()->getAttribute($attribute);
+        if ($attr instanceof FileColumn)
+        {
+            return $attr->getFileValue($this->getAttribute($attribute), $this);
+        }
+
+        throw new \InvalidArgumentException("Attribute [{$attribute}] should be a File");
+    }
 
 }

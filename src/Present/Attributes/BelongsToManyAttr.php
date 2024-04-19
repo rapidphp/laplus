@@ -43,7 +43,7 @@ class BelongsToManyAttr extends Attribute
     public function getRelation(Model $model)
     {
         return $this->fireUsing(
-            $model->belongsToMany($this->related::class, $this->pivot->getTable(), $this->foreignPivotKey, $this->relatedPivotKey, $this->parentKey, $this->relatedKey, $this->name),
+            $model->belongsToMany($this->related::class, $this->pivot?->getTable(), $this->foreignPivotKey, $this->relatedPivotKey, $this->parentKey, $this->relatedKey, $this->name),
             $model
         );
     }

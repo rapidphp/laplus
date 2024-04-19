@@ -181,9 +181,9 @@ $this->file('image')->disk('images');
 
 Now you can work with the file like this:
 ```php
-$url = $model->image->url();
-$path = $model->image->path();
-$model->image->delete();
+$url = $model->file('image')->url();
+$path = $model->file('image')->path();
+$model->file('image')->delete();
 ```
 
 #### Customize url & download:
@@ -200,7 +200,7 @@ class DownloadController extends Controller
 {
     public function download(Model $model)
     {
-        return $model->image->download();
+        return $model->file('image')->download();
     }
 }
 ```

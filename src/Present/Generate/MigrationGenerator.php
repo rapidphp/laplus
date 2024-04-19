@@ -495,11 +495,15 @@ class MigrationGenerator
 
     protected function writeColumn(Fluent $fluent, bool $change = false)
     {
-        $code = "\$table->{$fluent->type}({$this->writeObject($fluent->name)})";
+        $code = match ($fluent->type)
+        {
+            'enum' => "\$table->enum({$this->writeObject($fluent->name)}, {$this->writeObject($fluent->allowed)})",
+            default => "\$table->{$fluent->type}({$this->writeObject($fluent->name)})",
+        };
 
         foreach ($fluent->getAttributes() as $key => $value)
         {
-            if ($key == 'type' || $key == 'name' || $key == 'change')
+            if (in_array($key, ['type', 'name', 'change', 'allowed']))
                 continue;
 
             if ($value === false || $value === null)
@@ -595,6 +599,9 @@ class MigrationGenerator
         $filter = fn ($value) => $value !== null && $value !== false;
         $left = array_filter($left->getAttributes(), $filter);
         $right = array_filter($right->getAttributes(), $filter);
+
+        Arr::forget($left, ['change']);
+        Arr::forget($right, ['change']);
 
         asort($left);
         asort($right);

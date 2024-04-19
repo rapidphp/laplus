@@ -5,6 +5,7 @@ namespace Rapid\Laplus\Present\Types;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File as FileManager;
 use Illuminate\Support\Facades\Storage;
+use JsonSerializable;
 use Rapid\Laplus\Present\Attributes\FileColumn;
 
 class File
