@@ -4,6 +4,7 @@ namespace Rapid\Laplus\Commands;
 
 use Illuminate\Foundation\Console\ModelMakeCommand;
 use Illuminate\Support\Str;
+use Symfony\Component\Console\Input\InputOption;
 
 class LaplusModelMakeCommand extends ModelMakeCommand
 {
@@ -26,23 +27,41 @@ class LaplusModelMakeCommand extends ModelMakeCommand
      */
     protected function createPresent()
     {
-        $controller = Str::studly(class_basename($this->argument('name')));
+        if (!$this->option('inline'))
+        {
+            $controller = Str::studly(class_basename($this->argument('name')));
 
-        $modelName = $this->qualifyClass($this->getNameInput());
+            $modelName = $this->qualifyClass($this->getNameInput());
 
-        $this->call('make:present', array_filter([
-            'name' => "{$controller}Present",
-            // '--model' => $this->option('resource') || $this->option('api') ? $modelName : null,
-            // '--api' => $this->option('api'),
-            // '--requests' => $this->option('requests') || $this->option('all'),
-            // '--test' => $this->option('test'),
-            // '--pest' => $this->option('pest'),
-        ]));
+            $this->call('make:present', array_filter([
+                'name' => "{$controller}Present",
+                // '--model' => $this->option('resource') || $this->option('api') ? $modelName : null,
+                // '--api' => $this->option('api'),
+                // '--requests' => $this->option('requests') || $this->option('all'),
+                // '--test' => $this->option('test'),
+                // '--pest' => $this->option('pest'),
+            ]));
+        }
     }
 
     protected function getStub()
     {
-        return __DIR__ . '/stubs/model.stub';
+        if ($this->option('inline'))
+        {
+            return __DIR__ . '/stubs/model-inline.stub';
+        }
+        else
+        {
+            return __DIR__ . '/stubs/model.stub';
+        }
+    }
+
+    protected function getOptions()
+    {
+        return [
+            ...parent::getOptions(),
+            ['inline', 'i', InputOption::VALUE_NONE, 'Make present inline'],
+        ];
     }
 
 }

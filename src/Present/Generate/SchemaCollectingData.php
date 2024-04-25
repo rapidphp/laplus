@@ -107,4 +107,9 @@ class SchemaCollectingData
         }
     }
 
+    public function drop(string $tableName)
+    {
+        unset($this->tables[$tableName]);
+    }
+
 }

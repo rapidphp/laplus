@@ -18,7 +18,7 @@ class BelongsToAttr extends Column
         string $columnType,
     )
     {
-        parent::__construct($foreignKey, $columnType);
+        parent::__construct($foreignKey, $columnType, [$foreignKey]);
     }
 
     /**

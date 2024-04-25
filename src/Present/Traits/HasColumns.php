@@ -5,6 +5,7 @@ namespace Rapid\Laplus\Present\Traits;
 use Closure;
 use Rapid\Laplus\Present\Attributes\Column;
 use Rapid\Laplus\Present\Attributes\FileColumn;
+use Rapid\Laplus\Present\Attributes\SlugColumn;
 
 trait HasColumns
 {
@@ -334,6 +335,18 @@ trait HasColumns
     public function file(string $column)
     {
         return $this->attribute(new FileColumn($column));
+    }
+
+    /**
+     * Create new slug column
+     *
+     * @param string $column
+     * @param string $use
+     * @return SlugColumn
+     */
+    public function slug(string $column, string $use = 'title')
+    {
+        return $this->attribute(new SlugColumn($column, 'text', [$column]))->use($use);
     }
 
 }

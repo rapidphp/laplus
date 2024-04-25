@@ -1,20 +1,19 @@
 <?php
 
-namespace Rapid\Laplus\src;
+namespace {{ namespace }};
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
 
-class Test extends Model
+class {{ class }} extends Model
 {
-    use HasPresent;
+    use HasFactory, HasPresent;
 
     public function present(Present $present)
     {
         $present->id();
-        $present->file('image');
         $present->timestamps();
     }
-
 }

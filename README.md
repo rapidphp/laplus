@@ -57,6 +57,15 @@ php artisan make:model-laplus Name
 This command will create `app/Models/Name.php` model and `app/Presents/NamePresent.php` present.
 
 
+## Make model with inline present
+You can use this command to create a model with inline present:
+```shell
+php artisan make:model-laplus Name --inline
+```
+
+This command will create `app/Models/Name.php` model.
+
+
 ## Customize model present
 - If you want to set the target present using class name, you can override method `getPresentClass`:
 ```php
