@@ -38,6 +38,9 @@ class LaplusGenerateCommand extends LaplusBaseResourceCommand
         // Pass models
         $generator->pass(iterator_to_array($this->discoverModels($modelPath)));
 
+        // Create folders
+        $this->makeReadyToWrite($migrationPath);
+
         // Generate different & migrations
         $files = $generator->generateMigrationFiles();
         foreach ($generator->generateMigrationStubs($files) as $name => $stub)

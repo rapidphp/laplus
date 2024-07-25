@@ -5,6 +5,7 @@ namespace Rapid\Laplus\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Str;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Laplus;
 
@@ -146,6 +147,19 @@ abstract class LaplusBaseResourceCommand extends Command
                 }
             }
         }
+    }
+
+    protected function makeReadyToWrite(string $path)
+    {
+        if (file_exists($path)) return;
+
+        $path = str_replace('\\', '/', $path);
+        if (substr_count($path, '/') > 2)
+        {
+            $this->makeReadyToWrite(Str::beforeLast($path, '/'));
+        }
+
+        @mkdir($path);
     }
 
 }
