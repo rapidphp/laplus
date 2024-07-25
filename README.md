@@ -1,5 +1,5 @@
 # Laplus
-Laravel plus+ add presentation for your models!
+Laravel plus+ add presentation for your models.
 
 ```php
 public function present()
