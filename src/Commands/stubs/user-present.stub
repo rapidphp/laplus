@@ -19,8 +19,8 @@ class {{ class }} extends Present
         $this->string('name');
         $this->string('email')->unique();
         $this->timestamp('email_verified_at')->nullable();
-        $this->string('password')->cast('hashed')->hidden();
-        $this->rememberToken()->hidden();
+        $this->password();
+        $this->rememberToken();
         $this->timestamps();
     }
 
