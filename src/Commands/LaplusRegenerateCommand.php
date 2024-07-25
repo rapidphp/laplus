@@ -16,6 +16,7 @@ class LaplusRegenerateCommand extends LaplusGenerateCommand
      * @var string
      */
     protected $signature = 'laplus:regenerate {--migrations= : Migrations path} {--models= : Models path} {--name= : Laplus name}';
+    protected $aliases = ['regenerate+'];
 
     /**
      * The console command description.

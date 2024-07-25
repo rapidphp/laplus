@@ -10,6 +10,7 @@ class LaplusModelMakeCommand extends ModelMakeCommand
 {
 
     protected $name = 'make:model-laplus';
+    protected $aliases = ['make:model+'];
 
     public function handle()
     {

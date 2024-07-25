@@ -17,6 +17,7 @@ class LaplusMigrateCommand extends Command
      * @var string
      */
     protected $signature = 'laplus:migrate';
+    protected $aliases = ['migrate+'];
 
     /**
      * The console command description.

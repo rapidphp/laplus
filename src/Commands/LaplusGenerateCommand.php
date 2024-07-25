@@ -15,6 +15,7 @@ class LaplusGenerateCommand extends LaplusBaseResourceCommand
      * @var string
      */
     protected $signature = 'laplus:generate {--migrations= : Migrations path} {--models= : Models path} {--name= : Laplus name}';
+    protected $aliases = ['generate+'];
 
     /**
      * The console command description.
