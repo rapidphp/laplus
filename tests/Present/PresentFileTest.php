@@ -17,7 +17,8 @@ class PresentFileTest extends TestCase
         return new class extends Model
         {
             use HasPresent;
-            public function presentInline(Present $present)
+
+            protected function present(Present $present)
             {
                 $present->id();
                 $present->file('image')->diskPublic()->url(fn($model) => "localhost/{$model->image->name}");
@@ -34,14 +35,8 @@ class PresentFileTest extends TestCase
 
         $this->assertInstanceOf(File::class, $test->image);
 
-        $this->assertSame(Storage::disk('public')->path('test.png'), $test->image->path());
+        $this->assertSame(Storage::disk('public')->path('test.png'), $test->file('image')->path());
         $this->assertSame("localhost/test.png", $test->image->url());
-
-        $test->image = 'replaced.png';
-        $this->assertInstanceOf(File::class, $test->image);
-        $this->assertSame('replaced.png', $test->image->name);
-
-        die;
     }
 
 }

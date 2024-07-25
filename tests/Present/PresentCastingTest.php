@@ -17,22 +17,16 @@ class PresentCastingTest extends TestCase
         {
             use HasPresent;
 
-            public function getPresent() : Present
+            protected function present(Present $present)
             {
-                return new class extends Present
-                {
-                    protected function present()
-                    {
-                        $this->integer('int');
-                        $this->dateTime('at');
-                        $this->text('days')->castUsing(
-                            fn($value) => str_ends_with($value, ' Days') ? +substr($value, 0, -5) : 0,
-                            fn($value) => "$value Days",
-                        );
-                        $this->attribute('at_year', get: fn(Model $model) => $model->at->year);
-                        $this->enum('some', SomeEnum::class);
-                    }
-                };
+                $present->integer('int');
+                $present->dateTime('at');
+                $present->text('days')->castUsing(
+                    fn($value) => str_ends_with($value, ' Days') ? +substr($value, 0, -5) : 0,
+                    fn($value) => "$value Days",
+                );
+                $present->attribute('at_year', get: fn(Model $model) => $model->at->year);
+                $present->enum('some', SomeEnum::class);
             }
         };
     }

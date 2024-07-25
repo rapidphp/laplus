@@ -16,16 +16,10 @@ class PresentBasicTest extends TestCase
         {
             use HasPresent;
 
-            public function getPresent() : Present
+            protected function present(Present $present)
             {
-                return new class extends Present
-                {
-                    protected function present()
-                    {
-                        $this->id();
-                        $this->text('name');
-                    }
-                };
+                $present->id();
+                $present->text('name');
             }
         };
     }
