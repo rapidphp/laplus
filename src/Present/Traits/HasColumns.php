@@ -322,7 +322,12 @@ trait HasColumns
 
     public function rememberToken()
     {
-        return $this->string('remember_token', 100)->nullable();
+        return $this->string('remember_token', 100)->nullable()->hidden();
+    }
+
+    public function password(string $column = 'password')
+    {
+        return $this->string($column)->cast('hashed')->hidden();
     }
 
 
