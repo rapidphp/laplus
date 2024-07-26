@@ -273,9 +273,9 @@ How generate works?
 
 2- Then, Laplus asks all models (configured in `config/laplus.php`) to present their self.
 
-3- Then, Laplus tries to find what columns added, deleted, modified, or renamed.
+3- Then, Laplus tries to find what columns has been added, deleted, modified, or renamed.
 
-4- Finally, generate new migration files.
+4- Finally, generates new migration files.
 
 ### Regenerate Migrations
 This command is same with `generate+`, but the difference is clearing the migration folder!
