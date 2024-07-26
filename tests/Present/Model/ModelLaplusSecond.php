@@ -10,6 +10,8 @@ class ModelLaplusSecond extends Model
 {
     use HasPresent;
 
+    protected $table = 'seconds';
+
     protected function present(Present $present)
     {
         $present->id();

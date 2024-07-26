@@ -6,16 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
 
-class ModelLaplusFirst extends Model
+class ModelLaplusPresentable extends Model
 {
     use HasPresent;
 
-    protected $table = 'firsts';
+    protected $table = 'tests';
 
     protected function present(Present $present)
     {
         $present->id();
-        $present->belongsTo(ModelLaplusSecond::class, 'second');
+        $present->text('wants_to_rename')->old('old_name');
+        $present->text('wants_to_change_type');
+        // $present->text('wants_to_remove');
     }
 
 }

@@ -5,23 +5,22 @@ namespace Rapid\Laplus\Present\Generate;
 use Closure;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Fluent;
+use Rapid\Laplus\Present\Generate\Structure\DefinedMigrationState;
+use Rapid\Laplus\Present\Generate\Structure\DefinedTableState;
 
 class SchemaCollectingData
 {
 
-    public array $tables;
+    public DefinedMigrationState $state;
 
     public function reset()
     {
-        $this->tables = [];
+        $this->state = new DefinedMigrationState();
     }
 
     public function create(string $tableName, Closure $callback)
     {
-        $this->tables[$tableName] = [
-            'columns' => [],
-            'indexes' => [],
-        ];
+        $this->state->put($tableName, new DefinedTableState());
 
         $this->table($tableName, $callback);
     }
@@ -36,26 +35,27 @@ class SchemaCollectingData
             switch ($command->name)
             {
                 case 'renameColumn':
-                    $this->tables[$tableName]['columns'][$command->to] = $this->tables[$tableName]['columns'][$command->from];
-                    $this->tables[$tableName]['columns'][$command->to]->name = $command->to;
-                    unset($this->tables[$tableName]['columns'][$command->from]);
+                    $column = $this->state->get($tableName)->columns[$command->from];
+                    $this->state->get($tableName)->columns[$command->to] = $column;
+                    $column->name = $command->to;
+                    unset($this->state->get($tableName)->columns[$command->from]);
                     $renameColumn[$command->from] = $command->to;
                     break;
 
                 case 'dropColumn':
                     foreach ($command->columns as $column)
                     {
-                        unset($this->tables[$tableName]['columns'][$column]);
+                        unset($this->state->get($tableName)->columns[$column]);
                     }
                     break;
 
                 case 'drop':
-                    unset($this->tables[$tableName]);
+                    unset($this->state->tables[$tableName]);
                     break;
 
                 case 'rename':
-                    $this->tables[$command->to] = $this->tables[$tableName];
-                    unset($this->tables[$tableName]);
+                    $this->state->put($command->to, $this->state->get($tableName));
+                    unset($this->state->tables[$tableName]);
                     $tableName = $command->to;
                     break;
 
@@ -63,34 +63,34 @@ class SchemaCollectingData
                 case 'fulltext':
                 case 'primary':
                 case 'foreign':
-                    $this->tables[$tableName]['indexes'][$command->index] = $command;
+                    $this->state->get($tableName)->indexes[$command->index] = $command;
                     break;
 
                 case 'dropIndex':
                 case 'dropFullText':
                 case 'dropPrimary':
                 case 'dropForeign':
-                    unset($this->tables[$tableName]['indexes'][$command->index]);
+                    unset($this->state->get($tableName)->indexes[$command->index]);
                     break;
 
                 case 'renameIndex':
-                    $this->tables[$tableName]['indexes'][$command->to] = $this->tables[$tableName]['indexes'][$command->from];
-                    $this->tables[$tableName]['indexes'][$command->to]->index = $command->to;
-                    unset($this->tables[$tableName]['indexes'][$command->from]);
+                    $this->state->get($tableName)->indexes[$command->to] = $this->state->get($tableName)->indexes[$command->from];
+                    $this->state->get($tableName)->indexes[$command->to]->index = $command->to;
+                    unset($this->state->tables[$tableName]->indexes[$command->from]);
                     break;
 
                 default:
-                    dd("Command", $command);
+                    dd("Command", $command); // TODO : Unknown command
             }
         }
 
         foreach ($table->getColumns() as $column)
         {
-            $this->tables[$tableName]['columns'][$column->name] = $column;
+            $this->state->get($tableName)->columns[$column->name] = $column;
 
             if ($column->primary)
             {
-                $this->tables[$tableName]['indexes'][$tableName . '_' . $column->name . '_primary'] = new Fluent([
+                $this->state->get($tableName)->indexes[$tableName . '_' . $column->name . '_primary'] = new Fluent([
                     "name" => "primary",
                     "columns" => [$column->name],
                     "algorithm" => null
@@ -98,7 +98,7 @@ class SchemaCollectingData
             }
             elseif ($column->fulltext)
             {
-                $this->tables[$tableName]['indexes'][$tableName . '_' . $column->name . '_fulltext'] = new Fluent([
+                $this->state->get($tableName)->indexes[$tableName . '_' . $column->name . '_fulltext'] = new Fluent([
                     "name" => "fulltext",
                     "columns" => [$column->name],
                     "algorithm" => null
@@ -109,7 +109,7 @@ class SchemaCollectingData
 
     public function drop(string $tableName)
     {
-        unset($this->tables[$tableName]);
+        unset($this->state->tables[$tableName]);
     }
 
 }
