@@ -29,7 +29,7 @@ trait SelectNames
 
     public function nameOfAddColumn(string $column, string $table)
     {
-        return "add_{$column}_to_{$table}";
+        return "add_{$column}_to_{$table}_table";
     }
 
     public function nameOfCreateTable(string $table)
@@ -49,17 +49,17 @@ trait SelectNames
 
     public function nameOfAddIndexes(string $table)
     {
-        return "add_indexes_to_{$table}";
+        return "add_indexes_to_{$table}_table";
     }
 
     public function nameOfRemoveIndexes(string $table)
     {
-        return "remove_indexes_from_{$table}";
+        return "remove_indexes_from_{$table}_table";
     }
 
     public function nameOfRemoveColumn(string $column, string $table)
     {
-        return "remove_{$column}_from_{$table}";
+        return "remove_{$column}_from_{$table}_table";
     }
 
 }

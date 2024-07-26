@@ -26,21 +26,41 @@ trait Finds
         $leftAttributes = $left->getAttributes();
         $rightAttributes = $right->getAttributes();
 
-        $diff = array_filter(
-            array_keys(
-                array_diff_assoc($leftAttributes, $rightAttributes) + array_diff_assoc($rightAttributes, $leftAttributes),
-            ),
-            fn ($attribute) => match ($attribute)
-            {
-                'nullable', 'autoIncrement', 'unsigned' => ($leftAttributes[$attribute] ?? false) != ($rightAttributes[$attribute] ?? false),
-                'oldNames', 'change', 'after', 'first'  => false, // Ignore this attributes
-                default                                 => true,
-            },
-        );
-
-        if (in_array('type', $diff))
+        $diff = [];
+        foreach (array_unique([...array_keys($leftAttributes), ...array_keys($rightAttributes)]) as $attribute)
         {
-            return ['type'];
+            switch ($attribute)
+            {
+                case 'nullable':
+                case 'autoIncrement':
+                case 'unsigned':
+                    if (($leftAttributes[$attribute] ?? false) == ($rightAttributes[$attribute] ?? false))
+                    {
+                        continue 2;
+                    }
+                    break;
+
+                case 'unique':
+                case 'oldNames':
+                case 'change':
+                case 'after':
+                case 'first':
+                    continue 2;
+
+                default:
+                    if (@$leftAttributes[$attribute] === @$rightAttributes[$attribute])
+                    {
+                        continue 2;
+                    }
+                    break;
+            }
+
+            if ($attribute == 'type')
+            {
+                return ['type'];
+            }
+
+            $diff[] = $attribute;
         }
 
         return $diff;
