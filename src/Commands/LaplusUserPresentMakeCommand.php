@@ -2,7 +2,6 @@
 
 namespace Rapid\Laplus\Commands;
 
-use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputArgument;
 
 class LaplusUserPresentMakeCommand extends LaplusPresentMakeCommand

@@ -3,9 +3,7 @@
 namespace Rapid\Laplus\Commands;
 
 use Rapid\Laplus\Present\Generate\MigrationGenerator;
-use Symfony\Component\Console\Attribute\AsCommand;
 
-#[AsCommand('laplus:generate')]
 class LaplusGenerateCommand extends LaplusBaseResourceCommand
 {
 
