@@ -28,8 +28,8 @@ class LaplusMigrateCommand extends Command
 
     public function handle()
     {
-        Artisan::call('laplus:generate');
-        Artisan::call('migrate');
+        Artisan::call('laplus:generate', outputBuffer: $this->output);
+        Artisan::call('migrate', outputBuffer: $this->output);
     }
 
 }

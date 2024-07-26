@@ -22,4 +22,15 @@ class MigrationListState
         unset($this->all[is_string($fileName) ? $fileName : $fileName->fileName]);
     }
 
+    public function forgetEmpty()
+    {
+        foreach ($this->all as $index => $migration)
+        {
+            if ($migration->isEmpty())
+            {
+                unset($this->all[$index]);
+            }
+        }
+    }
+
 }

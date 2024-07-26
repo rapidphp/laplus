@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Rapid\Laplus\Present\Generate\SchemaCollectingData;
 
-trait Resolves
+trait MigrationResolves
 {
 
     /**

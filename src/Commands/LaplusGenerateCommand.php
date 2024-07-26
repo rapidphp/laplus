@@ -43,8 +43,8 @@ class LaplusGenerateCommand extends LaplusBaseResourceCommand
         $this->makeReadyToWrite($migrationPath);
 
         // Generate different & migrations
-        $files = $generator->generateMigrationFiles();
-        foreach ($generator->generateMigrationStubs($files) as $name => $stub)
+        $files = $generator->exportMigrationFiles();
+        foreach ($generator->exportMigrationStubs($files) as $name => $stub)
         {
             if (file_exists("$migrationPath/$name.php"))
             {
