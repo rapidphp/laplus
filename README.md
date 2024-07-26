@@ -31,11 +31,7 @@ Run this command to publish configs to `config/laplus.php`
 php artisan vendor:publish --tag=laplus
 ```
 
-### 3- Move required migration
-Find `database/migrations/0001_01_01_000000_create_users_table.php` file and move it
-    into `database/migrations/auto_generated` folder (create it if doesn't exists)
-
-### 4- Convert default User model to presentable model (optional):
+### 3- Convert default User model to presentable model (optional):
 + Add `HasPresent` trait:
 ```php
 class User extends Model
@@ -69,6 +65,11 @@ protected function present(Present $present)
     $present->timestamps();
 }
 ```
+
++ Move default migration to laplus path:
+
+Find `database/migrations/0001_01_01_000000_create_users_table.php` file and move it
+    into `database/migrations/auto_generated` folder (create it if doesn't exists)
 
 
 ## Make model & present
