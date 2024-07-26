@@ -25,13 +25,17 @@ Then automatically create migrations
 composer require rapid/laplus
 ```
 
-### 1- Publish configs
+### 2- Publish configs
 Run this command to publish configs to `config/laplus.php`
 ```shell
 php artisan vendor:publish --tag=laplus
 ```
 
-### 3- Convert default User model to presentable model (optional):
+### 3- Move required migration
+Find `database/migrations/0001_01_01_000000_create_users_table.php` file and move it
+    into `database/migrations/auto_generated` folder (create it if doesn't exists)
+
+### 4- Convert default User model to presentable model (optional):
 + Add `HasPresent` trait:
 ```php
 class User extends Model
@@ -264,12 +268,12 @@ php artisan generate+
 #### Concept
 How generate works?
 
-1- First, laplus search migrations folder (configured in `config/laplus.php`)
+1- First, Laplus searchs migrations folder (configured in `config/laplus.php`)
     and load all migration structures.
 
-2- Then, laplus ask all models (configured in `config/laplus.php`) to present their self.
+2- Then, Laplus asks all models (configured in `config/laplus.php`) to present their self.
 
-3- Then, laplus try to find what columns added, deleted, modified, or renamed.
+3- Then, Laplus tries to find what columns added, deleted, modified, or renamed.
 
 4- Finally, generate new migration files.
 
