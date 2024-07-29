@@ -95,7 +95,10 @@ abstract class LaplusBaseResourceCommand extends Command
 
             if (is_dir($subPath))
             {
-                yield from $this->discoverModels($subPath);
+                foreach ($this->discoverModels($subPath) as $model)
+                {
+                    yield $model;
+                }
             }
             else
             {
@@ -133,7 +136,10 @@ abstract class LaplusBaseResourceCommand extends Command
 
             if (is_dir($subPath))
             {
-                yield from $this->discoverMigrations($subPath);
+                foreach ($this->discoverMigrations($subPath) as $migration)
+                {
+                    yield $migration;
+                }
             }
             else
             {
