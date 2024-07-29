@@ -58,7 +58,7 @@ trait HasRelations
      */
     public function foreignTo(string $model, string $foreignKey = null, string $ownerKey = null, string $columnType = 'unsignedBigInteger')
     {
-        return $this->belongsTo($model, '', $foreignKey, $ownerKey, $columnType)->excludeAttr();
+        return $this->belongsTo($model, null, $foreignKey, $ownerKey, $columnType)->excludeAttr();
     }
 
     /**
