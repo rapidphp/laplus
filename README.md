@@ -12,9 +12,11 @@ public function present()
 ```
 
 Write your presents in long time:
+
 ![Write presents in long time, laplus will create your migrations](doc/how_works_1.png)
 
 Laplus will generate your migrations:
+
 ![Laplus will create your migrations](doc/how_works_2.png)
 
 
