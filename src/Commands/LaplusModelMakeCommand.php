@@ -74,7 +74,7 @@ class LaplusModelMakeCommand extends ModelMakeCommand
     {
         if ($this->option('inline') && $this->option('label'))
         {
-            return __DIR__ . '/stubs/model-inline-and-label.stub';
+            return __DIR__ . '/stubs/model-inline-with-label.stub';
         }
         elseif ($this->option('inline'))
         {
