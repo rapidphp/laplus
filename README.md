@@ -383,10 +383,10 @@ class PostLabelTranslator extends LabelTranslator
 
 Usage:
 ```php
-// Use the _label suffix (parameters will be defaults)
+// Use the _label suffix (parameters will be defaults):
 echo "Post Categories: {$post->categories_label}";
 
-// Use the _label suffix (parameters will be defaults)
+// Use the _label suffix as method:
 echo "Post Categories: {$post->categories_label(max: 10)}";
 
 // Use the label() method and pass parameters:
