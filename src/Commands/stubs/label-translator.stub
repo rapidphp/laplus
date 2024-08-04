@@ -1,0 +1,15 @@
+<?php
+
+namespace {{ namespace }};
+
+use Rapid\Laplus\Label\LabelTranslator;
+
+class {{ class }} extends LabelTranslator
+{
+
+    public function id()
+    {
+        return '#' . $this->value;
+    }
+
+}

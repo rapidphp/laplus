@@ -21,7 +21,7 @@ class PresentFileTest extends TestCase
             protected function present(Present $present)
             {
                 $present->id();
-                $present->file('image')->diskPublic()->url(fn($model) => "localhost/{$model->image->name}");
+                $present->file('image')->diskPublic()->url(fn($model) => "localhost/{$model->image}");
             }
         };
     }
@@ -33,10 +33,11 @@ class PresentFileTest extends TestCase
             'image' => 'test.png',
         ]);
 
-        $this->assertInstanceOf(File::class, $test->image);
+        $this->assertIsString($test->image);
+        $this->assertInstanceOf(File::class, $test->file('image'));
 
         $this->assertSame(Storage::disk('public')->path('test.png'), $test->file('image')->path());
-        $this->assertSame("localhost/test.png", $test->image->url());
+        $this->assertSame("localhost/test.png", $test->file('image')->url());
     }
 
 }

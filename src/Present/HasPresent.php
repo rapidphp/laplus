@@ -9,7 +9,7 @@ use Rapid\Laplus\Present\Attributes\FileColumn;
 trait HasPresent
 {
 
-    protected Present $presentObject;
+    protected Present $_presentObject;
 
     // /**
     //  * Present the model inline
@@ -25,7 +25,7 @@ trait HasPresent
      *
      * @return Present
      */
-    protected function getPresent() : Present
+    protected function makePresent() : Present
     {
         if (method_exists($this, 'present'))
         {
@@ -55,22 +55,22 @@ trait HasPresent
      *
      * @return Present
      */
-    public function getPresentObject()
+    public function getPresent()
     {
-        if (!isset($this->presentObject))
+        if (!isset($this->_presentObject))
         {
-            static::$present_instances[static::class] = $this;
-            $this->presentObject = $this->getPresent();
+            static::$_presentInstances[static::class] = $this;
+            $this->_presentObject = $this->makePresent();
         }
 
-        return $this->presentObject;
+        return $this->_presentObject;
     }
 
-    protected static $present_instances = [];
+    protected static $_presentInstances = [];
 
     public static function getPresentInstance() : Model
     {
-        return static::$present_instances[static::class] ??= new static;
+        return static::$_presentInstances[static::class] ??= new static;
     }
 
     /**
@@ -80,22 +80,22 @@ trait HasPresent
      * @param string|null $get
      * @return mixed|Attribute
      */
-    public static function attr(string $name, string $get = null)
+    public static function attr(string $name, ?string $get = null)
     {
         if (isset($get))
         {
-            return static::getPresentInstance()->getPresentObject()->getAttribute($name)->{'get' . $get}();
+            return static::getPresentInstance()->getPresent()->getAttribute($name)->{'get' . $get}();
         }
         else
         {
-            return static::getPresentInstance()->getPresentObject()->getAttribute($name);
+            return static::getPresentInstance()->getPresent()->getAttribute($name);
         }
     }
 
 
     public function initializeHasPresent()
     {
-        $present = $this->getPresentObject();
+        $present = $this->getPresent();
 
         $this->mergeFillable($present->fillable);
         $this->mergeCasts($present->casts);
@@ -111,7 +111,7 @@ trait HasPresent
      */
     public function hasGetMutator($key)
     {
-        if (array_key_exists($key, $this->presentObject->getters))
+        if (array_key_exists($key, $this->_presentObject->getters))
         {
             return true;
         }
@@ -127,7 +127,7 @@ trait HasPresent
      */
     public function hasSetMutator($key)
     {
-        if (array_key_exists($key, $this->presentObject->setters))
+        if (array_key_exists($key, $this->_presentObject->setters))
         {
             return true;
         }
@@ -144,9 +144,9 @@ trait HasPresent
      */
     protected function mutateAttribute($key, $value)
     {
-        if (array_key_exists($key, $this->presentObject->getters))
+        if (array_key_exists($key, $this->_presentObject->getters))
         {
-            return $this->presentObject->getters[$key]($value, $this, $key, $this->attributes);
+            return $this->_presentObject->getters[$key]($value, $this, $key, $this->attributes);
         }
 
         return parent::mutateAttribute($key, $value);
@@ -161,9 +161,9 @@ trait HasPresent
      */
     protected function setMutatedAttributeValue($key, $value)
     {
-        if (array_key_exists($key, $this->presentObject->setters))
+        if (array_key_exists($key, $this->_presentObject->setters))
         {
-            return $this->presentObject->setters[$key]($value, $this, $key, $this->attributes);
+            return $this->_presentObject->setters[$key]($value, $this, $key, $this->attributes);
         }
 
         return parent::setMutatedAttributeValue($key, $value);
@@ -178,7 +178,7 @@ trait HasPresent
      */
     public function file(string $attribute)
     {
-        $attr = $this->getPresentObject()->getAttribute($attribute);
+        $attr = $this->getPresent()->getAttribute($attribute);
         if ($attr instanceof FileColumn)
         {
             return $attr->getFileValue($this->getAttribute($attribute), $this);

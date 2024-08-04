@@ -1,0 +1,20 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Rapid\Laplus\Present\HasPresent;
+use Rapid\Laplus\Present\Present;
+use Rapid\Laplus\Label\HasLabels;
+
+class {{ class }} extends Model
+{
+    use HasFactory, HasPresent, HasLabels;
+
+    public function present(Present $present)
+    {
+        $present->id();
+        $present->timestamps();
+    }
+}

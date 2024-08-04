@@ -184,7 +184,7 @@ abstract class Present
      * Get an attribute
      *
      * @param string $name
-     * @return Attribute
+     * @return ?Attribute
      */
     public function getAttribute(string $name)
     {

@@ -5,7 +5,9 @@ namespace Rapid\Laplus\Present\Attributes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Traits\Macroable;
-use Mockery\Matcher\Closure;
+use Closure;
+use Rapid\Laplus\Label\LabelTypeException;
+use Rapid\Laplus\Label\Translate;
 use Rapid\Laplus\Present\Generator;
 use Rapid\Laplus\Present\Present;
 use Rapid\Laplus\Present\PresentAttributeCast;
@@ -175,6 +177,38 @@ class Attribute
     public function getSetter()
     {
         return $this->setter;
+    }
+
+
+    protected $labelUsing = null;
+
+    /**
+     * Define attribute label (it's not recommended)
+     *
+     * @param string|Closure $callback
+     * @return $this
+     */
+    public function label(string|Closure $callback)
+    {
+        $this->labelUsing = $callback;
+        return $this;
+    }
+
+    public function getLabelFor($value, array $args) : string
+    {
+        $value = isset($this->labelUsing) ? value($this->labelUsing, $value, ...$args) : $value;
+
+        $translated = Translate::tryTranslateSpecials($value);
+
+        if ($translated === null)
+        {
+            $type = is_object($value) ? get_class($value) : gettype($value);
+            throw new LabelTypeException(
+                sprintf("Label [%s] got as [%s], expected [string]", $this->name, $type)
+            );
+        }
+
+        return $translated;
     }
 
 

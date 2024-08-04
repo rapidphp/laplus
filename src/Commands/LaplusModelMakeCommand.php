@@ -19,6 +19,7 @@ class LaplusModelMakeCommand extends ModelMakeCommand
         }
 
         $this->createPresent();
+        $this->createLabelTranslator();
     }
 
     /**
@@ -30,12 +31,36 @@ class LaplusModelMakeCommand extends ModelMakeCommand
     {
         if (!$this->option('inline'))
         {
-            $controller = Str::studly(class_basename($this->argument('name')));
+            $modelClass = Str::studly(class_basename($this->argument('name')));
 
             $modelName = $this->qualifyClass($this->getNameInput());
 
             $this->call('make:present', array_filter([
-                'name' => "{$controller}Present",
+                'name' => "{$modelClass}Present",
+                // '--model' => $this->option('resource') || $this->option('api') ? $modelName : null,
+                // '--api' => $this->option('api'),
+                // '--requests' => $this->option('requests') || $this->option('all'),
+                // '--test' => $this->option('test'),
+                // '--pest' => $this->option('pest'),
+            ]));
+        }
+    }
+
+    /**
+     * Create a label translator for the model.
+     *
+     * @return void
+     */
+    protected function createLabelTranslator()
+    {
+        if ($this->option('label'))
+        {
+            $modelClass = Str::studly(class_basename($this->argument('name')));
+
+            $modelName = $this->qualifyClass($this->getNameInput());
+
+            $this->call('make:label-translator', array_filter([
+                'name' => "{$modelClass}LabelTranslator",
                 // '--model' => $this->option('resource') || $this->option('api') ? $modelName : null,
                 // '--api' => $this->option('api'),
                 // '--requests' => $this->option('requests') || $this->option('all'),
@@ -47,9 +72,17 @@ class LaplusModelMakeCommand extends ModelMakeCommand
 
     protected function getStub()
     {
-        if ($this->option('inline'))
+        if ($this->option('inline') && $this->option('label'))
+        {
+            return __DIR__ . '/stubs/model-inline-and-label.stub';
+        }
+        elseif ($this->option('inline'))
         {
             return __DIR__ . '/stubs/model-inline.stub';
+        }
+        elseif ($this->option('label'))
+        {
+            return __DIR__ . '/stubs/model-with-label.stub';
         }
         else
         {
@@ -62,6 +95,7 @@ class LaplusModelMakeCommand extends ModelMakeCommand
         return [
             ...parent::getOptions(),
             ['inline', 'i', InputOption::VALUE_NONE, 'Make present inline'],
+            ['label', 'l', InputOption::VALUE_NONE, 'Include making label translator'],
         ];
     }
 

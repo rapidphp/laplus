@@ -103,6 +103,19 @@ php artisan make:model+ Name --inline
 
 This command will create `app/Models/Name.php` model.
 
+## Make model with label
+You can use this command to create a model with label:
+```shell
+php artisan make:model-laplus Name --label
+```
+Or:
+```shell
+php artisan make:model+ Name --label
+```
+
+This command will create `app/Models/Name.php` model, `app/Presents/NamePresent` present
+    and `app/LabelTranslator/NameLabelTranslator` label.
+
 
 ## Customize model present
 - 1- If you want to set the target present using class name, you can override method `getPresentClass`:
@@ -116,11 +129,11 @@ class User extends Model
 }
 ```
 
-- 2- If you want to set the target present using object instance, you can override method `getPresent`:
+- 2- If you want to set the target present using object instance, you can override method `makePresent`:
 ```php
 class User extends Model
 {
-    public function getPresent()
+    public function makePresent()
     {
         return new MyCustomUserPresent($this);
     }
@@ -303,4 +316,146 @@ php artisan laplus:migrate
 Or:
 ```shell
 php artisan migrate+
+```
+
+## Label
+You can create labels for model using:
+```shell
+php artisan make:label-translator NameLabelTranslator
+```
+
+And use `HasLabels` trait in the model:
+```php
+class Name extends Model
+{
+    use HasLabels;
+}
+```
+
+You can define attribute labels in the translator like:
+```php
+class UserLabelTranslator extends LabelTranslator
+{
+    public function age()
+    {
+        return $this->value . " years old";
+    }
+    
+    public function role()
+    {
+        return match ($this->value)
+        {
+            0 => "Developer",
+            1 => "Admin",
+            2 => "Member",
+        };
+    }
+    
+    public function emailVerifiedAt()
+    {
+        return $this->asDateTime;
+    }
+}
+```
+
+And you have two way to get labels from record:
+```php
+// Use the _label suffix:
+echo "User role is {$user->role_label}";
+
+// Use the label() method:
+echo "User role is {$user->label('role')}";
+```
+
+### Labels With Arguments
+```php
+class PostLabelTranslator extends LabelTranslator
+{
+    public function categories(int $max = 3)
+    {
+        return $this->record->categories()->limit($max)->pluck('name')->implode(", ");
+    }
+}
+```
+
+Usage:
+```php
+// Use the _label suffix (parameters will be defaults)
+echo "Post Categories: {$post->categories_label}";
+
+// Use the label() method and pass parameters:
+echo "Post Categories: {$post->label('categories', 10)}";
+```
+
+### Customize Special Labels
+There are two types of special labels:
+
+1- Objects
+
+If label value that returned in `LabelTranslator` is object, Laplus try to call
+    `getTranslatedLabel` in the object (or throw exception in otherwise)
+
+```php
+enum Gender : string
+{
+    case Male = 'Male';
+    case Female = 'Female';
+    
+    public function getTranslatedLabel()
+    {
+        return $this->value;
+    }
+}
+
+class UserLabelTranslator extends LabelTranslator
+{
+    public function gender()
+    {
+        return $this->value; // Value is type of Gender
+    }
+}
+
+class MyController extends Controller
+{
+    public function showGender(User $user)
+    {
+        echo "User gender is {$user->gender_label}";
+    }
+}
+```
+
+2- Built-in
+
+> Note: Laplus only supports Null, True and False values!
+
+You can locally customize undefined, true or false using:
+```php
+class UserLabelTranslator extends LabelTranslator
+{
+    protected function getUndefined()
+    {
+        return "This value is not set.";
+    }
+    
+    protected function getTrue()
+    {
+        return "This value is True.";
+    }
+    
+    protected function getFalse()
+    {
+        return "This value is False.";
+    }
+}
+```
+
+Or you can globally (with localization support) define these in the `resources/lang/YOUR_LANG/labels.php`
+```php
+<?php
+
+return [
+    'undefined' => "Undefined",
+    'true' => 'True',
+    'false' => 'False',
+];
 ```
