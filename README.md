@@ -358,10 +358,13 @@ class UserLabelTranslator extends LabelTranslator
 }
 ```
 
-And you have two way to get labels from record:
+And you have three way to get labels from record:
 ```php
 // Use the _label suffix:
 echo "User role is {$user->role_label}";
+
+// Use the _label suffix as method:
+echo "User role is {$user->role_label()}";
 
 // Use the label() method:
 echo "User role is {$user->label('role')}";
@@ -383,6 +386,9 @@ Usage:
 // Use the _label suffix (parameters will be defaults)
 echo "Post Categories: {$post->categories_label}";
 
+// Use the _label suffix (parameters will be defaults)
+echo "Post Categories: {$post->categories_label(max: 10)}";
+
 // Use the label() method and pass parameters:
 echo "Post Categories: {$post->label('categories', 10)}";
 ```
@@ -403,7 +409,11 @@ enum Gender : string
     
     public function getTranslatedLabel()
     {
-        return $this->value;
+        return match ($this)
+        {
+            self::Male => "MALE",
+            self::Female => "FEMALE",
+        };
     }
 }
 

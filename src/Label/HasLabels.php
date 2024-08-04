@@ -14,7 +14,7 @@ trait HasLabels
      * @param        ...$args
      * @return string
      */
-    public function label(string $name, ...$args)
+    public function label(string $name, ...$args) : string
     {
         // Get using label translator
         if (
@@ -44,13 +44,14 @@ trait HasLabels
      * Used in "__get" method.
      *
      * @param string $attribute
+     * @param array  $args
      * @return string|null
      */
-    protected function getLabelUsingAttributeName(string $attribute)
+    protected function getLabelUsingAttributeName(string $attribute, array $args = [])
     {
         if (str_ends_with($attribute, '_label'))
         {
-            return $this->label(substr($attribute, 0, -6));
+            return $this->label(substr($attribute, 0, -6), ...$args);
         }
 
         return null;
@@ -64,6 +65,16 @@ trait HasLabels
         }
 
         return parent::__get($key);
+    }
+
+    public function __call($method, $parameters)
+    {
+        if (null !== $value = $this->getLabelUsingAttributeName($method, $parameters))
+        {
+            return $value;
+        }
+
+        return parent::__call($method, $parameters);
     }
 
 

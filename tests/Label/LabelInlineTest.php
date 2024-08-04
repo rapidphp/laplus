@@ -41,6 +41,7 @@ class LabelInlineTest extends TestCase
 
         $this->assertSame("Doesn't matter what is value", $record->label('fixed'));
         $this->assertSame("Doesn't matter what is value", $record->fixed_label);
+        $this->assertSame("Doesn't matter what is value", $record->fixed_label());
     }
 
     public function test_label_that_defined_with_parameters()
@@ -49,6 +50,7 @@ class LabelInlineTest extends TestCase
 
         $this->assertSame("Default", $record->label('status', "Default"));
         $this->assertSame("Not Set", $record->status_label);
+        $this->assertSame("Default", $record->status_label("Default"));
     }
 
 }

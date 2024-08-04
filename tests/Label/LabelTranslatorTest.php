@@ -85,6 +85,7 @@ class LabelTranslatorTest extends TestCase
 
         $this->assertSame("Default", $record->label('status', "Default"));
         $this->assertSame("Not Set", $record->status_label);
+        $this->assertSame("Default", $record->status_label("Default"));
     }
 
     public function test_label_use_undefined()
@@ -153,6 +154,22 @@ class LabelTranslatorTest extends TestCase
         ]);
 
         $this->assertSame("Undefined Label", $record->empty_label);
+    }
+
+    public function test_label_of_objects_with_parameters()
+    {
+        $record = $this->make([
+            'empty' => new class
+            {
+                public function getTranslatedLabel(string $foo)
+                {
+                    return $foo;
+                }
+            }
+        ]);
+
+        $this->assertSame("Foo", $record->label('empty', 'Foo'));
+        $this->assertSame("Foo", $record->empty_label('Foo'));
     }
 
     public function test_label_of_default_timestamps()
