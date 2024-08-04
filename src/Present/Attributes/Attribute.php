@@ -198,6 +198,7 @@ class Attribute
     {
         $value = isset($this->labelUsing) ? value($this->labelUsing, $value, ...$args) : $value;
 
+        $value = Translate::translateDeep($value, $args);
         $translated = Translate::tryTranslateSpecials($value);
 
         if ($translated === null)

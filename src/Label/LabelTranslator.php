@@ -59,6 +59,7 @@ class LabelTranslator
         $value = $this->{Str::camel($name)}(...$args);
         array_pop($this->_labelStack);
 
+        $value = Translate::translateDeep($value, $args);
         $translated = Translate::tryTranslateSpecials($value, $this);
 
         if ($translated === null)

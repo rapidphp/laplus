@@ -8,7 +8,24 @@ class TranslateFactory
 {
 
     /**
-     * Try to translate specials, like object, null, true and false.
+     * Translate objects recursive.
+     *
+     * @param       $value
+     * @param array $args
+     * @return mixed
+     */
+    public function translateDeep($value, array $args) : mixed
+    {
+        while (is_object($value) && method_exists($value, 'getTranslatedLabel'))
+        {
+            $value = $value->getTranslatedLabel(...$args);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Try to translate specials, like null, true and false.
      *
      * @param                      $value
      * @param LabelTranslator|null $translator
@@ -16,11 +33,6 @@ class TranslateFactory
      */
     public function tryTranslateSpecials($value, ?LabelTranslator $translator = null) : ?string
     {
-        while (is_object($value) && method_exists($value, 'getTranslatedLabel'))
-        {
-            $value = $value->getTranslatedLabel();
-        }
-
         if (!is_string($value) && !is_numeric($value))
         {
             if ($value === null)

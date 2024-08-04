@@ -6,7 +6,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static string|null tryTranslateSpecials($value, ?LabelTranslator $translator = null) Try to translate specials, like object, null, true and false.
+ * @method static string|null tryTranslateSpecials($value, ?LabelTranslator $translator = null) Try to translate specials, like null, true and false.
+ * @method static mixed translateDeep($value, array $args) Translate objects recursive.
  * @method static string getUndefinedLabel()
  * @method static string getTrueLabel()
  * @method static string getFalseLabel()
