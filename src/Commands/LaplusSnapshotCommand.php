@@ -67,7 +67,7 @@ class LaplusSnapshotCommand extends LaplusBaseResourceCommand
             )
             {
                 $matches[4]++;
-                $matches[4] = @str_repeat('0', 6 - strlen($matches[4]));
+                $matches[4] = @str_repeat('0', 6 - strlen($matches[4])) . $matches[4];
                 $bestName = $matches[1] . '_' . $matches[2] . '_' . $matches[3] . '_' . $matches[4];
             }
 
