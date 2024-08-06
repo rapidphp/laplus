@@ -30,11 +30,14 @@ abstract class LaplusBaseResourceCommand extends Command
                 return 1;
             }
 
+            $this->preGenerate([$config['models'] => $config['migrations']]);
             return $this->generateUsing($config);
         }
         // Entered migrations & models options -> Using input
         elseif ($this->option('migrations') || $this->option('models'))
         {
+            $this->preGenerate([$this->option('models') => $this->option('migrations')]);
+
             return $this->generate(
                 $this->option('models'),
                 $this->option('migrations'),
@@ -50,6 +53,9 @@ abstract class LaplusBaseResourceCommand extends Command
                 return 1;
             }
 
+            $this->preGenerate(
+                collect($resource)->mapWithKeys(fn ($config) => [$config['models'] => $config['migrations']])->toArray()
+            );
             foreach ($resource as $config)
             {
                 $this->generateUsing($config);
@@ -83,6 +89,10 @@ abstract class LaplusBaseResourceCommand extends Command
      * @return int
      */
     public abstract function generate(string $modelPath, string $migrationPath);
+
+    public function preGenerate(array $map)
+    {
+    }
 
     protected function discoverModels(string $path)
     {

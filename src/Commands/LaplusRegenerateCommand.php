@@ -10,7 +10,7 @@ class LaplusRegenerateCommand extends LaplusGenerateCommand
      *
      * @var string
      */
-    protected $signature = 'laplus:regenerate {--migrations= : Migrations path} {--models= : Models path} {--name= : Laplus name}';
+    protected $signature = 'laplus:regenerate {--migrations= : Migrations path} {--models= : Models path} {--name= : Laplus name} {--all : Remove all snapshots and regenerate}';
     protected $aliases = ['regenerate+'];
 
     /**
@@ -22,7 +22,11 @@ class LaplusRegenerateCommand extends LaplusGenerateCommand
 
     public function handle()
     {
-        if (!$this->output->confirm("All migrations will be deleted! Are you sure?", false))
+        if ($this->option('all') && !$this->output->confirm("All the migrations will be deleted! Are you sure?", false))
+        {
+            return 1;
+        }
+        elseif (!$this->option('all') && !$this->output->confirm("All the migrations after last snapshot will be deleted! Are you sure?", false))
         {
             return 1;
         }
@@ -32,13 +36,23 @@ class LaplusRegenerateCommand extends LaplusGenerateCommand
 
     public function generate(string $modelPath, string $migrationPath)
     {
-        // Delete old migrations
-        foreach (glob($migrationPath . '/*') as $path)
+        // Detect target migrations
+        $target = collect(@scandir($migrationPath) ?: [])
+            ->filter(fn ($file) => is_file($migrationPath . '/' . $file) && !str_starts_with($file, '0001_01_01'));
+
+        // Filter snapshot
+        if (!$this->option('all'))
         {
-            if (!is_dir($path) && !str_contains($path, '0001_01_01'))
+            if ($lastSnapshot = $target->last(fn ($file) => str_ends_with($file, '.snapshot')))
             {
-                @unlink($path);
+                $target = $target->slice($target->search($lastSnapshot) + 1);
             }
+        }
+
+        // Delete old migrations
+        foreach ($target as $file)
+        {
+            @unlink($migrationPath . '/' . $file);
         }
 
         return parent::generate($modelPath, $migrationPath);
