@@ -45,7 +45,7 @@ class LaplusRegenerateCommand extends LaplusGenerateCommand
         {
             if ($lastSnapshot = $target->last(fn ($file) => str_ends_with($file, '.snapshot')))
             {
-                $target = $target->slice($target->search($lastSnapshot) + 1);
+                $target = $target->slice($target->values()->search($lastSnapshot) + 1);
             }
         }
 
