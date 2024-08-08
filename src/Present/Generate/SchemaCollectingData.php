@@ -4,6 +4,7 @@ namespace Rapid\Laplus\Present\Generate;
 
 use Closure;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\ColumnDefinition;
 use Illuminate\Support\Fluent;
 use Rapid\Laplus\Present\Generate\Structure\DefinedMigrationState;
 use Rapid\Laplus\Present\Generate\Structure\DefinedTableState;
@@ -32,6 +33,8 @@ class SchemaCollectingData
         $renameColumn = [];
         foreach ($table->getCommands() as $command)
         {
+            if ($command instanceof ColumnDefinition) continue;
+
             switch ($command->name)
             {
                 case 'renameColumn':
