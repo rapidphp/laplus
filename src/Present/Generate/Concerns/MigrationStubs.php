@@ -126,6 +126,12 @@ trait MigrationStubs
             if (in_array($key, ['type', 'name', 'change', 'allowed']))
                 continue;
 
+            if (in_array($key, ['default']))
+            {
+                $code .= "->{$key}({$this->writeObject($value)})";
+                continue;
+            }
+
             if ($value === false || $value === null)
                 continue;
 
