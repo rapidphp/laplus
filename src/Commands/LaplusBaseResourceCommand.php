@@ -133,6 +133,11 @@ abstract class LaplusBaseResourceCommand extends Command
 
     protected function discoverMigrations(string $path)
     {
+        if (!file_exists($path))
+        {
+            @mkdir($path, recursive: true);
+        }
+
         foreach (scandir($path) as $sub)
         {
             if ($sub == '.' || $sub == '..')
