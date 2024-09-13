@@ -29,7 +29,7 @@ return [
         //     'models' => 'app/Models',
         //     'migrations' => 'database/migrations/auto_generated',
         //     'merge_to_config' => true,
-        // ]
+        // ],
 
     ],
 

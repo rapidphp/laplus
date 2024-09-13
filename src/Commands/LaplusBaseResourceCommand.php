@@ -92,38 +92,41 @@ abstract class LaplusBaseResourceCommand extends Command
 
     protected function discoverModels(string $path)
     {
-        foreach (scandir($path) as $sub)
+        if (file_exists($path))
         {
-            if ($sub == '.' || $sub == '..')
-                continue;
-
-            $subPath = $path . '/' . $sub;
-
-            if (is_dir($subPath))
+            foreach (scandir($path) as $sub)
             {
-                foreach ($this->discoverModels($subPath) as $model)
+                if ($sub == '.' || $sub == '..')
+                    continue;
+
+                $subPath = $path . '/' . $sub;
+
+                if (is_dir($subPath))
                 {
-                    yield $model;
-                }
-            }
-            else
-            {
-                if (str_ends_with($sub, '.php'))
-                {
-                    $contents = @file_get_contents($subPath);
-                    if (
-                        preg_match('/namespace\s+(.*?)\s*;/', $contents, $namespaceMatch) &&
-                        preg_match('/class\s+(.*?)[\s\n\r{]/', $contents, $classMatch)
-                    )
+                    foreach ($this->discoverModels($subPath) as $model)
                     {
-                        $class = $namespaceMatch[1] . "\\" . $classMatch[1];
+                        yield $model;
+                    }
+                }
+                else
+                {
+                    if (str_ends_with($sub, '.php'))
+                    {
+                        $contents = @file_get_contents($subPath);
                         if (
-                            class_exists($class) &&
-                            is_a($class, Model::class, true) &&
-                            in_array(HasPresent::class, class_uses_recursive($class))
+                            preg_match('/namespace\s+(.*?)\s*;/', $contents, $namespaceMatch) &&
+                            preg_match('/class\s+(.*?)[\s\n\r{]/', $contents, $classMatch)
                         )
                         {
-                            yield $class;
+                            $class = $namespaceMatch[1] . "\\" . $classMatch[1];
+                            if (
+                                class_exists($class) &&
+                                is_a($class, Model::class, true) &&
+                                in_array(HasPresent::class, class_uses_recursive($class))
+                            )
+                            {
+                                yield $class;
+                            }
                         }
                     }
                 }
