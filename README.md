@@ -27,6 +27,7 @@ Laplus will generate your migrations:
 
 ## Documents
 - [Installation](doc/installation.md)
+- [Configuration](doc/configuration.md)
 - [Present](doc/present.md)
 - [Migration](doc/migration.md)
 - [Label](doc/label.md)
