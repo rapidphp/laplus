@@ -129,10 +129,20 @@ class MoviePresent extends Present
 ```
 
 ### Present Attribute
+
 Add attribute with callback to define custom values:
 
 ```php
 $this->attribute('is_artist', get: fn($model) => !is_null($model->artist_id));
+```
+
+Don't forget adding the `HasPresentAttributes`:
+
+```php
+class MyModel extends Model
+{
+    use HasPresentAttributes;
+}
 ```
 
 ### Present Foreign
@@ -165,6 +175,15 @@ class UserPresent extends Present
     {
         $this->hasMany(Post::class, foreignKey: 'author_id'); // name: 'posts'
     }
+}
+```
+
+Don't forget adding the `HasPresentAttributes`:
+
+```php
+class MyModel extends Model
+{
+    use HasPresentAttributes;
 }
 ```
 
@@ -210,11 +229,29 @@ File column:
 $this->file('image')->disk('images');
 ```
 
+Add the `HasColumnFiles` trait to the model:
+```php
+use HasColumnFiles;
+```
+
 Now you can work with the file like this:
 ```php
 $url = $model->file('image')->url();
 $path = $model->file('image')->path();
 $model->file('image')->delete();
+```
+
+Or add the `file` column and the `HasSelfFiles` trait:
+```php
+use HasSelfFiles;
+```
+
+To work with self file like this:
+```php
+$file = $model->file();
+$url = $model->url();
+$path = $model->path();
+$model->file()->delete();
 ```
 
 #### Customize url & download:
@@ -239,6 +276,6 @@ class DownloadController extends Controller
 #### Get disk statically:
 Use `attr` method:
 ```php
-Storage::disk(Model::attr('image', 'disk'))->put('new-file.png', $file);
+Storage::disk(Model::getDiskName('image'))->put('new-file.png', $file);
 ```
 

@@ -33,13 +33,16 @@ class LaplusServiceProvider extends ServiceProvider
 
         $this->mergeConfigFrom($config, 'laplus');
 
-        Laplus::mergeResources(config()->get('laplus.resources', []));
+        Laplus::loadConfig(config()->get('laplus.resources', []));
 
-        foreach (config()->get('laplus.resources', []) as $config)
+        foreach (config()->get('laplus.resources', []) as $name => $config)
         {
             if (@$config['merge_to_config'])
             {
-                $this->loadMigrationsFrom($config['migrations']);
+                foreach (Laplus::getResource($name)->resolve() as $modelPath => $migrationPath)
+                {
+                    $this->loadMigrationsFrom($migrationPath);
+                }
             }
         }
     }

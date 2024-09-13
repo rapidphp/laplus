@@ -48,7 +48,7 @@ class MigrationGenerator
         foreach ($models as $model)
         {
             /** @var Present $present */
-            $present = $model::getPresentInstance()->getPresent();
+            $present = $model::getStaticPresentInstance();
 
             $present->passGenerator($this);
         }

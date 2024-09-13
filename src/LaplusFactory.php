@@ -2,45 +2,72 @@
 
 namespace Rapid\Laplus;
 
+use Rapid\Laplus\Resources\FixedResource;
+use Rapid\Laplus\Resources\ModularResource;
+use Rapid\Laplus\Resources\Resource;
+
 class LaplusFactory
 {
 
+    /**
+     * @var Resource[]
+     */
     public array $resources = [];
 
     /**
      * Add a resource path
      *
-     * @param string $name
-     * @param string $modelPath
-     * @param string $migrationPath
+     * @param string   $name
+     * @param Resource $resource
      * @return void
      */
-    public function addResource(string $name, string $modelPath, string $migrationPath)
+    public function addResource(string $name, Resource $resource)
     {
-        $this->resources[$name] = [
-            'models' => $modelPath,
-            'migrations' => $migrationPath,
-        ];
+        $this->resources[$name] = $resource;
     }
 
     /**
      * Merge configuration resources
      *
+     * @param Resource[] $resources
+     * @return void
+     */
+    public function mergeResources(array $resources)
+    {
+        foreach ($resources as $name => $resource)
+        {
+            $this->addResource($name, $resource);
+        }
+    }
+
+    /**
      * @param array $config
      * @return void
      */
-    public function mergeResources(array $config)
+    public function loadConfig(array $config)
     {
-        $this->resources = [...$this->resources, ...$config];
+        foreach ($config as $name => $conf)
+        {
+            $type = $conf['type'] ?? 'default';
+
+            $type = match ($type)
+            {
+                'default' => FixedResource::class,
+                'modular' => ModularResource::class,
+                default => $type,
+            };
+
+            $this->addResource($name, $type::fromConfig($name, $conf));
+        }
     }
 
     /**
      * Get a resource by name
      *
      * @param string $name
-     * @return array
+     * @return ?Resource
      */
-    public function getResource(string $name)
+    public function getResource(string $name) : ?Resource
     {
         return $this->resources[$name] ?? null;
     }
@@ -48,9 +75,9 @@ class LaplusFactory
     /**
      * Get all resources
      *
-     * @return array
+     * @return Resource[]
      */
-    public function getResources()
+    public function getResources() : array
     {
         return $this->resources;
     }

@@ -4,6 +4,7 @@ namespace Rapid\Laplus\Tests\Present;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Rapid\Laplus\Present\Concerns\HasPresentAttributes;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
 use Rapid\Laplus\Tests\TestCase;
@@ -15,7 +16,7 @@ class PresentCastingTest extends TestCase
     {
         return new class($attributes) extends Model
         {
-            use HasPresent;
+            use HasPresent, HasPresentAttributes;
 
             protected function present(Present $present)
             {

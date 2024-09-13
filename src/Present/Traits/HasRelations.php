@@ -36,7 +36,7 @@ trait HasRelations
      */
     public function belongsTo(string $model, string $relation = null, string $foreignKey = null, string $ownerKey = null, string $columnType = 'unsignedBigInteger')
     {
-        $model = $model::getPresentInstance();
+        $model = $model::getPresentableInstance();
 
         $ownerKeyR = $ownerKey ?? $model->getKeyName();
         $relationR = $relation ?? Str::snake(class_basename($model));
@@ -72,7 +72,7 @@ trait HasRelations
      */
     public function hasOne(string $model, string $relation = null, string $foreignKey = null, string $localKey = null)
     {
-        $model = $model::getPresentInstance();
+        $model = $model::getPresentableInstance();
 
         $localKey ??= $this->instance->getKeyName();
         $foreignKey ??= $this->instance->getForeignKey();
@@ -92,7 +92,7 @@ trait HasRelations
      */
     public function hasMany(string $model, string $relation = null, string $foreignKey = null, string $localKey = null)
     {
-        $model = $model::getPresentInstance();
+        $model = $model::getPresentableInstance();
 
         $localKey ??= $this->instance->getKeyName();
         $foreignKey ??= $this->instance->getForeignKey();
@@ -123,8 +123,8 @@ trait HasRelations
         string $relatedKey = null
     )
     {
-        $model = $model::getPresentInstance();
-        if (isset($pivot)) $pivot = $pivot::getPresentInstance();
+        $model = $model::getPresentableInstance();
+        if (isset($pivot)) $pivot = $pivot::getPresentableInstance();
 
         $relation ??= Str::camel(Str::plural(class_basename($model)));
 
@@ -155,8 +155,8 @@ trait HasRelations
         string $secondLocalKey = null
     )
     {
-        $related = $related::getPresentInstance();
-        $through = $through::getPresentInstance();
+        $related = $related::getPresentableInstance();
+        $through = $through::getPresentableInstance();
 
         $localKey ??= $this->instance->getKeyName();
         $secondLocalKey ??= $through->getKeyName();
@@ -192,8 +192,8 @@ trait HasRelations
         string $secondLocalKey = null,
     )
     {
-        $related = $related::getPresentInstance();
-        $through = $through::getPresentInstance();
+        $related = $related::getPresentableInstance();
+        $through = $through::getPresentableInstance();
 
         $localKey ??= $this->instance->getKeyName();
         $secondLocalKey ??= $through->getKeyName();
@@ -234,7 +234,7 @@ trait HasRelations
      */
     public function morphMany(string $related, string $name, string $relation)
     {
-        $related = $related::getPresentInstance();
+        $related = $related::getPresentableInstance();
 
         return $this->attribute(
             new MorphManyAttr($related, $name, $relation)
@@ -251,7 +251,7 @@ trait HasRelations
      */
     public function morphOne(string $related, string $name, string $relation)
     {
-        $related = $related::getPresentInstance();
+        $related = $related::getPresentableInstance();
 
         return $this->attribute(
             new MorphOneAttr($related, $name, $relation)
@@ -278,8 +278,8 @@ trait HasRelations
         string $relatedKey = null, bool $inverse = false
     )
     {
-        $related = $related::getPresentInstance();
-        $pivot = $pivot::getPresentInstance();
+        $related = $related::getPresentableInstance();
+        $pivot = $pivot::getPresentableInstance();
 
         return $this->attribute(
             new MorphToManyAttr(
@@ -308,8 +308,8 @@ trait HasRelations
         string $relatedKey = null
     )
     {
-        $related = $related::getPresentInstance();
-        $pivot = $pivot::getPresentInstance();
+        $related = $related::getPresentableInstance();
+        $pivot = $pivot::getPresentableInstance();
 
         $foreignPivotKey ??= $this->instance->getForeignKey();
         $relatedPivotKey ??= $name.'_id';

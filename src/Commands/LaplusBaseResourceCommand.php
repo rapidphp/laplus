@@ -8,9 +8,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Str;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Laplus;
+use Rapid\Laplus\Resources\Resource;
 
 abstract class LaplusBaseResourceCommand extends Command
 {
+
+    /**
+     * @var Resource[]
+     */
+    public array $resources;
 
     /**
      * Handle resource command
@@ -22,63 +28,57 @@ abstract class LaplusBaseResourceCommand extends Command
         // Entered name option -> Using special resource
         if ($name = $this->option('name'))
         {
-            $config = Laplus::getResource($name);
+            $resource = Laplus::getResource($name);
 
-            if (!$config)
+            if (!$resource)
             {
                 $this->error("Laplus resource [$name] not found");
                 return 1;
             }
 
-            $this->preGenerate([$config['models'] => $config['migrations']]);
-            return $this->generateUsing($config);
+            $this->runGenerate([$resource]);
+            return 0;
         }
         // Entered migrations & models options -> Using input
         elseif ($this->option('migrations') || $this->option('models'))
         {
-            $this->preGenerate([$this->option('models') => $this->option('migrations')]);
-
-            return $this->generate(
-                $this->option('models'),
-                $this->option('migrations'),
-            );
+            $this->generateAll([
+                $this->option('models') => $this->option('migrations')
+            ]);
+            return 0;
         }
         // Using all resources
         else
         {
-            $resource = Laplus::getResources();
-            if (!$resource)
+            $resources = Laplus::getResources();
+            if (!$resources)
             {
-                $this->error("Missing resource configuration. fill 'laplus.resources' config");
+                $this->error("Missing resource configuration. fill the [laplus.resources] config");
                 return 1;
             }
 
-            $this->preGenerate(
-                collect($resource)->mapWithKeys(fn ($config) => [$config['models'] => $config['migrations']])->toArray()
-            );
-            foreach ($resource as $config)
-            {
-                $this->generateUsing($config);
-            }
+            $this->runGenerate($resources);
             return 0;
         }
     }
 
-    /**
-     * Generate using resource value
-     *
-     * @param $config
-     * @return int
-     */
-    public function generateUsing($config)
+    public function runGenerate(array $resources)
     {
-        if (!is_array($config) || !is_string(@$config['models']) || !is_string(@$config['migrations']))
-        {
-            $this->error("Invalid configuration");
-            return 1;
-        }
+        $this->resources = $resources;
 
-        return $this->generate($config['models'], $config['migrations']);
+        $map = collect($this->resources)
+            ->mapWithKeys(fn (Resource $resource) => $resource->resolve())
+            ->toArray();
+
+        $this->generateAll($map);
+    }
+
+    public function generateAll(array $map)
+    {
+        foreach ($map as $modelsPath => $migrationsPath)
+        {
+            $this->generate($modelsPath, $migrationsPath);
+        }
     }
 
     /**
@@ -89,10 +89,6 @@ abstract class LaplusBaseResourceCommand extends Command
      * @return int
      */
     public abstract function generate(string $modelPath, string $migrationPath);
-
-    public function preGenerate(array $map)
-    {
-    }
 
     protected function discoverModels(string $path)
     {

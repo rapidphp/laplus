@@ -3,12 +3,13 @@
 namespace Rapid\Laplus\Tests\Present\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Rapid\Laplus\Present\Concerns\HasPresentAttributes;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
 
 class ModelLaplusPresentable extends Model
 {
-    use HasPresent;
+    use HasPresent, HasPresentAttributes;
 
     protected $table = 'tests';
 
