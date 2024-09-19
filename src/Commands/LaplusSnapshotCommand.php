@@ -54,7 +54,7 @@ class LaplusSnapshotCommand extends LaplusBaseResourceCommand
     protected string $snapshotFileName;
     protected string $snapshotFileContent;
 
-    public function generateAll(array $map)
+    public function generateAll(array $map) : array
     {
         if ($map)
         {
