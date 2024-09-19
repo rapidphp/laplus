@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
+use Rapid\Laplus\Present\Generate\MigrationExporter;
 use Rapid\Laplus\Present\Generate\MigrationGenerator;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
@@ -56,8 +57,10 @@ class PresentGenerateTest extends TestCase
             }
         ]);
 
-        return $generator->exportMigrationStubs(
-            $generator->exportMigrationFiles()
+        $exporter = new MigrationExporter();
+
+        return $exporter->exportMigrationStubs(
+            $exporter->exportMigrationFiles([$generator])
         );
     }
 

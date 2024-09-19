@@ -6,7 +6,7 @@ use Illuminate\Support\Fluent;
 use Rapid\Laplus\Present\Generate\Structure\MigrationFileState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationState;
 
-trait MigrationStubs
+trait ExportStubs
 {
 
     protected function makeMigrationCreate(MigrationState $migration)

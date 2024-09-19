@@ -5,6 +5,7 @@ namespace Rapid\Laplus\Present\Generate\Structure;
 class MigrationState
 {
 
+
     public function __construct(
         public string $fileName,
         public string $table,
@@ -12,6 +13,7 @@ class MigrationState
         public ?DefinedTableState $before = null,
         public ColumnListState $columns = new ColumnListState(),
         public IndexListState $indexes = new IndexListState(),
+        public bool $isLazy = false,
     )
     {
     }
@@ -28,7 +30,7 @@ class MigrationState
 
     public function suggestName(string $id, string $name, bool $override = true)
     {
-        if (is_null($this->suggests) || !$override && array_key_exists($id, $this->suggests))
+        if (is_null($this->suggests) || (!$override && array_key_exists($id, $this->suggests)))
             return;
 
         $this->suggests[$id] = $name;
@@ -48,6 +50,12 @@ class MigrationState
         }
 
         return $this->fileName;
+    }
+
+    public function lazy()
+    {
+        $this->isLazy = true;
+        return $this;
     }
 
 }

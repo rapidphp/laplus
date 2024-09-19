@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Str;
+use Rapid\Laplus\Present\Generate\MigrationExporter;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Laplus;
 use Rapid\Laplus\Resources\Resource;
@@ -62,6 +63,8 @@ abstract class LaplusBaseResourceCommand extends Command
         }
     }
 
+    public MigrationExporter $exporter;
+
     public function runGenerate(array $resources)
     {
         $this->resources = $resources;
@@ -70,15 +73,21 @@ abstract class LaplusBaseResourceCommand extends Command
             ->mapWithKeys(fn (Resource $resource) => $resource->resolve())
             ->toArray();
 
-        $this->generateAll($map);
+        $this->exporter = new MigrationExporter();
+        $all = $this->generateAll($map);
+
+        $this->export($all);
     }
 
-    public function generateAll(array $map)
+    public function generateAll(array $map): array
     {
+        $all = [];
         foreach ($map as $modelsPath => $migrationsPath)
         {
-            $this->generate($modelsPath, $migrationsPath);
+            $all[] = $this->generate($modelsPath, $migrationsPath);
         }
+
+        return $all;
     }
 
     /**
@@ -86,9 +95,17 @@ abstract class LaplusBaseResourceCommand extends Command
      *
      * @param string $modelPath
      * @param string $migrationPath
-     * @return int
+     * @return mixed
      */
     public abstract function generate(string $modelPath, string $migrationPath);
+
+    /**
+     * Final export
+     *
+     * @param array $all
+     * @return mixed
+     */
+    public abstract function export(array $all);
 
     protected function discoverModels(string $path)
     {

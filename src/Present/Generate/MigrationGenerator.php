@@ -21,9 +21,7 @@ use Rapid\Laplus\Present\Present;
 class MigrationGenerator
 {
     use Concerns\MigrationResolves,
-        Concerns\MigrationStubs,
         Concerns\MigrationGenerates,
-        Concerns\MigrationFiles,
         Concerns\SelectNames,
         Concerns\Finds;
 

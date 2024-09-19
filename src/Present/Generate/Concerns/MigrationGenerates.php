@@ -169,7 +169,7 @@ trait MigrationGenerates
             {
                 $migration->indexes->depended = false;
                 $this->newState->add(
-                    new MigrationState(
+                    (new MigrationState(
                         fileName: $this->nameOfAddIndexes($migration->table),
                         table: $migration->table,
                         command: 'table',
@@ -178,17 +178,17 @@ trait MigrationGenerates
                             added: $migration->indexes->added,
                             changed: $migration->indexes->changed,
                         ),
-                    )
+                    ))->lazy(),
                 );
                 $insert->add(
-                    new MigrationState(
+                    (new MigrationState(
                         fileName: $this->nameOfRemoveIndexes($migration->table),
                         table: $migration->table,
                         command: 'table',
                         indexes: new IndexListState(
                             removed: $migration->indexes->removed,
                         )
-                    ),
+                    ))->lazy(),
                 );
 
                 $migration->indexes = new IndexListState();

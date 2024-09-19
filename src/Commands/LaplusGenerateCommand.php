@@ -40,10 +40,15 @@ class LaplusGenerateCommand extends LaplusBaseResourceCommand
         // Create folders
         $this->makeReadyToWrite($migrationPath);
 
-        // Generate different & migrations
-        $files = $generator->exportMigrationFiles();
-        foreach ($generator->exportMigrationStubs($files) as $name => $stub)
+        return $generator;
+    }
+
+    public function export(array $all)
+    {
+        $files = $this->exporter->exportMigrationFiles($all);
+        foreach ($this->exporter->exportMigrationStubs($files) as $name => $stub)
         {
+            $migrationPath = $files->files[$name]->tag;
             if (file_exists("$migrationPath/$name.php"))
             {
                 $this->error("Migration [$migrationPath/$name.php] is already exists");

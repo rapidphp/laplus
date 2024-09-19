@@ -43,9 +43,12 @@ class LaplusSnapshotCommand extends LaplusBaseResourceCommand
             $this->snapshotFileContent,
         );
 
-        $this->output->success("New snapshot {$this->snapshotFileName} created!");
+        $this->output->success("New snapshot [{$migrationPath}/{$this->snapshotFileName}] created!");
+    }
 
-        return 0;
+    public function export(array $all)
+    {
+        // Nothing to export
     }
 
     protected string $snapshotFileName;

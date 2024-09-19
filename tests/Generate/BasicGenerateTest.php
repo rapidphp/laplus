@@ -3,6 +3,7 @@
 namespace Rapid\Laplus\Tests\Generate;
 
 use Illuminate\Database\Eloquent\Model;
+use Rapid\Laplus\Present\Generate\MigrationExporter;
 use Rapid\Laplus\Present\Generate\MigrationGenerator;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
@@ -14,12 +15,12 @@ class BasicGenerateTest extends TestCase
     public function test_basic_generate()
     {
         $generate = new MigrationGenerator();
-
         $generate->pass([
             _BasicGenerateTestModel::class,
         ]);
 
-        $files = $generate->exportMigrationFiles();
+        $exporter = new MigrationExporter();
+        $files = $exporter->exportMigrationFiles([$generate]);
 
         $this->assertStringEndsWith('_create_tests_table', array_keys($files->files)[0]);
         $this->assertSame([
