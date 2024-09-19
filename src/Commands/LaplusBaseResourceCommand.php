@@ -84,7 +84,7 @@ abstract class LaplusBaseResourceCommand extends Command
         $all = [];
         foreach ($map as $modelsPath => $migrationsPath)
         {
-            $all[] = $this->generate($modelsPath, $migrationsPath);
+            $all[$migrationsPath] = $this->generate($modelsPath, $migrationsPath);
         }
 
         return $all;
