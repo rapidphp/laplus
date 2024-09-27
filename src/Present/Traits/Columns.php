@@ -7,7 +7,7 @@ use Rapid\Laplus\Present\Attributes\Column;
 use Rapid\Laplus\Present\Attributes\FileColumn;
 use Rapid\Laplus\Present\Attributes\SlugColumn;
 
-trait HasColumns
+trait Columns
 {
 
     /**

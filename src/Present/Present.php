@@ -12,9 +12,9 @@ use Rapid\Laplus\Present\Attributes\Column;
 abstract class Present
 {
     use Macroable;
-    use Traits\HasColumns,
-        Traits\HasRelations,
-        Traits\HasGenerations;
+    use Traits\Columns,
+        Traits\Relations,
+        Traits\Generations;
 
     public function __construct(
         public Model $instance,

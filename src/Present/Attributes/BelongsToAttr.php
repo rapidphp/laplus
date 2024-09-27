@@ -52,10 +52,13 @@ class BelongsToAttr extends Column
 
         $table = $present->getGeneratingBlueprint();
 
-        $table->foreign($this->name)
+        $foreign = $table->foreign($this->name)
             ->references($this->ownerKey)
             ->on($this->related->getTable())
             ->onDelete($this->onDelete ?? 'restrict');
+
+        if ($this->onUpdate)
+            $foreign->onUpdate($this->onUpdate);
     }
 
     /**
@@ -137,6 +140,58 @@ class BelongsToAttr extends Column
     public function restrictOnDelete()
     {
         $this->onDelete = 'restrict';
+
+        return $this;
+    }
+
+
+    protected ?string $onUpdate = null;
+
+    /**
+     * Cascade on delete
+     *
+     * @return $this
+     */
+    public function cascadeOnUpdate()
+    {
+        $this->onUpdate = 'cascade';
+
+        return $this;
+    }
+
+    /**
+     * Set null on delete
+     *
+     * @return $this
+     */
+    public function nullOnUpdate()
+    {
+        $this->nullable();
+        $this->onUpdate = 'set null';
+
+        return $this;
+    }
+
+    /**
+     * No action on delete
+     *
+     * @return $this
+     */
+    public function noActionOnUpdate()
+    {
+        $this->onUpdate = 'no action';
+
+        return $this;
+    }
+
+    /**
+     * Restrict on delete
+     *
+     * @return $this
+     */
+    public function restrictOnUpdate()
+    {
+        $this->onUpdate = 'restrict';
 
         return $this;
     }

@@ -5,7 +5,7 @@ namespace Rapid\Laplus\Present\Traits;
 use Closure;
 use Rapid\Laplus\Present\Generate\MigrationGenerator;
 
-trait HasGenerations
+trait Generations
 {
 
     public MigrationGenerator $generator;

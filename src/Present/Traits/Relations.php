@@ -16,13 +16,8 @@ use Rapid\Laplus\Present\Attributes\MorphOneAttr;
 use Rapid\Laplus\Present\Attributes\MorphsAttr;
 use Rapid\Laplus\Present\Attributes\MorphToManyAttr;
 
-trait HasRelations
+trait Relations
 {
-
-    public function foreignColumn(string $column, string $model)
-    {
-        
-    }
 
     /**
      * Create a belongsTo relationship
