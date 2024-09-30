@@ -57,17 +57,37 @@ class TranslateFactory
 
     public function getUndefinedLabel() : string
     {
-        return trans("labels.undefined") ?? "Undefined";
+        return __("laplus::label.undefined");
     }
 
     public function getFalseLabel() : string
     {
-        return trans("labels.false") ?? "False";
+        return __("laplus::label.false");
     }
 
     public function getTrueLabel() : string
     {
-        return trans("labels.true") ?? "True";
+        return __("laplus::label.true");
+    }
+
+    public function getOnLabel() : string
+    {
+        return __("laplus::label.on");
+    }
+
+    public function getOffLabel() : string
+    {
+        return __("laplus::label.off");
+    }
+
+    public function getYesLabel() : string
+    {
+        return __("laplus::label.yes");
+    }
+
+    public function getNoLabel() : string
+    {
+        return __("laplus::label.no");
     }
 
     public function getDateLabel(Carbon $carbon) : string

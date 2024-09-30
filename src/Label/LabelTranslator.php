@@ -9,14 +9,24 @@ use Illuminate\Support\Str;
 use ReflectionMethod;
 
 /**
- * @property-read string $undefined Undefined label
- * @property-read string $false False label
- * @property-read string $true True label
- * @property-read ?string $asDate Get latest attribute as date format
- * @property-read ?string $asTime Get latest attribute as time format
- * @property-read ?string $asDateTime Get latest attribute as date & time format
- * @property-read string $latestAttribute Get latest attribute name
- * @property-read mixed $value Get latest attribute value
+ * @property-read string  $undefined                Undefined label
+ * @property-read string  $false                    False label
+ * @property-read string  $true                     True label
+ * @property-read string  $on                       On (True) label
+ * @property-read string  $off                      Off (False) label
+ * @property-read string  $yes                      Yes (True) label
+ * @property-read string  $no                       No (False) label
+ * @property-read string  $trueFalse                True/False/null label
+ * @property-read string  $trueFalseNotNull         True/False label
+ * @property-read string  $onOff                    On/Off/null label
+ * @property-read string  $onOffNotNull             On/Off label
+ * @property-read string  $yesNo                    Yes/No/null label
+ * @property-read string  $yesNoNotNull             Yes/No label
+ * @property-read ?string $asDate                   Get latest attribute as date format
+ * @property-read ?string $asTime                   Get latest attribute as time format
+ * @property-read ?string $asDateTime               Get latest attribute as date & time format
+ * @property-read string  $latestAttribute          Get latest attribute name
+ * @property-read mixed   $value                    Get latest attribute value
  */
 class LabelTranslator
 {
@@ -98,6 +108,56 @@ class LabelTranslator
         return Translate::getTrueLabel();
     }
 
+    protected function getOff() : string
+    {
+        return Translate::getOffLabel();
+    }
+
+    protected function getOn() : string
+    {
+        return Translate::getOnLabel();
+    }
+
+    protected function getYes() : string
+    {
+        return Translate::getYesLabel();
+    }
+
+    protected function getNo() : string
+    {
+        return Translate::getNoLabel();
+    }
+
+    protected function getTrueFalseNotNull() : string
+    {
+        return $this->value ? $this->getTrue() : $this->getFalse();
+    }
+
+    protected function getTrueFalse() : string
+    {
+        return $this->value === null ? $this->getUndefined() : $this->getTrueFalseNotNull();
+    }
+
+    protected function getOnOffNotNull() : string
+    {
+        return $this->value ? $this->getOn() : $this->getOff();
+    }
+
+    protected function getOnOff() : string
+    {
+        return $this->value === null ? $this->getUndefined() : $this->getOnOffNotNull();
+    }
+
+    protected function getYesNoNotNull() : string
+    {
+        return $this->value ? $this->getYes() : $this->getNo();
+    }
+
+    protected function getYesNo() : string
+    {
+        return $this->value === null ? $this->getUndefined() : $this->getYesNoNotNull();
+    }
+
     protected function getLatestAttribute() : string
     {
         return end($this->_labelStack);
@@ -154,6 +214,22 @@ class LabelTranslator
         }
 
         return null;
+    }
+
+    /**
+     * Set the current attribute name in the stack.
+     *
+     * You can use it for detection of magic properties like `value`, `trueFalse` and ...
+     *
+     * @param string $name
+     * @return void
+     */
+    protected function setCurrentAttribute(string $name)
+    {
+        if ($this->_labelStack)
+        {
+            $this->_labelStack[array_key_last($this->_labelStack)] = $name;
+        }
     }
 
 }

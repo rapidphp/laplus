@@ -44,6 +44,13 @@ class LabelTranslatorTest extends TestCase
                         return $this->value;
                     }
 
+                    public function fixedAlias()
+                    {
+                        $this->setCurrentAttribute('fixed');
+
+                        return $this->value;
+                    }
+
                     protected function getUndefined() : string
                     {
                         return 'Undefined Label';
@@ -133,6 +140,13 @@ class LabelTranslatorTest extends TestCase
         ]);
 
         $this->assertSame("This is from object label", $record->empty_label);
+    }
+
+    public function test_label_of_fixed_alias()
+    {
+        $record = $this->make(['fixed' => "Something Awesome"]);
+
+        $this->assertSame("Something Awesome", $record->label('fixedAlias'));
     }
 
     public function test_label_of_deep_objects()

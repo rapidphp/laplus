@@ -22,6 +22,7 @@ class LaplusServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerConfig();
+        $this->registerLang();
         $this->commands($this->commands);
     }
 
@@ -35,16 +36,27 @@ class LaplusServiceProvider extends ServiceProvider
 
         Laplus::loadConfig(config()->get('laplus.resources', []));
 
-        foreach (config()->get('laplus.resources', []) as $name => $config)
-        {
-            if (@$config['merge_to_config'])
+        $this->callAfterResolving('migrator', function ($migrator) {
+            foreach (config()->get('laplus.resources', []) as $name => $config)
             {
-                foreach (Laplus::getResource($name)->resolve() as $modelPath => $migrationPath)
+                if (@$config['merge_to_config'])
                 {
-                    $this->loadMigrationsFrom($migrationPath);
+                    foreach (Laplus::getResource($name)->resolve() as $modelPath => $migrationPath)
+                    {
+                        $migrator->path($migrationPath);
+                    }
                 }
             }
-        }
+        });
+    }
+
+    public function registerLang()
+    {
+        $lang = __DIR__.'/../lang';
+
+        $this->publishes([$lang => $this->app->langPath('vendor/laplus')], ['laplus:lang']);
+
+        $this->loadTranslationsFrom($lang, 'laplus');
     }
 
 }
