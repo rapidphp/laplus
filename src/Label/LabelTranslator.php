@@ -9,24 +9,21 @@ use Illuminate\Support\Str;
 use ReflectionMethod;
 
 /**
- * @property-read string  $undefined                Undefined label
- * @property-read string  $false                    False label
- * @property-read string  $true                     True label
- * @property-read string  $on                       On (True) label
- * @property-read string  $off                      Off (False) label
- * @property-read string  $yes                      Yes (True) label
- * @property-read string  $no                       No (False) label
- * @property-read string  $asTrueFalse                True/False/null label
- * @property-read string  $asTrueFalseNotNull         True/False label
- * @property-read string  $asOnOff                    On/Off/null label
- * @property-read string  $asOnOffNotNull             On/Off label
- * @property-read string  $asYesNo                    Yes/No/null label
- * @property-read string  $asYesNoNotNull             Yes/No label
- * @property-read ?string $asDate                   Get latest attribute as date format
- * @property-read ?string $asTime                   Get latest attribute as time format
- * @property-read ?string $asDateTime               Get latest attribute as date & time format
- * @property-read string  $latestAttribute          Get latest attribute name
- * @property-read mixed   $value                    Get latest attribute value
+ * @property-read string  $undefined                  Undefined label
+ * @property-read string  $false                      False label
+ * @property-read string  $true                       True label
+ * @property-read string  $on                         On (True) label
+ * @property-read string  $off                        Off (False) label
+ * @property-read string  $yes                        Yes (True) label
+ * @property-read string  $no                         No (False) label
+ * @property-read ?string $asTrueFalse                True/False/null label
+ * @property-read ?string $asOnOff                    On/Off/null label
+ * @property-read ?string $asYesNo                    Yes/No/null label
+ * @property-read ?string $asDate                     Get latest attribute as date format
+ * @property-read ?string $asTime                     Get latest attribute as time format
+ * @property-read ?string $asDateTime                 Get latest attribute as date & time format
+ * @property-read string  $latestAttribute            Get latest attribute name
+ * @property-read mixed   $value                      Get latest attribute value
  */
 class LabelTranslator
 {
@@ -155,34 +152,34 @@ class LabelTranslator
         return is_null($this->value) ? null : Translate::getDateTimeLabel(new Carbon($this->value));
     }
 
-    protected function getAsTrueFalseNotNull() : string
+    protected function getAsTrueFalse() : ?string
     {
+        if ($this->value === null)
+        {
+            return null;
+        }
+
         return $this->value ? $this->getTrue() : $this->getFalse();
     }
 
-    protected function getAsTrueFalse() : string
+    protected function getAsOnOff() : ?string
     {
-        return $this->value === null ? $this->getUndefined() : $this->getAsTrueFalseNotNull();
-    }
+        if ($this->value === null)
+        {
+            return null;
+        }
 
-    protected function getAsOnOffNotNull() : string
-    {
         return $this->value ? $this->getOn() : $this->getOff();
     }
 
-    protected function getAsOnOff() : string
+    protected function getAsYesNo() : ?string
     {
-        return $this->value === null ? $this->getUndefined() : $this->getAsOnOffNotNull();
-    }
+        if ($this->value === null)
+        {
+            return null;
+        }
 
-    protected function getAsYesNoNotNull() : string
-    {
         return $this->value ? $this->getYes() : $this->getNo();
-    }
-
-    protected function getAsYesNo() : string
-    {
-        return $this->value === null ? $this->getUndefined() : $this->getAsYesNoNotNull();
     }
 
 
