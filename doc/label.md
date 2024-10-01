@@ -49,6 +49,11 @@ class UserLabelTranslator extends LabelTranslator
     {
         return $this->asDateTime;
     }
+    
+    public function is_male()
+    {
+        return $this->asYesNo;
+    }
 }
 ```
 
@@ -113,15 +118,9 @@ class UserLabelTranslator extends LabelTranslator
 }
 ```
 
-2- Language: Create `resources/YOUR_LANG/labels.php` with following content:
-```php
-<?php
-
-return [
-    'undefined' => "Undefined",
-    'true' => 'True',
-    'false' => 'False',
-];
+2- Run following command to publish language files:
+```shell
+php artisan vendor:publish --tag="laplus:lang"
 ```
 
 ### Objects

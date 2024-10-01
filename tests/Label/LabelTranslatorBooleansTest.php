@@ -24,24 +24,24 @@ class LabelTranslatorBooleansTest extends TestCase
                 {
                     public function tf()
                     {
-                        return $this->trueFalse;
+                        return $this->asTrueFalse;
                     }
 
                     public function oo()
                     {
-                        return $this->onOff;
+                        return $this->asOnOff;
                     }
 
                     public function yn()
                     {
-                        return $this->yesNo;
+                        return $this->asYesNo;
                     }
 
                     public function ynNotNull()
                     {
                         $this->setCurrentAttribute('yn');
 
-                        return $this->yesNoNotNull;
+                        return $this->asYesNoNotNull;
                     }
                 };
             }

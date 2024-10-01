@@ -4,7 +4,7 @@
 
 Run the following command to publish configs:
 
-```php
+```shell
 php artisan vendor:publish --tag=laplus
 ```
 

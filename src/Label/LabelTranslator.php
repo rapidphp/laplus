@@ -16,12 +16,12 @@ use ReflectionMethod;
  * @property-read string  $off                      Off (False) label
  * @property-read string  $yes                      Yes (True) label
  * @property-read string  $no                       No (False) label
- * @property-read string  $trueFalse                True/False/null label
- * @property-read string  $trueFalseNotNull         True/False label
- * @property-read string  $onOff                    On/Off/null label
- * @property-read string  $onOffNotNull             On/Off label
- * @property-read string  $yesNo                    Yes/No/null label
- * @property-read string  $yesNoNotNull             Yes/No label
+ * @property-read string  $asTrueFalse                True/False/null label
+ * @property-read string  $asTrueFalseNotNull         True/False label
+ * @property-read string  $asOnOff                    On/Off/null label
+ * @property-read string  $asOnOffNotNull             On/Off label
+ * @property-read string  $asYesNo                    Yes/No/null label
+ * @property-read string  $asYesNoNotNull             Yes/No label
  * @property-read ?string $asDate                   Get latest attribute as date format
  * @property-read ?string $asTime                   Get latest attribute as time format
  * @property-read ?string $asDateTime               Get latest attribute as date & time format
@@ -128,36 +128,6 @@ class LabelTranslator
         return Translate::getNoLabel();
     }
 
-    protected function getTrueFalseNotNull() : string
-    {
-        return $this->value ? $this->getTrue() : $this->getFalse();
-    }
-
-    protected function getTrueFalse() : string
-    {
-        return $this->value === null ? $this->getUndefined() : $this->getTrueFalseNotNull();
-    }
-
-    protected function getOnOffNotNull() : string
-    {
-        return $this->value ? $this->getOn() : $this->getOff();
-    }
-
-    protected function getOnOff() : string
-    {
-        return $this->value === null ? $this->getUndefined() : $this->getOnOffNotNull();
-    }
-
-    protected function getYesNoNotNull() : string
-    {
-        return $this->value ? $this->getYes() : $this->getNo();
-    }
-
-    protected function getYesNo() : string
-    {
-        return $this->value === null ? $this->getUndefined() : $this->getYesNoNotNull();
-    }
-
     protected function getLatestAttribute() : string
     {
         return end($this->_labelStack);
@@ -183,6 +153,36 @@ class LabelTranslator
     protected function getAsDateTime() : ?string
     {
         return is_null($this->value) ? null : Translate::getDateTimeLabel(new Carbon($this->value));
+    }
+
+    protected function getAsTrueFalseNotNull() : string
+    {
+        return $this->value ? $this->getTrue() : $this->getFalse();
+    }
+
+    protected function getAsTrueFalse() : string
+    {
+        return $this->value === null ? $this->getUndefined() : $this->getAsTrueFalseNotNull();
+    }
+
+    protected function getAsOnOffNotNull() : string
+    {
+        return $this->value ? $this->getOn() : $this->getOff();
+    }
+
+    protected function getAsOnOff() : string
+    {
+        return $this->value === null ? $this->getUndefined() : $this->getAsOnOffNotNull();
+    }
+
+    protected function getAsYesNoNotNull() : string
+    {
+        return $this->value ? $this->getYes() : $this->getNo();
+    }
+
+    protected function getAsYesNo() : string
+    {
+        return $this->value === null ? $this->getUndefined() : $this->getAsYesNoNotNull();
     }
 
 

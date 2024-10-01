@@ -17,10 +17,7 @@ trait HasLabels
     public function label(string $name, ...$args) : string
     {
         // Get using label translator
-        if (
-            ($labelTranslator = $this->getLabelTranslator()) &&
-            $labelTranslator->hasLabel($name)
-        )
+        if (($labelTranslator = $this->getLabelTranslator())?->hasLabel($name))
         {
             return $labelTranslator->getLabel($name, ...$args);
         }

@@ -54,7 +54,7 @@ class LaplusServiceProvider extends ServiceProvider
     {
         $lang = __DIR__.'/../lang';
 
-        $this->publishes([$lang => $this->app->langPath('vendor/laplus')], ['laplus:lang']);
+        $this->publishes([$lang => $this->app->langPath('vendor/laplus')], ['laplus:lang', 'lang']);
 
         $this->loadTranslationsFrom($lang, 'laplus');
     }
