@@ -41,7 +41,7 @@ class LabelTranslatorBooleansTest extends TestCase
                     {
                         $this->setCurrentAttribute('yn');
 
-                        return $this->asYesNoNotNull;
+                        return $this->asYesNo ?? $this->no;
                     }
                 };
             }
