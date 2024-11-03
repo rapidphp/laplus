@@ -16,6 +16,9 @@ use Rapid\Laplus\Present\Attributes\MorphOneAttr;
 use Rapid\Laplus\Present\Attributes\MorphsAttr;
 use Rapid\Laplus\Present\Attributes\MorphToManyAttr;
 
+/**
+ * @internal
+ */
 trait Relations
 {
 

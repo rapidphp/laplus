@@ -5,6 +5,9 @@ namespace Rapid\Laplus\Present\Traits;
 use Closure;
 use Rapid\Laplus\Present\Generate\MigrationGenerator;
 
+/**
+ * @internal
+ */
 trait Generations
 {
 
@@ -42,6 +45,11 @@ trait Generations
         foreach ($this->attributes as $attribute)
         {
             $attribute->generate($this);
+        }
+
+        foreach ($this->indexes as $index)
+        {
+            $index->generate($this);
         }
 
         // Revert old data

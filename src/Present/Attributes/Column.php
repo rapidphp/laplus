@@ -2,7 +2,6 @@
 
 namespace Rapid\Laplus\Present\Attributes;
 
-use Illuminate\Database\Schema\Blueprint;
 use Rapid\Laplus\Present\Present;
 
 class Column extends Attribute
