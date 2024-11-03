@@ -44,6 +44,19 @@ trait Indexes
     }
 
     /**
+     * Specify the primary key(s) for the table.
+     *
+     * @param string|array $columns
+     * @param null         $name
+     * @param null         $algorithm
+     * @return Index
+     */
+    public function primary($columns, $name = null, $algorithm = null) : Index
+    {
+        return $this->indexCommand('primary', $columns, $name, $algorithm);
+    }
+
+    /**
      * Specify a unique index for the table.
      *
      * @param  string|array  $columns
