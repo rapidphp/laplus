@@ -3,12 +3,10 @@
 namespace Rapid\Laplus\Present\Attributes;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Traits\Macroable;
 use Closure;
 use Rapid\Laplus\Label\LabelTypeException;
 use Rapid\Laplus\Label\Translate;
-use Rapid\Laplus\Present\Generator;
 use Rapid\Laplus\Present\Present;
 use Rapid\Laplus\Present\PresentAttributeCast;
 

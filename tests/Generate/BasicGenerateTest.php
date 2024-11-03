@@ -29,6 +29,7 @@ class BasicGenerateTest extends TestCase
             '    $table->text(\'name\');',
             '    $table->integer(\'age\')->unsigned();',
             '    $table->boolean(\'is_male\')->default(false);',
+            '    $table->unique([\'name\', \'age\'], \'tests_name_age_unique\');',
             '});',
         ], end($files->files)->up);
 
@@ -51,5 +52,6 @@ class _BasicGenerateTestModel extends Model
         $present->text('name');
         $present->unsignedInteger('age');
         $present->boolean('is_male')->default(false);
+        $present->unique(['name', 'age']);
     }
 }

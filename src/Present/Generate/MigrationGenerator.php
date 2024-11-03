@@ -53,6 +53,6 @@ class MigrationGenerator
     }
 
 
-    protected DefinedMigrationState $definedMigrationState;
+    public DefinedMigrationState $definedMigrationState;
 
 }

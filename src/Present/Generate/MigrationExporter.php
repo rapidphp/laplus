@@ -18,7 +18,7 @@ class MigrationExporter
         $generates = [];
         foreach ($generators as $tag => $generator)
         {
-            $generates[$tag] = $generator->generate();
+            $generates[$tag] = [$generator, $generator->generate()];
         }
 
         return $this->exportMigrationFilesFrom($generates);
@@ -33,13 +33,18 @@ class MigrationExporter
     protected function exportMigrationFilesFrom(array $migrationsAll)
     {
         $files = new MigrationFileListState();
-        $createdTables = isset($this->definedMigrationState) ? array_keys($this->definedMigrationState->tables) : [];
-
         $dateIndex = time();
 
-        // Export normals
-        foreach ($migrationsAll as $tag => $migrations)
+        /**
+         * Export normals
+         *
+         * @var string $tag
+         * @var MigrationGenerator $generator
+         * @var MigrationListState $migrations
+         */
+        foreach ($migrationsAll as $tag => [$generator, $migrations])
         {
+            $createdTables = isset($generator->definedMigrationState) ? array_keys($generator->definedMigrationState->tables) : [];
             foreach ($migrations->all as $migration)
             {
                 if ($migration->isLazy) continue;
@@ -70,9 +75,16 @@ class MigrationExporter
             }
         }
 
-        // Export lazies
-        foreach ($migrationsAll as $tag => $migrations)
+        /**
+         * Export lazies
+         *
+         * @var string $tag
+         * @var MigrationGenerator $generator
+         * @var MigrationListState $migrations
+         */
+        foreach ($migrationsAll as $tag => [$generator, $migrations])
         {
+            $createdTables = isset($generator->definedMigrationState) ? array_keys($generator->definedMigrationState->tables) : [];
             foreach ($migrations->all as $migration)
             {
                 if (!$migration->isLazy) continue;

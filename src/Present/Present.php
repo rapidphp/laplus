@@ -8,13 +8,15 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 use Rapid\Laplus\Present\Attributes\Attribute;
 use Rapid\Laplus\Present\Attributes\Column;
+use Rapid\Laplus\Present\Attributes\Index;
 
 abstract class Present
 {
     use Macroable;
     use Traits\Columns,
         Traits\Relations,
-        Traits\Generations;
+        Traits\Generations,
+        Traits\Indexes;
 
     public function __construct(
         public Model $instance,
@@ -95,10 +97,7 @@ abstract class Present
      */
     protected function generate()
     {
-        $this->table($this->getTable(), function ()
-        {
-            $this->presentTable();
-        });
+        $this->table($this->getTable(), $this->presentTable(...));
     }
 
     /**
@@ -189,6 +188,31 @@ abstract class Present
     public function getAttribute(string $name)
     {
         return @$this->attributes[$name];
+    }
+
+    /**
+     * List of indexes
+     *
+     * @var array<Index>
+     */
+    protected array $indexes = [];
+
+    /**
+     * Create new attribute
+     *
+     * @template T
+     * @param Index|T $index
+     * @return Index|T
+     */
+    public function addIndex(Index $index)
+    {
+        if (array_key_exists($index->name, $this->attributes))
+        {
+            throw new \InvalidArgumentException("Duplicated attribute name [$index->name]");
+        }
+
+        $this->indexes[$index->name] = $index;
+        return $index;
     }
 
 
