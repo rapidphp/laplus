@@ -35,6 +35,8 @@ class MigrationExporter
         $files = new MigrationFileListState();
         $dateIndex = time();
 
+        $createdLocallyTables = [];
+
         /**
          * Export normals
          *
@@ -55,9 +57,10 @@ class MigrationExporter
                 {
                     case 'table':
                         $tableName = $migration->table;
-                        $isCreating = !in_array($tableName, $createdTables);
+                        $isCreating = !in_array($tableName, $createdTables) && !in_array($tableName, $createdLocallyTables);
                         if ($isCreating)
-                            $createdTables[] = $tableName;
+                            $createdLocallyTables[] = $tableName;
+
                         $files->files[$name] = $isCreating ?
                             $this->makeMigrationCreate($migration) :
                             $this->makeMigrationTable($migration);
@@ -95,9 +98,10 @@ class MigrationExporter
                 {
                     case 'table':
                         $tableName = $migration->table;
-                        $isCreating = !in_array($tableName, $createdTables);
+                        $isCreating = !in_array($tableName, $createdTables) && !in_array($tableName, $createdLocallyTables);
                         if ($isCreating)
-                            $createdTables[] = $tableName;
+                            $createdLocallyTables[] = $tableName;
+
                         $files->files[$name] = $isCreating ?
                             $this->makeMigrationCreate($migration) :
                             $this->makeMigrationTable($migration);
