@@ -192,7 +192,7 @@ class MorphsAttr extends Attribute
         $doc = parent::docblock();
 
         $doc[] = sprintf("@property \%s %s()", MorphTo::class, $this->name);
-        $doc[] = sprintf("@property \%s \$%s", Model::class, $this->name);
+        $doc[] = sprintf("@property ?\%s \$%s", Model::class, $this->name);
 
         return $doc;
     }

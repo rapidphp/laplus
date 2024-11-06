@@ -144,7 +144,7 @@ class HasOneAttr extends Attribute
         $doc = parent::docblock();
 
         $doc[] = sprintf("@property \%s<\%s> %s()", HasOne::class, $this->related::class, $this->name);
-        $doc[] = sprintf("@property \%s \$%s", $this->related::class, $this->name);
+        $doc[] = sprintf("@property ?\%s \$%s", $this->related::class, $this->name);
 
         return $doc;
     }

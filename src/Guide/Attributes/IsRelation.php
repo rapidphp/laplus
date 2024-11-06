@@ -32,7 +32,7 @@ class IsRelation implements DocblockAttributeContract
             )
             {
                 return [
-                    sprintf("@property \%s $%s", get_class($sample->getRelated()), $reflection->getName()),
+                    sprintf("@property ?\%s $%s", get_class($sample->getRelated()), $reflection->getName()),
                 ];
             }
 

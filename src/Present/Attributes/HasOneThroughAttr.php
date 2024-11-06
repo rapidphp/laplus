@@ -109,7 +109,7 @@ class HasOneThroughAttr extends Attribute
         $doc = parent::docblock();
 
         $doc[] = sprintf("@property \%s<\%s> %s()", HasOneThrough::class, $this->related::class, $this->name);
-        $doc[] = sprintf("@property \%s \$%s", $this->related::class, $this->name);
+        $doc[] = sprintf("@property ?\%s \$%s", $this->related::class, $this->name);
 
         return $doc;
     }

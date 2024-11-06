@@ -268,7 +268,7 @@ class BelongsToAttr extends Column
         if ($this->includeAttr)
         {
             $doc[] = sprintf("@property \%s<\%s> %s()", BelongsTo::class, $this->related::class, $this->relationName);
-            $doc[] = sprintf("@property \%s \$%s", $this->related::class, $this->relationName);
+            $doc[] = sprintf("@property ?\%s \$%s", $this->related::class, $this->relationName);
         }
 
         return $doc;
