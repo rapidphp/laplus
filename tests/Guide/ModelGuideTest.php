@@ -7,7 +7,6 @@ use Rapid\Laplus\Guide\Attributes\IsRelation;
 use Rapid\Laplus\Guide\ModelGuide;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
-use Rapid\Laplus\Tests\Guide\Models\_TestLabel1ForGuide;
 use Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide;
 use Rapid\Laplus\Tests\TestCase;
 
