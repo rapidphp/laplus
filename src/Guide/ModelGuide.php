@@ -102,7 +102,7 @@ class ModelGuide extends GuideAuthor
         return $docblock;
     }
 
-    protected function guideModelAttributes() : array
+    protected function guideModelAttributes(GuideScope $scope) : array
     {
         $attributes = [];
         $docblock = [];
@@ -129,7 +129,7 @@ class ModelGuide extends GuideAuthor
 
         foreach ($attributes as $name => $value)
         {
-            $type = $value['get'] ?? $value['set'];
+            $type = $scope->typeHint($value['get'] ?? $value['set']);
             $docblock[] = "@property {$type} \${$name}";
         }
 
