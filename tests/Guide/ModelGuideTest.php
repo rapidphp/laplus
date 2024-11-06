@@ -94,9 +94,9 @@ class ModelGuideTest extends TestCase
              * @GuidePresent
              * @property int $testBel_id
              * @property \Illuminate\Database\Eloquent\Relations\BelongsTo<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testBel()
-             * @property \Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $testBel
+             * @property ?\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $testBel
              * @property \Illuminate\Database\Eloquent\Relations\HasOne<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testOne()
-             * @property \Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $testOne
+             * @property ?\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $testOne
              * @property \Illuminate\Database\Eloquent\Relations\HasMany<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testMany()
              * @property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testMany
              * @property \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testBelMany()
