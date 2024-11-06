@@ -13,6 +13,9 @@ class _TestModel1ForGuide extends Model
     protected function present(Present $present)
     {
         $present->id();
+        $present->string('name');
+        $present->string('money')->typeHint('float');
+        $present->json('friends')->docHint('List of friends');
     }
 
 }

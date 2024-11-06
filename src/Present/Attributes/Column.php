@@ -8,15 +8,14 @@ class Column extends Attribute
 {
 
     public function __construct(
-        string $name,
-        protected $createUsingMethod,
+        string          $name,
+        protected       $createUsingMethod,
         protected array $createUsingArgs = [],
     )
     {
         parent::__construct($name);
         $this->fillable = true;
     }
-
 
 
     public function generate(Present $present)
@@ -66,7 +65,7 @@ class Column extends Attribute
         array_push($this->oldNames, $name, ...$names);
         return $this;
     }
-    
+
 
     protected array $columnData = [
         'nullable' => false,
@@ -381,6 +380,56 @@ class Column extends Attribute
         $this->columnData['virtualAs'] = $expression;
 
         return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function docblock() : array
+    {
+        $doc = [];
+
+        $doc[] = "@property {$this->getDocblockTypeHint()} \${$this->name}" . (isset($this->docHint) ? ' ' . $this->docHint : '');
+
+        return $doc;
+    }
+
+    /**
+     * Get docblock type hint
+     *
+     * @return string
+     */
+    public function getDocblockTypeHint() : string
+    {
+        if (isset($this->typeHint))
+        {
+            return $this->typeHint;
+        }
+
+        if ($this->castUsing)
+        {
+            return 'mixed';
+        }
+
+        if (is_string($this->cast))
+        {
+            return match ($this->cast)
+            {
+                'json'  => 'array',
+                default => class_exists($this->cast) ? 'mixed' : $this->cast,
+            };
+        }
+
+        return match (strtolower($this->columnData['type'] ?? 'mixed'))
+        {
+            'string', 'varchar', 'char' => 'string',
+            'json', 'array'             => 'array',
+            default                     => match ($this->createUsingMethod)
+            {
+                'string', 'text' => 'string',
+                default          => 'mixed',
+            },
+        };
     }
 
 }

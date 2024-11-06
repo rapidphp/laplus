@@ -52,22 +52,22 @@ trait Columns
 
     public function integerIncrements(string $column)
     {
-        return $this->column($column, 'integerIncrements')->cast('id');
+        return $this->column($column, 'integerIncrements')->cast('int');
     }
 
     public function tinyIncrements(string $column)
     {
-        return $this->column($column, 'tinyIncrements')->cast('id');
+        return $this->column($column, 'tinyIncrements')->cast('int');
     }
 
     public function smallIncrements(string $column)
     {
-        return $this->column($column, 'smallIncrements')->cast('id');
+        return $this->column($column, 'smallIncrements')->cast('int');
     }
 
     public function mediumIncrements(string $column)
     {
-        return $this->column($column, 'mediumIncrements')->cast('id');
+        return $this->column($column, 'mediumIncrements')->cast('int');
     }
 
     public function bigIncrements(string $column)

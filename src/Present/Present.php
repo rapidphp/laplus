@@ -288,4 +288,20 @@ abstract class Present
         return new InlinePresent($instance, $callback);
     }
 
+    /**
+     * Get docblock comments to present the attribute to IDE
+     *
+     * @return array
+     */
+    public function docblock()
+    {
+        $doc = [];
+        foreach ($this->attributes as $attribute)
+        {
+            array_push($doc, ...$attribute->docblock());
+        }
+
+        return $doc;
+    }
+
 }

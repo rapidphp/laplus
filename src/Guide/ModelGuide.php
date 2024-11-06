@@ -2,6 +2,8 @@
 
 namespace Rapid\Laplus\Guide;
 
+use Rapid\Laplus\Present\Present;
+
 /**
  * @internal
  */
@@ -10,7 +12,10 @@ class ModelGuide extends GuideAuthor
 
     protected function guide(string $contents)
     {
-        $contents = $this->commentClass($contents, $this->class, 'GuidePresent', ['Test', 'Test2']);
+        /** @var Present $present */
+        $present = $this->class::getStaticPresentInstance();
+
+        $contents = $this->commentClass($contents, $this->class, 'GuidePresent', $present->docblock());
 
         return $contents;
     }

@@ -231,4 +231,49 @@ class Attribute
     {
     }
 
+    /**
+     * Get docblock comments to present the attribute to IDE
+     *
+     * @return array
+     */
+    public function docblock() : array
+    {
+        return [];
+    }
+
+    protected string $typeHint;
+
+    protected string $docHint;
+
+    /**
+     * Set the type hint (if available)
+     *
+     * @param string $typeHint
+     * @return $this
+     */
+    public function typeHint(string $typeHint)
+    {
+        $this->typeHint = $typeHint;
+        return $this;
+    }
+
+    /**
+     * Set the document hint comment (if available)
+     *
+     * @param string      $comment
+     * @param string|null $typeHint
+     * @return $this
+     */
+    public function docHint(string $comment, ?string $typeHint = null)
+    {
+        $this->docHint = str_replace("\n", ". ", $comment);
+
+        if (isset($typeHint))
+        {
+            $this->typeHint($typeHint);
+        }
+
+        return $this;
+    }
+
 }
