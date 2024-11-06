@@ -34,6 +34,39 @@ class LabelTranslator
     {
     }
 
+    /**
+     * Extract label names
+     *
+     * @return array
+     */
+    public function extractLabelNames() : array
+    {
+        static $primitive = [
+            'extractLabelNames',
+            'hasLabel',
+        ];
+
+        $list = [];
+
+        foreach ((new \ReflectionClass($this))->getMethods(ReflectionMethod::IS_PUBLIC) as $method)
+        {
+            $name = $method->getName();
+
+            if (
+                !$method->isStatic() &&
+                !str_starts_with($name, '__') &&
+                !in_array($name, $primitive) &&
+                !preg_match('/^(get|as)[A-Z0-9_]/', $name)
+            )
+            {
+                $list[] = Str::snake($name);
+            }
+        }
+
+        return $list;
+    }
+
+
 
     public function createdAt()
     {

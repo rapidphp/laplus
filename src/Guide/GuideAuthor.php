@@ -62,22 +62,24 @@ abstract class GuideAuthor
         string $contents,
         string $class,
         string $tag,
-        array $comment,
-        bool $insertAtLast = true,
-        bool $nullOnError = false,
+        array  $comment,
+        bool   $insertAtLast = true,
+        bool   $nullOnError = false,
     ) : ?string
     {
         $enter = $this->detectEnter($contents);
         $classRegex = preg_quote(class_basename($class), '/');
 
-        if (!preg_match('/^([\s\S]*\n)(\s*)class\s+'.$classRegex.'[\s\r\n]/i', $contents, $matches))
+        if (!preg_match('/^([\s\S]*\n)(\s*)class\s+' . $classRegex . '[\s\r\n]/i', $contents, $matches))
         {
             if ($nullOnError)
             {
                 return null;
             }
 
-            throw new Exceptions\FailedToWriteComment("Failed to write comment for class [$class], because it's not exists");
+            throw new Exceptions\FailedToWriteComment(
+                "Failed to write comment for class [$class], because it's not exists"
+            );
         }
 
         $left = substr($contents, 0, strlen($matches[1]));
@@ -96,7 +98,10 @@ abstract class GuideAuthor
         if (preg_match('/\/\*\*\s*(\n[\s\S]*?)(\s*\*\/)[\s\r\n]*$/', $left, $commentMatches, PREG_OFFSET_CAPTURE))
         {
             $tagRegex = preg_quote($tag, '/');
-            if (preg_match('/\* @' . $tagRegex . '\s*\n([\s\S]*?)\n\s*\* @End' . $tagRegex . '\s*(\n|$)/', $commentMatches[1][0], $tagMatches, PREG_OFFSET_CAPTURE))
+            if (preg_match(
+                '/\* @' . $tagRegex . '\s*\n([\s\S]*?)\n\s*\* @End' . $tagRegex . '\s*(\n|$)/', $commentMatches[1][0],
+                $tagMatches, PREG_OFFSET_CAPTURE
+            ))
             {
                 $left = substr_replace(
                     $left,
@@ -109,7 +114,9 @@ abstract class GuideAuthor
             {
                 $left = substr_replace(
                     $left,
-                    "$enter$spaces * $enter$spaces * @$tag$enter" . implode($enter, $comment) . "$enter$spaces * @End$tag",
+                    "$enter$spaces * $enter$spaces * @$tag$enter" . implode(
+                        $enter, $comment
+                    ) . "$enter$spaces * @End$tag",
                     $commentMatches[2][1],
                     0,
                 );
@@ -117,7 +124,9 @@ abstract class GuideAuthor
         }
         else
         {
-            $left .= "$spaces/**$enter$spaces * @$tag$enter" . implode($enter, $comment) . "$enter$spaces * @End$tag$enter$spaces */$enter";
+            $left .= "$spaces/**$enter$spaces * @$tag$enter" . implode(
+                    $enter, $comment
+                ) . "$enter$spaces * @End$tag$enter$spaces */$enter";
         }
 
         return $left . $center . $right;
@@ -158,6 +167,12 @@ abstract class GuideAuthor
     protected abstract function guide(string $contents);
 
 
+    /**
+     * Assert insert comment
+     *
+     * @param string $fullComment
+     * @return void
+     */
     public function assertInsertComment(string $fullComment)
     {
         $in = "<?php\n" .
@@ -170,6 +185,39 @@ abstract class GuideAuthor
             "class " . class_basename($this->class) . " extends Model {}\n";
 
         Assert::assertSame($out, $this->testWrite($in));
+    }
+
+    protected function objectToDoc(mixed $object) : string
+    {
+        return match (gettype($object))
+        {
+            'string'            => "\"" . addslashes($object) . "\"",
+            'boolean'           => $object ? 'true' : 'false',
+            // 'NULL'              => 'null',
+            'integer', 'double' => "$object",
+            'array'             => $this->arrayToDoc($object),
+            default             => 'null',
+        };
+    }
+
+    protected function arrayToDoc(array $array) : string
+    {
+        $doc = [];
+        $i = 0;
+        foreach ($array as $key => $value)
+        {
+            if (is_int($key) && $key == $i)
+            {
+                $doc[] = $this->objectToDoc($value);
+                $i++;
+            }
+            else
+            {
+                $doc[] = $this->objectToDoc($key) . ' => ' . $this->objectToDoc($value);
+            }
+        }
+
+        return '[' . implode(', ', $doc) . ']';
     }
 
 }

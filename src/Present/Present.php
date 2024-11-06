@@ -291,9 +291,10 @@ abstract class Present
     /**
      * Get docblock comments to present the attribute to IDE
      *
+     * @internal
      * @return array
      */
-    public function docblock()
+    public function docblock() : array
     {
         $doc = [];
         foreach ($this->attributes as $attribute)

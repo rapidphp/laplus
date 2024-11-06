@@ -234,6 +234,7 @@ class Attribute
     /**
      * Get docblock comments to present the attribute to IDE
      *
+     * @internal
      * @return array
      */
     public function docblock() : array
