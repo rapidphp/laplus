@@ -39,7 +39,7 @@ class ModelGuide extends GuideAuthor
             array_push($docblock, ...$this->guideLabelTranslator($label));
         }
 
-        array_push($docblock, ...$this->guideModelAttributes());
+        array_push($docblock, ...$this->guideModelAttributes($scope));
         array_push($docblock, ...$this->guideAttributes($scope));
 
         $contents = $this->commentClass($contents, $this->class, 'GuidePresent', $docblock);
