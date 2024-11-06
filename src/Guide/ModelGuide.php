@@ -21,12 +21,14 @@ class ModelGuide extends GuideAuthor
         $uses = class_uses_recursive($this->class);
         $model = app($this->class);
 
+        $scope = $this->makeScope($contents);
+
         if (in_array(HasPresent::class, $uses))
         {
             /** @var Present $present */
             $present = $model->getPresent();
 
-            array_push($docblock, ...$present->docblock());
+            array_push($docblock, ...$present->docblock($scope));
         }
 
         if (in_array(HasLabels::class, $uses))
@@ -38,7 +40,7 @@ class ModelGuide extends GuideAuthor
         }
 
         array_push($docblock, ...$this->guideModelAttributes());
-        array_push($docblock, ...$this->guideAttributes());
+        array_push($docblock, ...$this->guideAttributes($scope));
 
         $contents = $this->commentClass($contents, $this->class, 'GuidePresent', $docblock);
 
@@ -134,7 +136,7 @@ class ModelGuide extends GuideAuthor
         return $docblock;
     }
 
-    protected function guideAttributes() : array
+    protected function guideAttributes(GuideScope $scope) : array
     {
         $docblock = [];
         $class = new \ReflectionClass($this->class);
@@ -143,7 +145,7 @@ class ModelGuide extends GuideAuthor
         {
             if (is_a($attribute->getName(), DocblockAttributeContract::class, true))
             {
-                array_push($docblock, ...$attribute->newInstance()->docblock($class));
+                array_push($docblock, ...$attribute->newInstance()->docblock($scope, $class));
             }
         }
 
@@ -153,7 +155,7 @@ class ModelGuide extends GuideAuthor
             {
                 if (is_a($attribute->getName(), DocblockAttributeContract::class, true))
                 {
-                    array_push($docblock, ...$attribute->newInstance()->docblock($method));
+                    array_push($docblock, ...$attribute->newInstance()->docblock($scope, $method));
                 }
             }
         }
@@ -164,7 +166,7 @@ class ModelGuide extends GuideAuthor
             {
                 if (is_a($attribute->getName(), DocblockAttributeContract::class, true))
                 {
-                    array_push($docblock, ...$attribute->newInstance()->docblock($property));
+                    array_push($docblock, ...$attribute->newInstance()->docblock($scope, $property));
                 }
             }
         }

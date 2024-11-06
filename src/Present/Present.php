@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
+use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Attributes\Attribute;
 use Rapid\Laplus\Present\Attributes\Column;
 use Rapid\Laplus\Present\Attributes\Index;
@@ -291,15 +292,16 @@ abstract class Present
     /**
      * Get docblock comments to present the attribute to IDE
      *
-     * @internal
+     * @param GuideScope $scope
      * @return array
+     * @internal
      */
-    public function docblock() : array
+    public function docblock(GuideScope $scope) : array
     {
         $doc = [];
         foreach ($this->attributes as $attribute)
         {
-            array_push($doc, ...$attribute->docblock());
+            array_push($doc, ...$attribute->docblock($scope));
         }
 
         return $doc;

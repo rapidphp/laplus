@@ -5,6 +5,7 @@ namespace Rapid\Laplus\Present\Attributes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Traits\Macroable;
 use Closure;
+use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Label\LabelTypeException;
 use Rapid\Laplus\Label\Translate;
 use Rapid\Laplus\Present\Present;
@@ -234,10 +235,11 @@ class Attribute
     /**
      * Get docblock comments to present the attribute to IDE
      *
-     * @internal
+     * @param GuideScope $scope
      * @return array
+     * @internal
      */
-    public function docblock() : array
+    public function docblock(GuideScope $scope) : array
     {
         return [];
     }

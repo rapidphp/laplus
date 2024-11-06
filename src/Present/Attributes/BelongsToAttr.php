@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\ColumnDefinition;
+use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Present;
 
 class BelongsToAttr extends Column
@@ -261,14 +262,14 @@ class BelongsToAttr extends Column
     /**
      * @inheritDoc
      */
-    public function docblock() : array
+    public function docblock(GuideScope $scope) : array
     {
-        $doc = parent::docblock();
+        $doc = parent::docblock($scope);
 
         if ($this->includeAttr)
         {
-            $doc[] = sprintf("@property \%s<\%s> %s()", BelongsTo::class, $this->related::class, $this->relationName);
-            $doc[] = sprintf("@property ?\%s \$%s", $this->related::class, $this->relationName);
+            $doc[] = sprintf("@property %s<%s> %s()", $scope->typeHint(BelongsTo::class), $scope->typeHint($this->related::class), $this->relationName);
+            $doc[] = sprintf("@property ?%s \$%s", $scope->typeHint($this->related::class), $this->relationName);
         }
 
         return $doc;

@@ -3,6 +3,7 @@
 namespace Rapid\Laplus\Commands;
 
 use Illuminate\Console\Command;
+use Rapid\Laplus\Guide\ModelGuide;
 
 class LaplusDocblockCommand extends LaplusBaseResourceCommand
 {
@@ -12,7 +13,7 @@ class LaplusDocblockCommand extends LaplusBaseResourceCommand
      *
      * @var string
      */
-    protected $signature = 'laplus:docblock';
+    protected $signature = 'laplus:docblock {--migrations= : Migrations path} {--models= : Models path} {--name= : Laplus name}';
     protected $aliases = ['docblock+'];
 
     /**
@@ -25,25 +26,18 @@ class LaplusDocblockCommand extends LaplusBaseResourceCommand
 
     public function generate(string $modelPath, string $migrationPath)
     {
-        $contents = file_get_contents($modelPath, length: 5000);
-        if (
-            preg_match('/[\n\s]namespace\s+([a-zA-Z0-9_\/]+)\s*;/', $contents, $namespace) &&
-            preg_match('/[\n\s]class\s+([a-zA-Z0-9_\/]+)/', $contents, $class)
-        )
-        {
-            if (class_exists($className = $namespace[1] . "\\" . $class[1]))
-            {
-                return $className;
-            }
-        }
-
-        return null;
+        return iterator_to_array($this->discoverModels($modelPath));
     }
 
     public function export(array $all)
     {
-        $all = array_values(array_filter($all));
+        $all = collect($all)->values()->filter()->flatten();
 
-        dd($all);
+        foreach ($all as $modelName)
+        {
+            $guide = new ModelGuide($modelName);
+
+            $guide->write();
+        }
     }
 }

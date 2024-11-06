@@ -14,13 +14,14 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Rapid\Laplus\Guide\GuideScope;
 use ReflectionMethod;
 
 #[Attribute(Attribute::TARGET_METHOD)]
 class IsRelation implements DocblockAttributeContract
 {
 
-    public function docblock($reflection) : array
+    public function docblock(GuideScope $scope, $reflection) : array
     {
         if ($reflection instanceof ReflectionMethod)
         {
@@ -32,7 +33,7 @@ class IsRelation implements DocblockAttributeContract
             )
             {
                 return [
-                    sprintf("@property ?\%s $%s", get_class($sample->getRelated()), $reflection->getName()),
+                    sprintf("@property ?%s $%s", $scope->typeHint(get_class($sample->getRelated())), $reflection->getName()),
                 ];
             }
 
@@ -42,7 +43,7 @@ class IsRelation implements DocblockAttributeContract
             )
             {
                 return [
-                    sprintf("@property \%s<\%s> $%s", Collection::class, get_class($sample->getRelated()), $reflection->getName()),
+                    sprintf("@property %s<%s> $%s", $scope->typeHint(Collection::class), $scope->typeHint(get_class($sample->getRelated())), $reflection->getName()),
                 ];
             }
         }

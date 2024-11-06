@@ -4,6 +4,7 @@ namespace Rapid\Laplus\Present\Attributes;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Present;
 
 class MorphsAttr extends Attribute
@@ -187,12 +188,12 @@ class MorphsAttr extends Attribute
     /**
      * @inheritDoc
      */
-    public function docblock() : array
+    public function docblock(GuideScope $scope) : array
     {
-        $doc = parent::docblock();
+        $doc = parent::docblock($scope);
 
-        $doc[] = sprintf("@property \%s %s()", MorphTo::class, $this->name);
-        $doc[] = sprintf("@property ?\%s \$%s", Model::class, $this->name);
+        $doc[] = sprintf("@property %s %s()", $scope->typeHint(MorphTo::class), $this->name);
+        $doc[] = sprintf("@property ?%s \$%s", $scope->typeHint(Model::class), $this->name);
 
         return $doc;
     }

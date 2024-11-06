@@ -2,6 +2,8 @@
 
 namespace Rapid\Laplus\Present\Attributes;
 
+use Carbon\Carbon;
+use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Present;
 
 class Column extends Attribute
@@ -385,11 +387,12 @@ class Column extends Attribute
     /**
      * @inheritDoc
      */
-    public function docblock() : array
+    public function docblock(GuideScope $scope) : array
     {
         $doc = [];
 
-        $doc[] = "@property {$this->getDocblockTypeHint()} \${$this->name}" . (isset($this->docHint) ? ' ' . $this->docHint : '');
+        $typeHint = $scope->typeHint($this->getDocblockTypeHint());
+        $doc[] = "@property {$typeHint} \${$this->name}" . (isset($this->docHint) ? ' ' . $this->docHint : '');
 
         return $doc;
     }
@@ -415,8 +418,10 @@ class Column extends Attribute
         {
             return match ($this->cast)
             {
-                'json'  => 'array',
-                default => class_exists($this->cast) ? 'mixed' : $this->cast,
+                'json'                                 => 'array',
+                'timestamp'                            => 'int',
+                'date', 'dateTime', 'datetime', 'time' => '\\' . Carbon::class,
+                default                                => class_exists($this->cast) ? 'mixed' : $this->cast,
             };
         }
 
@@ -433,6 +438,7 @@ class Column extends Attribute
             {
                 'string', 'text'                     => 'string',
                 'int', 'integer', 'decimal', 'float' => 'int',
+                'boolean'                            => 'bool',
                 default                              => 'mixed',
             },
         };

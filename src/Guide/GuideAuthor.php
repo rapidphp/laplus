@@ -133,6 +133,43 @@ abstract class GuideAuthor
     }
 
     /**
+     * Make new scope by contents
+     *
+     * @param string $contents
+     * @return GuideScope
+     */
+    protected function makeScope(string $contents) : GuideScope
+    {
+        if (!preg_match('/[\n\s]class\s+([a-zA-Z0-9_]+)/', $contents, $matches, PREG_OFFSET_CAPTURE))
+        {
+            throw new \InvalidArgumentException();
+        }
+
+        $contents = substr($contents, 0, $matches[0][1]);
+        $className = $matches[1][0];
+
+        if (preg_match('/[\n\s]namespace\s+([a-zA-Z0-9_\\\\]+)/', $contents, $matches))
+        {
+            $namespace = $matches[1];
+        }
+        else
+        {
+            $namespace = null;
+        }
+
+        $uses = [];
+        if (preg_match_all('/[\n\s]use\s+([a-zA-Z0-9_\\\\]+)(\s+as\s+([a-zA-Z0-9_\\\\]+))?\s*;/', $contents, $matches))
+        {
+            foreach ($matches[1] as $i => $use)
+            {
+                $uses[$use] = @$matches[3][$i] ?: class_basename($use);
+            }
+        }
+
+        return new GuideScope($namespace, $className, $uses);
+    }
+
+    /**
      * Write and edit the file
      *
      * @return void
