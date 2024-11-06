@@ -134,4 +134,17 @@ class MorphOneAttr extends Attribute
         return $this->using(fn(MorphOne $morph) => $morph->ofMany(value($column), $aggregate, $relation));
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function docblock() : array
+    {
+        $doc = parent::docblock();
+
+        $doc[] = sprintf("@property \%s<\%s> %s()", MorphOne::class, $this->related::class, $this->name);
+        $doc[] = sprintf("@property \%s \$%s", $this->related::class, $this->name);
+
+        return $doc;
+    }
+
 }

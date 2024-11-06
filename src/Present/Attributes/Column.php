@@ -420,14 +420,20 @@ class Column extends Attribute
             };
         }
 
+        if (str_ends_with($this->createUsingMethod, 'Integer'))
+        {
+            return 'int';
+        }
+
         return match (strtolower($this->columnData['type'] ?? 'mixed'))
         {
             'string', 'varchar', 'char' => 'string',
             'json', 'array'             => 'array',
             default                     => match ($this->createUsingMethod)
             {
-                'string', 'text' => 'string',
-                default          => 'mixed',
+                'string', 'text'                     => 'string',
+                'int', 'integer', 'decimal', 'float' => 'int',
+                default                              => 'mixed',
             },
         };
     }

@@ -3,6 +3,7 @@
 namespace Rapid\Laplus\Guide;
 
 use Illuminate\Support\Str;
+use Rapid\Laplus\Guide\Attributes\DocblockAttributeContract;
 use Rapid\Laplus\Label\HasLabels;
 use Rapid\Laplus\Label\LabelTranslator;
 use Rapid\Laplus\Present\HasPresent;
@@ -35,6 +36,9 @@ class ModelGuide extends GuideAuthor
 
             array_push($docblock, ...$this->guideLabelTranslator($label));
         }
+
+        array_push($docblock, ...$this->guideModelAttributes());
+        array_push($docblock, ...$this->guideAttributes());
 
         $contents = $this->commentClass($contents, $this->class, 'GuidePresent', $docblock);
 
@@ -95,4 +99,63 @@ class ModelGuide extends GuideAuthor
 
         return $docblock;
     }
+
+    protected function guideModelAttributes() : array
+    {
+        $pass = [];
+        $docblock = [];
+
+        foreach ((new \ReflectionClass($this->class))->getMethods() as $method)
+        {
+            if (preg_match('/^(get|set)([A-Z][a-zA-Z0-9_]*)Attribute$/', $method->name, $matches))
+            {
+                if (!in_array($matches[2], $pass) && !in_array($matches[2], ['ClassCastable', 'EnumCastable']))
+                {
+                    $pass[] = $matches[2];
+                    $docblock[] = "@property " . ($method->getReturnType() ?? 'mixed') . " \${$matches[2]}";
+                }
+            }
+        }
+
+        return $docblock;
+    }
+
+    protected function guideAttributes() : array
+    {
+        $docblock = [];
+        $class = new \ReflectionClass($this->class);
+
+        foreach ($class->getAttributes() as $attribute)
+        {
+            if (is_a($attribute->getName(), DocblockAttributeContract::class))
+            {
+                array_push($docblock, ...$attribute->newInstance()->guide($class));
+            }
+        }
+
+        foreach ($class->getMethods() as $method)
+        {
+            foreach ($method->getAttributes() as $attribute)
+            {
+                if (is_a($attribute->getName(), DocblockAttributeContract::class))
+                {
+                    array_push($docblock, ...$attribute->newInstance()->guide($method));
+                }
+            }
+        }
+
+        foreach ($class->getProperties() as $property)
+        {
+            foreach ($property->getAttributes() as $attribute)
+            {
+                if (is_a($attribute->getName(), DocblockAttributeContract::class))
+                {
+                    array_push($docblock, ...$attribute->newInstance()->guide($property));
+                }
+            }
+        }
+
+        return $docblock;
+    }
+
 }

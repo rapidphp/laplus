@@ -4,6 +4,7 @@ namespace Rapid\Laplus\Present\Attributes;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\ColumnDefinition;
 use Rapid\Laplus\Present\Present;
@@ -255,6 +256,22 @@ class BelongsToAttr extends Column
     {
         $this->includeAttr = !$value;
         return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function docblock() : array
+    {
+        $doc = parent::docblock();
+
+        if ($this->includeAttr)
+        {
+            $doc[] = sprintf("@property \%s<\%s> %s()", BelongsTo::class, $this->related::class, $this->relationName);
+            $doc[] = sprintf("@property \%s \$%s", $this->related::class, $this->relationName);
+        }
+
+        return $doc;
     }
 
 }

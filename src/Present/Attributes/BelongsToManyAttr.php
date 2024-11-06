@@ -2,7 +2,9 @@
 
 namespace Rapid\Laplus\Present\Attributes;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Rapid\Laplus\Present\Present;
 
 class BelongsToManyAttr extends Attribute
@@ -81,6 +83,19 @@ class BelongsToManyAttr extends Attribute
         }
 
         return $arg;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function docblock() : array
+    {
+        $doc = parent::docblock();
+
+        $doc[] = sprintf("@property \%s<\%s> %s()", BelongsToMany::class, $this->related::class, $this->name);
+        $doc[] = sprintf("@property \%s<\%s> \$%s", Collection::class, $this->related::class, $this->name);
+
+        return $doc;
     }
 
 }

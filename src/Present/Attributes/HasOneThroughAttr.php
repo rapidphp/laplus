@@ -4,6 +4,7 @@ namespace Rapid\Laplus\Present\Attributes;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Rapid\Laplus\Present\Present;
 
 class HasOneThroughAttr extends Attribute
@@ -98,6 +99,19 @@ class HasOneThroughAttr extends Attribute
         }
 
         return $arg;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function docblock() : array
+    {
+        $doc = parent::docblock();
+
+        $doc[] = sprintf("@property \%s<\%s> %s()", HasOneThrough::class, $this->related::class, $this->name);
+        $doc[] = sprintf("@property \%s \$%s", $this->related::class, $this->name);
+
+        return $doc;
     }
 
 }
