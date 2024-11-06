@@ -3,6 +3,7 @@
 namespace Rapid\Laplus\Tests\Guide;
 
 use Illuminate\Database\Eloquent\Model;
+use Rapid\Laplus\Guide\Attributes\IsRelation;
 use Rapid\Laplus\Guide\ModelGuide;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
@@ -101,6 +102,83 @@ class ModelGuideTest extends TestCase
              * @property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testMany
              * @property \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testBelMany()
              * @property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testBelMany
+             * @EndGuidePresent
+             */
+            COMMENT
+        );
+    }
+
+    public function test_generate_model_attributes()
+    {
+        $class = new class extends Model
+        {
+
+            public function getFullNameAttribute() : string
+            {
+                return '';
+            }
+
+            public function setFullNameAttribute(string $value)
+            {
+            }
+
+            public function setFooAttribute(bool $value) : void
+            {
+            }
+
+            public function getBarAttribute() : int
+            {
+                return 0;
+            }
+
+        };
+
+        $guide = new ModelGuide(
+            get_class($class),
+        );
+
+        $guide->assertInsertComment(
+            <<<'COMMENT'
+            /**
+             * @GuidePresent
+             * @property string $full_name
+             * @property bool $foo
+             * @property int $bar
+             * @EndGuidePresent
+             */
+            COMMENT
+        );
+    }
+
+    public function test_generate_attributes()
+    {
+        $class = new class extends Model
+        {
+
+            #[IsRelation]
+            public function test()
+            {
+                return $this->belongsTo(_TestModel1ForGuide::class);
+            }
+
+            #[IsRelation]
+            public function testMany()
+            {
+                return $this->hasMany(_TestModel1ForGuide::class);
+            }
+
+        };
+
+        $guide = new ModelGuide(
+            get_class($class),
+        );
+
+        $guide->assertInsertComment(
+            <<<'COMMENT'
+            /**
+             * @GuidePresent
+             * @property ?\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $test
+             * @property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testMany
              * @EndGuidePresent
              */
             COMMENT

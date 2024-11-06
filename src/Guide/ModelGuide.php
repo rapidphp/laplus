@@ -102,19 +102,33 @@ class ModelGuide extends GuideAuthor
 
     protected function guideModelAttributes() : array
     {
-        $pass = [];
+        $attributes = [];
         $docblock = [];
 
         foreach ((new \ReflectionClass($this->class))->getMethods() as $method)
         {
             if (preg_match('/^(get|set)([A-Z][a-zA-Z0-9_]*)Attribute$/', $method->name, $matches))
             {
-                if (!in_array($matches[2], $pass) && !in_array($matches[2], ['ClassCastable', 'EnumCastable']))
+                if (!in_array($matches[2], ['ClassCastable', 'EnumCastable']))
                 {
-                    $pass[] = $matches[2];
-                    $docblock[] = "@property " . ($method->getReturnType() ?? 'mixed') . " \${$matches[2]}";
+                    $name = Str::snake($matches[2]);
+
+                    if ($matches[1] == 'get')
+                    {
+                        @$attributes[$name]['get'] = (string) ($method->getReturnType() ?? 'mixed');
+                    }
+                    else
+                    {
+                        @$attributes[$name]['set'] = (string) (@$method->getParameters()[0]?->getType() ?? 'mixed');
+                    }
                 }
             }
+        }
+
+        foreach ($attributes as $name => $value)
+        {
+            $type = $value['get'] ?? $value['set'];
+            $docblock[] = "@property {$type} \${$name}";
         }
 
         return $docblock;
@@ -127,9 +141,9 @@ class ModelGuide extends GuideAuthor
 
         foreach ($class->getAttributes() as $attribute)
         {
-            if (is_a($attribute->getName(), DocblockAttributeContract::class))
+            if (is_a($attribute->getName(), DocblockAttributeContract::class, true))
             {
-                array_push($docblock, ...$attribute->newInstance()->guide($class));
+                array_push($docblock, ...$attribute->newInstance()->docblock($class));
             }
         }
 
@@ -137,9 +151,9 @@ class ModelGuide extends GuideAuthor
         {
             foreach ($method->getAttributes() as $attribute)
             {
-                if (is_a($attribute->getName(), DocblockAttributeContract::class))
+                if (is_a($attribute->getName(), DocblockAttributeContract::class, true))
                 {
-                    array_push($docblock, ...$attribute->newInstance()->guide($method));
+                    array_push($docblock, ...$attribute->newInstance()->docblock($method));
                 }
             }
         }
@@ -148,9 +162,9 @@ class ModelGuide extends GuideAuthor
         {
             foreach ($property->getAttributes() as $attribute)
             {
-                if (is_a($attribute->getName(), DocblockAttributeContract::class))
+                if (is_a($attribute->getName(), DocblockAttributeContract::class, true))
                 {
-                    array_push($docblock, ...$attribute->newInstance()->guide($property));
+                    array_push($docblock, ...$attribute->newInstance()->docblock($property));
                 }
             }
         }
