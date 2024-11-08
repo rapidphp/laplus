@@ -80,4 +80,22 @@ class GuideScope
         return '\\' . $class;
     }
 
+    public function summary(string|false $comments) : ?string
+    {
+        if ($comments === false)
+        {
+            return null;
+        }
+
+        $comments = preg_replace('/^\/\*\*[\s\n*]*/', '', $comments);
+        $comments = trim(explode("\n", $comments, 2)[0]);
+
+        if (str_starts_with($comments, '@'))
+        {
+            return null;
+        }
+
+        return $comments;
+    }
+
 }

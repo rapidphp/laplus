@@ -94,19 +94,40 @@ class ModelGuideTest extends TestCase
         $class = new class extends Model
         {
 
+            /**
+             * Full Name
+             * @return string
+             */
             public function getFullNameAttribute() : string
             {
                 return '';
             }
 
+            /**
+             * Not Resolved
+             *
+             * @param string $value
+             * @return void
+             */
             public function setFullNameAttribute(string $value)
             {
             }
 
+            /**
+             * Foo
+             *
+             * @param bool $value
+             * @return void
+             */
             public function setFooAttribute(bool $value) : void
             {
             }
 
+            /**
+             * Bar
+             *
+             * @return int
+             */
             public function getBarAttribute() : int
             {
                 return 0;
@@ -118,9 +139,9 @@ class ModelGuideTest extends TestCase
         $guide->run(new ModelAuthor($guide, get_class($class)));
 
         $guide->assertSame([
-            '@property string $full_name',
-            '@property bool $foo',
-            '@property int $bar',
+            '@property string $full_name Full Name',
+            '@property bool $foo Foo',
+            '@property int $bar Bar',
         ]);
     }
 
@@ -129,6 +150,9 @@ class ModelGuideTest extends TestCase
         $class = new class extends Model
         {
 
+            /**
+             * Test Relationship
+             */
             #[IsRelation]
             public function test()
             {
@@ -147,8 +171,50 @@ class ModelGuideTest extends TestCase
         $guide->run(new ModelAuthor($guide, get_class($class)));
 
         $guide->assertSame([
-            '@property ?\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $test',
+            '@property null|\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $test Test Relationship',
             '@property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testMany',
+        ]);
+    }
+
+    public function test_generate_default_morphs()
+    {
+        $class = new class extends Model
+        {
+
+            #[IsRelation]
+            public function test()
+            {
+                return $this->morphTo();
+            }
+
+        };
+
+        $guide = new TestGuide;
+        $guide->run(new ModelAuthor($guide, get_class($class)));
+
+        $guide->assertSame([
+            '@property null|\Illuminate\Database\Eloquent\Model $test',
+        ]);
+    }
+
+    public function test_generate_morphs()
+    {
+        $class = new class extends Model
+        {
+
+            #[IsRelation(['A', 'B'])]
+            public function test()
+            {
+                return $this->morphTo();
+            }
+
+        };
+
+        $guide = new TestGuide;
+        $guide->run(new ModelAuthor($guide, get_class($class)));
+
+        $guide->assertSame([
+            '@property null|A|B $test',
         ]);
     }
 

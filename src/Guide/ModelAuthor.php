@@ -34,7 +34,7 @@ class ModelAuthor extends GuideAuthor
             /** @var LabelTranslator $label */
             $label = $model->getLabelTranslator();
 
-            array_push($docblock, ...$this->guideLabelTranslator($label));
+            array_push($docblock, ...$this->guideLabelTranslator($scope, $label));
         }
 
         array_push($docblock, ...$this->guideModelAttributes($scope));
@@ -43,7 +43,7 @@ class ModelAuthor extends GuideAuthor
         return $docblock;
     }
 
-    protected function guideLabelTranslator(LabelTranslator $label) : array
+    protected function guideLabelTranslator(GuideScope $scope, LabelTranslator $label) : array
     {
         $docblock = [];
 
@@ -51,16 +51,7 @@ class ModelAuthor extends GuideAuthor
         {
             $ref = new \ReflectionMethod($label, Str::camel($name));
 
-            if ($info = $ref->getDocComment())
-            {
-                $info = preg_replace('/^\/\*\*[\s\n*]*/', '', $info);
-                $info = explode("\n", $info, 2)[0];
-
-                if (str_starts_with($info, '@'))
-                {
-                    $info = false;
-                }
-            }
+            $info = $scope->summary($ref->getDocComment());
 
             $canUseAsProperty = true;
             $methodIn = [];
@@ -114,10 +105,12 @@ class ModelAuthor extends GuideAuthor
                     if ($matches[1] == 'get')
                     {
                         @$attributes[$name]['get'] = (string) ($method->getReturnType() ?? 'mixed');
+                        @$attributes[$name]['summary'] = $scope->summary($method->getDocComment());
                     }
                     else
                     {
                         @$attributes[$name]['set'] = (string) (@$method->getParameters()[0]?->getType() ?? 'mixed');
+                        @$attributes[$name]['summary'] ??= $scope->summary($method->getDocComment());
                     }
                 }
             }
@@ -126,7 +119,8 @@ class ModelAuthor extends GuideAuthor
         foreach ($attributes as $name => $value)
         {
             $type = $scope->typeHint($value['get'] ?? $value['set']);
-            $docblock[] = "@property {$type} \${$name}";
+            $summary = $value['summary'];
+            $docblock[] = "@property {$type} \${$name}" . ($summary ? ' ' . $summary : '');
         }
 
         return $docblock;

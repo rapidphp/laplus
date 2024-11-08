@@ -4,6 +4,7 @@ namespace Rapid\Laplus\Guide\Attributes;
 
 use Attribute;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -21,11 +22,36 @@ use ReflectionMethod;
 class IsRelation implements DocblockAttributeContract
 {
 
+    public function __construct(
+        public null|string|array $type = null,
+    )
+    {
+    }
+
     public function docblock(GuideScope $scope, $reflection) : array
     {
         if ($reflection instanceof ReflectionMethod)
         {
             $sample = $reflection->invoke($reflection->getDeclaringClass()->newInstance());
+
+            if (isset($this->type))
+            {
+                $typeHint = $scope->typeHint(implode('|', (array) $this->type));
+            }
+            elseif ($sample instanceof MorphTo)
+            {
+                $typeHint = $scope->typeHint(Model::class);
+            }
+            elseif (method_exists($sample, 'getRelated'))
+            {
+                $typeHint = $scope->typeHint(get_class($sample->getRelated()));
+            }
+            else
+            {
+                $typeHint = 'mixed';
+            }
+
+            $summary = $scope->summary($reflection->getDocComment());
 
             if (
                 $sample instanceof BelongsTo || $sample instanceof HasOne || $sample instanceof HasOneThrough ||
@@ -33,7 +59,7 @@ class IsRelation implements DocblockAttributeContract
             )
             {
                 return [
-                    sprintf("@property ?%s $%s", $scope->typeHint(get_class($sample->getRelated())), $reflection->getName()),
+                    sprintf("@property null|%s $%s", $typeHint, $reflection->getName()) . ($summary ? ' ' . $summary : ''),
                 ];
             }
 
@@ -43,9 +69,15 @@ class IsRelation implements DocblockAttributeContract
             )
             {
                 return [
-                    sprintf("@property %s<%s> $%s", $scope->typeHint(Collection::class), $scope->typeHint(get_class($sample->getRelated())), $reflection->getName()),
+                    sprintf("@property %s<%s> $%s", $scope->typeHint(Collection::class), $typeHint, $reflection->getName()) . ($summary ? ' ' . $summary : ''),
                 ];
             }
+
+            throw new \TypeError(sprintf(
+                "Method %s::%s() is not a relationship",
+                $reflection->getDeclaringClass()->getName(),
+                $reflection->getName()
+            ));
         }
 
         return [];
