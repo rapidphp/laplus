@@ -8,7 +8,7 @@ Use this command to update the guide:
 php artisan guide+
 ```
 
-![Generated Docblock](screen_docblock.png)
+![Generated Docblock](screen_guide.png)
 
 
 ## Warning
