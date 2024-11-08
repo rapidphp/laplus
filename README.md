@@ -31,7 +31,7 @@ Laplus will generate your migrations:
 - [Present](doc/present.md)
 - [Migration](doc/migration.md)
 - [Label](doc/label.md)
-- [Docblock Generator](doc/docblock.md)
+- [Guide Generator](doc/guide)
 
 
 ## Installation
@@ -163,9 +163,9 @@ And use it easily:
 [Read more...](doc/label.md)
 
 
-## Docblock Generator
+## Guide Generator
 
-Docblock generator automatically generate the model docblock using the
+Guide automatically generate the model docblock using the
 columns, attributes and relationships:
 
 ```php
@@ -197,17 +197,19 @@ It generates:
 
 ```php
 /**
- * @GuidePresent
+ * @Guide
  * @property int $id
  * @property string $name
  * @property Collection<Avatar> $avatars
  * @property string $name_label
  * @property string name_label()
  * @property string $first_name
- * @EndGuidePresent
+ * @EndGuide
  */
 class User extends Model
 ```
+
+[Read more...](doc/guide.md)
 
 
 ## More Document

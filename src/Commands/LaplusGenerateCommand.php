@@ -2,6 +2,7 @@
 
 namespace Rapid\Laplus\Commands;
 
+use Illuminate\Support\Facades\Artisan;
 use Rapid\Laplus\Present\Generate\MigrationGenerator;
 
 class LaplusGenerateCommand extends LaplusBaseResourceCommand
@@ -58,7 +59,12 @@ class LaplusGenerateCommand extends LaplusBaseResourceCommand
             file_put_contents("$migrationPath/$name.php", $stub);
         }
 
-        $this->output->success("Migrations generated successfully!");
+        $this->components->info("Migrations generated successfully!");
+
+        if (config('laplus.guide.on_generate'))
+        {
+            Artisan::call('laplus:guide', [], $this->output);
+        }
 
         return 0;
     }

@@ -4,7 +4,8 @@ namespace Rapid\Laplus\Tests\Guide;
 
 use Illuminate\Database\Eloquent\Model;
 use Rapid\Laplus\Guide\Attributes\IsRelation;
-use Rapid\Laplus\Guide\ModelGuide;
+use Rapid\Laplus\Guide\Guides\TestGuide;
+use Rapid\Laplus\Guide\ModelAuthor;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
 use Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide;
@@ -15,29 +16,24 @@ class ModelGuideTest extends TestCase
 
     public function test_guide_generation()
     {
-        $guide = new ModelGuide(_TestModel1ForGuide::class);
+        $guide = new TestGuide;
+        $guide->run(new ModelAuthor($guide, _TestModel1ForGuide::class));
 
-        $guide->assertInsertComment(
-            <<<'COMMENT'
-            /**
-             * @GuidePresent
-             * @property int $id
-             * @property string $name
-             * @property float $money
-             * @property array $friends List of friends
-             * @property string $name_label Test name
-             * @method string name_label() Test name
-             * @property string $money_label Money Test
-             * @method string money_label(string $currency = "$") Money Test
-             * @method string friends_label(int $max)
-             * @property string $created_at_label
-             * @method string created_at_label()
-             * @property string $updated_at_label
-             * @method string updated_at_label()
-             * @EndGuidePresent
-             */
-            COMMENT
-        );
+        $guide->assertSame([
+            '@property int $id',
+            '@property string $name',
+            '@property float $money',
+            '@property array $friends List of friends',
+            '@property string $name_label Test name',
+            '@method string name_label() Test name',
+            '@property string $money_label Money Test',
+            '@method string money_label(string $currency = "$") Money Test',
+            '@method string friends_label(int $max)',
+            '@property string $created_at_label',
+            '@method string created_at_label()',
+            '@property string $updated_at_label',
+            '@method string updated_at_label()',
+        ]);
     }
 
     public function test_generate_custom_hint()
@@ -54,19 +50,12 @@ class ModelGuideTest extends TestCase
             }
         };
 
-        $guide = new ModelGuide(
-            get_class($class),
-        );
+        $guide = new TestGuide;
+        $guide->run(new ModelAuthor($guide, get_class($class)));
 
-        $guide->assertInsertComment(
-            <<<'COMMENT'
-            /**
-             * @GuidePresent
-             * @property class-string $class Target Class
-             * @EndGuidePresent
-             */
-            COMMENT
-        );
+        $guide->assertSame([
+            '@property class-string $class Target Class',
+        ]);
     }
 
     public function test_generate_relations()
@@ -84,27 +73,20 @@ class ModelGuideTest extends TestCase
             }
         };
 
-        $guide = new ModelGuide(
-            get_class($class),
-        );
+        $guide = new TestGuide;
+        $guide->run(new ModelAuthor($guide, get_class($class)));
 
-        $guide->assertInsertComment(
-            <<<'COMMENT'
-            /**
-             * @GuidePresent
-             * @property int $testBel_id
-             * @property \Illuminate\Database\Eloquent\Relations\BelongsTo<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testBel()
-             * @property ?\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $testBel
-             * @property \Illuminate\Database\Eloquent\Relations\HasOne<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testOne()
-             * @property ?\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $testOne
-             * @property \Illuminate\Database\Eloquent\Relations\HasMany<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testMany()
-             * @property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testMany
-             * @property \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testBelMany()
-             * @property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testBelMany
-             * @EndGuidePresent
-             */
-            COMMENT
-        );
+        $guide->assertSame([
+            '@property int $testBel_id',
+            '@method \Illuminate\Database\Eloquent\Relations\BelongsTo<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testBel()',
+            '@property ?\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $testBel',
+            '@method \Illuminate\Database\Eloquent\Relations\HasOne<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testOne()',
+            '@property ?\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $testOne',
+            '@method \Illuminate\Database\Eloquent\Relations\HasMany<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testMany()',
+            '@property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testMany',
+            '@method \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testBelMany()',
+            '@property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testBelMany',
+        ]);
     }
 
     public function test_generate_model_attributes()
@@ -132,21 +114,14 @@ class ModelGuideTest extends TestCase
 
         };
 
-        $guide = new ModelGuide(
-            get_class($class),
-        );
+        $guide = new TestGuide;
+        $guide->run(new ModelAuthor($guide, get_class($class)));
 
-        $guide->assertInsertComment(
-            <<<'COMMENT'
-            /**
-             * @GuidePresent
-             * @property string $full_name
-             * @property bool $foo
-             * @property int $bar
-             * @EndGuidePresent
-             */
-            COMMENT
-        );
+        $guide->assertSame([
+            '@property string $full_name',
+            '@property bool $foo',
+            '@property int $bar',
+        ]);
     }
 
     public function test_generate_attributes()
@@ -168,20 +143,13 @@ class ModelGuideTest extends TestCase
 
         };
 
-        $guide = new ModelGuide(
-            get_class($class),
-        );
+        $guide = new TestGuide;
+        $guide->run(new ModelAuthor($guide, get_class($class)));
 
-        $guide->assertInsertComment(
-            <<<'COMMENT'
-            /**
-             * @GuidePresent
-             * @property ?\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $test
-             * @property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testMany
-             * @EndGuidePresent
-             */
-            COMMENT
-        );
+        $guide->assertSame([
+            '@property ?\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $test',
+            '@property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testMany',
+        ]);
     }
 
 }

@@ -12,16 +12,14 @@ use Rapid\Laplus\Present\Present;
 /**
  * @internal
  */
-class ModelGuide extends GuideAuthor
+class ModelAuthor extends GuideAuthor
 {
 
-    protected function guide(string $contents)
+    public function docblock(GuideScope $scope) : array
     {
         $docblock = [];
         $uses = class_uses_recursive($this->class);
         $model = app($this->class);
-
-        $scope = $this->makeScope($contents);
 
         if (in_array(HasPresent::class, $uses))
         {
@@ -42,9 +40,7 @@ class ModelGuide extends GuideAuthor
         array_push($docblock, ...$this->guideModelAttributes($scope));
         array_push($docblock, ...$this->guideAttributes($scope));
 
-        $contents = $this->commentClass($contents, $this->class, 'GuidePresent', $docblock);
-
-        return $contents;
+        return $docblock;
     }
 
     protected function guideLabelTranslator(LabelTranslator $label) : array
@@ -81,7 +77,7 @@ class ModelGuide extends GuideAuthor
 
                 if ($parameter->isDefaultValueAvailable())
                 {
-                    $in .= ' = ' . $this->objectToDoc($parameter->getDefaultValue());
+                    $in .= ' = ' . Document::object($parameter->getDefaultValue());
                 }
                 else
                 {

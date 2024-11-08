@@ -7,16 +7,13 @@ use Illuminate\Support\Str;
 class GuideScope
 {
 
-    public string $classFullName;
-
     public function __construct(
         public ?string $namespace,
-        public string $class,
         public array $uses,
     )
     {
-        $this->classFullName = ($this->namespace ? $this->namespace . '\\' : '') . $this->class;
     }
+
 
     /**
      * Convert type hint to writable type to the source
