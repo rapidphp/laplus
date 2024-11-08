@@ -414,9 +414,11 @@ class Column extends Attribute
             return 'mixed';
         }
 
+        $prefix = @$this->columnData['nullable'] ? 'null|' : '';
+
         if (is_string($this->cast))
         {
-            return match ($this->cast)
+            return $prefix . match ($this->cast)
             {
                 'json'                                 => 'array',
                 'timestamp', 'int'                     => 'int',
@@ -433,10 +435,10 @@ class Column extends Attribute
 
         if (str_ends_with($this->createUsingMethod, 'Integer'))
         {
-            return 'int';
+            return $prefix . 'int';
         }
 
-        return match (strtolower($this->columnData['type'] ?? 'mixed'))
+        return $prefix . match (strtolower($this->columnData['type'] ?? 'mixed'))
         {
             'string', 'varchar', 'char' => 'string',
             'json', 'array'             => 'array',
