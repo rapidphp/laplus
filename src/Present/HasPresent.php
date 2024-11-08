@@ -2,6 +2,7 @@
 
 namespace Rapid\Laplus\Present;
 
+use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Rapid\Laplus\Present\Attributes\Attribute;
 
@@ -18,6 +19,39 @@ trait HasPresent
     // public function present(Present $present)
     // {
     // }
+
+    /**
+     * List of present extensions
+     *
+     * @var array
+     */
+    protected static array $_presentExtends = [];
+
+    /**
+     * Extend the presentation
+     *
+     * @param string|PresentExtension|Closure $extension
+     * @return void
+     */
+    protected static function extendPresent(string|PresentExtension|Closure $extension) : void
+    {
+        if (is_string($extension))
+        {
+            $extension = new $extension;
+        }
+
+        @static::$_presentExtends[static::class][] = $extension;
+    }
+
+    /**
+     * Get the list of present extensions
+     *
+     * @return array
+     */
+    public static function getPresentExtensions() : array
+    {
+        return static::$_presentExtends[static::class] ?? [];
+    }
 
     /**
      * Get the present object

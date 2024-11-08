@@ -95,6 +95,8 @@ php artisan make:model+ Name
 
 This command will create `app/Models/Name.php` model and `app/Presents/NamePresent.php` present.
 
+[Read more...](doc/present.md#make-presentable-model)
+
 
 ## Make model with inline present
 You can use this command to create a model with inline present:
@@ -104,6 +106,7 @@ php artisan make:model+ Name --inline
 
 This command will create `app/Models/Name.php` model.
 
+[Read more...](doc/present.md#inline-present)
 
 
 ## Migrations
@@ -114,6 +117,8 @@ Run this command to automatically found the updates and generate migrations:
 php artisan generate+
 ```
 
+[Read more...](doc/migration.md#generate)
+
 ### Regenerate Migrations
 This command is same with `generate+`, but the difference is clearing the migration folder!
 ```shell
@@ -121,11 +126,89 @@ php artisan regenerate+
 ```
 > Warning: This command will remove all your migration files (exclude files starts with `0001_01_01` name)
 
+[Read more...](doc/migration.md#regenerate)
+
 ### Generate And Migrate
 Following command, run `generate+` and `migrate` at once:
 ```shell
 php artisan migrate+
 ```
 
+[Read more...](doc/migration.md#generate-and-migrate)
+
+
+## Label Translator
+
+Present the model labels:
+
+```php
+class UserLabelTranslator extends LabelTranslator
+{
+    public function gender(bool $emoji = false)
+    {
+        return $this->value?->toString($emoji); // Returns gender name or null
+    }
+}
+```
+
+And use it easily:
+
+```html
+<p>{{ $user->gender_label }}</p>
+<p>{{ $user->gender_label(emoji: true) }}</p>
+```
+
+> Labels always return a string value. If the value is null, it returns `"Undefined"`.
+
+[Read more...](doc/label.md)
+
+
+## Docblock Generator
+
+Docblock generator automatically generate the model docblock using the
+columns, attributes and relationships:
+
+```php
+class User extends Model
+{
+    use HasPresent;
+    use HasLabels;
+    
+    protected function present(Present $present)
+    {
+        $present->id();
+        $present->string('name');
+    }
+    
+    #[IsRelation]
+    public function avatars()
+    {
+        return $this->hasMany(Avatar::class);
+    }
+    
+    public function getFirstName() : string
+    {
+        return Str::before($this->name, ' ');
+    }
+}
+```
+
+It generates:
+
+```php
+/**
+ * @GuidePresent
+ * @property int $id
+ * @property string $name
+ * @property Collection<Avatar> $avatars
+ * @property string $name_label
+ * @property string name_label()
+ * @property string $first_name
+ * @EndGuidePresent
+ */
+class User extends Model
+```
+
+
 ## More Document
-More document found in [Documents](#documents) section.
+**More document found in [Documents](#documents) section.**

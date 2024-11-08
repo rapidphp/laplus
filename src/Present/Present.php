@@ -46,6 +46,7 @@ abstract class Present
         $this->setters = [];
 
         $this->present();
+        $this->yield();
 
         foreach ($this->attributes as $attribute)
         {
@@ -89,6 +90,7 @@ abstract class Present
     protected function presentTable()
     {
         $this->present();
+        $this->yield();
     }
 
     /**
@@ -109,6 +111,40 @@ abstract class Present
     public function getTable()
     {
         return $this->instance->getTable();
+    }
+
+    protected $isYielded = false;
+
+    /**
+     * Apply the present extensions
+     *
+     * @return void
+     */
+    public function yield()
+    {
+        if ($this->isYielded) return;
+
+        $this->isYielded = true;
+        foreach ($this->instance->getPresentExtensions() as $extension)
+        {
+            $extension($this);
+        }
+    }
+
+    /**
+     * Extend the present with an extension
+     *
+     * @param string|PresentExtension $extension
+     * @return void
+     */
+    public function extend(string|PresentExtension $extension)
+    {
+        if (is_string($extension))
+        {
+            $extension = new $extension;
+        }
+
+        $extension($this);
     }
 
 
