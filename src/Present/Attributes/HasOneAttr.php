@@ -144,7 +144,7 @@ class HasOneAttr extends Attribute
     {
         $doc = parent::docblock($scope);
 
-        $doc[] = sprintf("@property %s<%s> %s()", $scope->typeHint(HasOne::class), $scope->typeHint($this->related::class), $this->name);
+        $doc[] = sprintf("@method %s<%s> %s()", $scope->typeHint(HasOne::class), $scope->typeHint($this->related::class), $this->name);
         $doc[] = sprintf("@property ?%s \$%s", $scope->typeHint($this->related::class), $this->name);
 
         return $doc;

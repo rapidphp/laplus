@@ -78,13 +78,13 @@ class ModelGuideTest extends TestCase
 
         $guide->assertSame([
             '@property int $testBel_id',
-            '@property \Illuminate\Database\Eloquent\Relations\BelongsTo<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testBel()',
+            '@method \Illuminate\Database\Eloquent\Relations\BelongsTo<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testBel()',
             '@property ?\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $testBel',
-            '@property \Illuminate\Database\Eloquent\Relations\HasOne<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testOne()',
+            '@method \Illuminate\Database\Eloquent\Relations\HasOne<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testOne()',
             '@property ?\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $testOne',
-            '@property \Illuminate\Database\Eloquent\Relations\HasMany<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testMany()',
+            '@method \Illuminate\Database\Eloquent\Relations\HasMany<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testMany()',
             '@property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testMany',
-            '@property \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testBelMany()',
+            '@method \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testBelMany()',
             '@property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testBelMany',
         ]);
     }

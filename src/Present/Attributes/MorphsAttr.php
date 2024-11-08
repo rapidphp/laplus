@@ -192,7 +192,7 @@ class MorphsAttr extends Attribute
     {
         $doc = parent::docblock($scope);
 
-        $doc[] = sprintf("@property %s %s()", $scope->typeHint(MorphTo::class), $this->name);
+        $doc[] = sprintf("@method %s %s()", $scope->typeHint(MorphTo::class), $this->name);
         $doc[] = sprintf("@property ?%s \$%s", $scope->typeHint(Model::class), $this->name);
 
         return $doc;
