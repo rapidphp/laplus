@@ -164,4 +164,9 @@ class FileColumn extends Column
         return $value;
     }
 
+    protected function getDefaultDocblockTypeHint() : string
+    {
+        return 'string';
+    }
+
 }

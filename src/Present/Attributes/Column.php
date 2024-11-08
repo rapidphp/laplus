@@ -413,7 +413,7 @@ class Column extends Attribute
 
         if ($this->castUsing)
         {
-            return 'mixed';
+            return $this->getDefaultDocblockTypeHint();
         }
 
         $prefix = $this->columnData['nullable'] ? 'null|' : '';
@@ -430,7 +430,7 @@ class Column extends Attribute
                 {
                     !class_exists($this->cast)                  => $this->cast,
                     is_a($this->cast, \BackedEnum::class, true) => $this->cast,
-                    default                                     => 'mixed',
+                    default                                     => $this->getDefaultDocblockTypeHint(),
                 }
             };
         }
@@ -440,7 +440,7 @@ class Column extends Attribute
             return $prefix . 'int';
         }
 
-        return $prefix . match (strtolower($this->columnData['type'] ?? 'mixed'))
+        return $prefix . match (strtolower($this->columnData['type'] ?? ''))
         {
             'string', 'varchar', 'char' => 'string',
             'json', 'array'             => 'array',
@@ -449,9 +449,14 @@ class Column extends Attribute
                 'string', 'text'                     => 'string',
                 'int', 'integer', 'decimal', 'float' => 'int',
                 'boolean'                            => 'bool',
-                default                              => 'mixed',
+                default                              => $this->getDefaultDocblockTypeHint(),
             },
         };
+    }
+
+    protected function getDefaultDocblockTypeHint() : string
+    {
+        return 'mixed';
     }
 
 }

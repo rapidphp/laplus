@@ -195,7 +195,7 @@ $this->text('icon')->fillable(false);
 ```
 
 ### Hidden
-Or hidden a column:
+Or hide a column:
 ```php
 $this->string('password')->cast('hashed')->hidden();
 ```

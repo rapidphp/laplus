@@ -11,6 +11,10 @@ public function present()
 }
 ```
 
+## Features
+
+### 1. Auto Migrations
+
 Write your presents in long time:
 
 ![Write presents in long time, laplus will create your migrations](doc/how_works_1.png)
@@ -18,6 +22,41 @@ Write your presents in long time:
 Laplus will generate your migrations:
 
 ![Laplus will create your migrations](doc/how_works_2.png)
+
+[Read more...](doc/migration.md)
+
+
+### 2. Auto Fills
+
+You don't need to define \$fillable, \$cast and $hidden!
+
+```php
+// These values will automatically fills:
+// protected $fillable = ['id', 'slug'];
+// protected $cast = ['password' => 'hashed'];
+// protected $hidden = ['password'];
+```
+
+[Read more...](doc/present.md#fillable)
+
+
+### 3. IDE Friendly
+
+Laplus automatically generate the model docblock to better
+understanding codes for IDE:
+
+```php
+/**
+ * @property int $id
+ * @property string $name
+ * @property \App\Enums\Gender $gender
+ * @method BelongsTo<Profile> profile()
+ * @property Profile $profile
+ */
+```
+
+[Read more...](doc/guide.md)
+
 
 
 ## Requirements
