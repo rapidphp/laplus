@@ -5,7 +5,7 @@ namespace Rapid\Laplus\Tests\Guide;
 use Illuminate\Database\Eloquent\Model;
 use Rapid\Laplus\Guide\Attributes\IsRelation;
 use Rapid\Laplus\Guide\Guides\TestGuide;
-use Rapid\Laplus\Guide\ModelGuide;
+use Rapid\Laplus\Guide\ModelAuthor;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
 use Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide;
@@ -17,7 +17,7 @@ class ModelGuideTest extends TestCase
     public function test_guide_generation()
     {
         $guide = new TestGuide;
-        $guide->run(new ModelGuide($guide, _TestModel1ForGuide::class));
+        $guide->run(new ModelAuthor($guide, _TestModel1ForGuide::class));
 
         $guide->assertSame([
             '@property int $id',
@@ -51,7 +51,7 @@ class ModelGuideTest extends TestCase
         };
 
         $guide = new TestGuide;
-        $guide->run(new ModelGuide($guide, get_class($class)));
+        $guide->run(new ModelAuthor($guide, get_class($class)));
 
         $guide->assertSame([
             '@property class-string $class Target Class',
@@ -74,7 +74,7 @@ class ModelGuideTest extends TestCase
         };
 
         $guide = new TestGuide;
-        $guide->run(new ModelGuide($guide, get_class($class)));
+        $guide->run(new ModelAuthor($guide, get_class($class)));
 
         $guide->assertSame([
             '@property int $testBel_id',
@@ -115,7 +115,7 @@ class ModelGuideTest extends TestCase
         };
 
         $guide = new TestGuide;
-        $guide->run(new ModelGuide($guide, get_class($class)));
+        $guide->run(new ModelAuthor($guide, get_class($class)));
 
         $guide->assertSame([
             '@property string $full_name',
@@ -144,7 +144,7 @@ class ModelGuideTest extends TestCase
         };
 
         $guide = new TestGuide;
-        $guide->run(new ModelGuide($guide, get_class($class)));
+        $guide->run(new ModelAuthor($guide, get_class($class)));
 
         $guide->assertSame([
             '@property ?\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $test',

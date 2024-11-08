@@ -17,7 +17,7 @@ class LaplusServiceProvider extends ServiceProvider
         Commands\LaplusUserPresentMakeCommand::class,
         Commands\LaplusLabelTranslatorMakeCommand::class,
         Commands\LaplusSnapshotCommand::class,
-        Commands\LaplusDocblockCommand::class,
+        Commands\LaplusGuideCommand::class,
     ];
 
     public function register()

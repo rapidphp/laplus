@@ -12,7 +12,7 @@ use Rapid\Laplus\Present\Present;
 /**
  * @internal
  */
-class ModelGuide extends GuideAuthor
+class ModelAuthor extends GuideAuthor
 {
 
     public function docblock(GuideScope $scope) : array

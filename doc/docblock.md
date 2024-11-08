@@ -5,7 +5,7 @@
 Use this command to update the docblock:
 
 ```shell
-php artisan docblock+
+php artisan guide+
 ```
 
 ![Generated Docblock](screen_docblock.png)
