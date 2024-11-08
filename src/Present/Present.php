@@ -113,7 +113,30 @@ abstract class Present
         return $this->instance->getTable();
     }
 
-    protected $isYielded = false;
+    /**
+     * Call the parent by replacing `yield()` with `$extend`
+     *
+     * @param Closure $parent
+     * @param Closure $extend
+     * @return void
+     */
+    public function atYield(Closure $parent, Closure $extend)
+    {
+        $extend = fn() => $extend($this);
+
+        $this->parentYieldStack[] = $extend;
+
+        $parent($this);
+
+        if ($this->parentYieldStack && end($this->parentYieldStack) == $extend)
+        {
+            $this->yield();
+        }
+    }
+
+    protected bool $isYielded = false;
+
+    protected array $parentYieldStack = [];
 
     /**
      * Apply the present extensions
@@ -122,12 +145,20 @@ abstract class Present
      */
     public function yield()
     {
-        if ($this->isYielded) return;
-
-        $this->isYielded = true;
-        foreach ($this->instance->getPresentExtensions() as $extension)
+        if ($this->parentYieldStack)
         {
-            $extension($this);
+            array_pop($this->parentYieldStack)();
+        }
+        else
+        {
+            if ($this->isYielded) return;
+
+            $this->isYielded = true;
+
+            foreach ($this->instance->getPresentExtensions() as $extension)
+            {
+                $extension($this);
+            }
         }
     }
 

@@ -279,3 +279,154 @@ Use `attr` method:
 Storage::disk(Model::getDiskName('image'))->put('new-file.png', $file);
 ```
 
+## Advanced
+
+### Extension
+
+Create custom extensions like this:
+
+```php
+class AvatarPresentExtension extends PresentExtension
+{
+    
+    public function extend(Present $present)
+    {
+        $present->belongsTo(Avatar::class);
+    }
+
+}
+```
+
+Then use it anyway with `extend` method:
+
+```php
+class UserPresent extends Present
+{
+    
+    public function present()
+    {
+        $this->id();
+        $this->extend(AvatarPresentExtension::class);
+        $this->timestamps();
+    }
+    
+}
+```
+
+Or use it in a trait:
+
+```php
+trait HasAvatar
+{
+    public static bootHasAvatar()
+    {
+        static::extendPresent(AvatarPresentExtension::class);
+    }
+}
+```
+
+And use `yield` method in the present:
+
+```php
+class UserPresent extends Present
+{
+    
+    public function present()
+    {
+        $this->id();
+        $this->yield();
+        $this->timestamps();
+    }
+    
+}
+```
+
+And:
+
+```php
+class User
+{
+    use HasPresent, HasAvatar;
+}
+```
+
+
+## Inheritance Present
+
+Use the `atYield` method to extend the child present at the
+`yield` section of parent:
+
+```php
+class PersonPresent extends Present
+{
+    public function present()
+    {
+        $this->id();
+        $this->yield();
+        $this->timestamps();
+    }
+}
+
+class UserPresent extends PersonPresent
+{
+    public function present()
+    {
+        $this->atYield(parent::present(...), function ()
+        {
+            $this->string('name');
+            $this->yield();
+        });
+    }
+}
+
+class AdminPresent extends PersonPresent
+{
+    public function present()
+    {
+        $this->atYield(parent::present(...), function ()
+        {
+            $this->string('role');
+        });
+    }
+}
+```
+
+Now the column order is:
+`id`, `name`, `role`, `created_at`, `updated_at`
+
+You can use it in the inline presents too:
+
+```php
+class Person extends Model
+{
+    protected function present(Present $present)
+    {
+        $present->id();
+        $present->yield();
+        $present->timestamps();
+    }
+}
+
+class User extends Model
+{
+    protected function present(Present $present)
+    {
+        $present->atYield(parent::present(...), function () use ($present)
+        {
+            $present->string('name');
+            $present->yield();
+        });
+    }
+}
+
+class Admin extends Model
+{
+    protected function present(Present $present)
+    {
+        $present->atYield(parent::present(...), function () use ($present)
+        {
+            $present->string('role');
+        });
+    }
+}
+```

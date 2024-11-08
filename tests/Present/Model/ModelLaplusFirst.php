@@ -9,7 +9,7 @@ use Rapid\Laplus\Present\Present;
 
 class ModelLaplusFirst extends Model
 {
-    use HasPresent, HasPresentAttributes;
+    use HasPresent;
 
     protected $table = 'firsts';
 
