@@ -3,6 +3,7 @@
 namespace Rapid\Laplus\Guide;
 
 use Closure;
+use Illuminate\Support\Facades\File;
 use Rapid\Laplus\Guide\Exceptions\TargetFileNotResolved;
 
 abstract class Guide
@@ -35,13 +36,13 @@ abstract class Guide
     {
         $fileName = $this->guessFileName($author->class);
 
-        $originalContents = file_get_contents($fileName);
+        $originalContents = File::get($fileName, true);
 
         $newContents = $callback($originalContents);
 
         if ($originalContents != $newContents)
         {
-            file_put_contents($fileName, $newContents);
+            File::put($fileName, $newContents, true);
         }
     }
 
