@@ -22,7 +22,7 @@ class MixinGuide extends Guide
 
     protected function open()
     {
-        mkdir(dirname($this->stubPath), recursive: true);
+        @mkdir(dirname($this->stubPath), recursive: true);
         $this->stub = fopen($this->stubPath, 'c');
         fwrite($this->stub, "<?php\n\nnamespace {$this->stubNamespace};\n\n");
 
