@@ -224,22 +224,22 @@ trait Columns
 
     public function time(string $column, int $precision = 0)
     {
-        return $this->column($column, 'time', $precision)->cast('timestamp');
+        return $this->column($column, 'time', $precision)->cast('datetime');
     }
 
     public function timeTz(string $column, int $precision = 0)
     {
-        return $this->column($column, 'timeTz', $precision)->cast('timestamp');
+        return $this->column($column, 'timeTz', $precision)->cast('datetime');
     }
 
     public function timestamp(string $column, int $precision = 0)
     {
-        return $this->column($column, 'timestamp', $precision)->cast('timestamp');
+        return $this->column($column, 'timestamp', $precision)->cast('datetime');
     }
 
     public function timestampTz(string $column, int $precision = 0)
     {
-        return $this->column($column, 'timestampTz', $precision)->cast('timestamp');
+        return $this->column($column, 'timestampTz', $precision)->cast('datetime');
     }
 
     public function timestamps(int $precision = 0)
