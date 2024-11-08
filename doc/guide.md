@@ -180,7 +180,7 @@ namespace Rapid\_Stub;
  * @property int $id
  * @property string $name
  */
-class b10a8db164e0754105b7a99be72e3fe5 { }
+class _b10a8db164e0754105b7a99be72e3fe5 { }
 ```
 
 Then add this class as `@mixin` to the actual model:
@@ -188,7 +188,7 @@ Then add this class as `@mixin` to the actual model:
 ```php
 /**
  * @Guide
- * @mixin \Rapid\_Stub\b10a8db164e0754105b7a99be72e3fe5
+ * @mixin \Rapid\_Stub\_b10a8db164e0754105b7a99be72e3fe5
  * @EndGuide
  */
 class User extends Model
