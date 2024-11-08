@@ -419,9 +419,15 @@ class Column extends Attribute
             return match ($this->cast)
             {
                 'json'                                 => 'array',
-                'timestamp'                            => 'int',
+                'timestamp', 'int'                     => 'int',
                 'date', 'dateTime', 'datetime', 'time' => '\\' . Carbon::class,
-                default                                => class_exists($this->cast) ? 'mixed' : $this->cast,
+                'hashed'                               => 'string',
+                default                                => match (true)
+                {
+                    !class_exists($this->cast)                  => $this->cast,
+                    is_a($this->cast, \BackedEnum::class, true) => $this->cast,
+                    default                                     => 'mixed',
+                }
             };
         }
 

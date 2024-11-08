@@ -31,7 +31,7 @@ Laplus will generate your migrations:
 - [Present](doc/present.md)
 - [Migration](doc/migration.md)
 - [Label](doc/label.md)
-- [Guide Generator](doc/guide)
+- [Guide Generator](doc/guide.md)
 
 
 ## Installation
