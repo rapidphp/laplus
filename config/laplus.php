@@ -80,6 +80,6 @@ return [
             'path' => storage_path('framework/rapid/guide.stub.php'),
         ],
 
-    ]
+    ],
 
 ];

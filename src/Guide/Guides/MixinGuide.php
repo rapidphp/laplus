@@ -22,8 +22,9 @@ class MixinGuide extends Guide
 
     protected function open()
     {
+        mkdir(dirname($this->stubPath), recursive: true);
         $this->stub = fopen($this->stubPath, 'c');
-        fwrite($this->stub, "<?php\n\nnamespace {$this->stubNamespace}\n\n");
+        fwrite($this->stub, "<?php\n\nnamespace {$this->stubNamespace};\n\n");
 
         $this->scope = new GuideScope($this->stubNamespace, []);
     }
@@ -35,7 +36,7 @@ class MixinGuide extends Guide
 
     protected function write(GuideAuthor $author)
     {
-        $stubName = md5($author->class);
+        $stubName = '_' . md5($author->class);
 
         $this->modifyFile($author, function ($contents) use ($author, $stubName)
         {
