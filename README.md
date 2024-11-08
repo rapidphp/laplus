@@ -31,7 +31,7 @@ Laplus will generate your migrations:
 - [Present](doc/present.md)
 - [Migration](doc/migration.md)
 - [Label](doc/label.md)
-- [Docblock Generator](doc/docblock.md)
+- [Docblock Generator](doc/guide)
 
 
 ## Installation

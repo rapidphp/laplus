@@ -1,14 +1,26 @@
-# Docblock Generator
+# Guide
 
 ## Command Line
 
-Use this command to update the docblock:
+Use this command to update the guide:
 
 ```shell
 php artisan guide+
 ```
 
 ![Generated Docblock](screen_docblock.png)
+
+
+## Warning
+
+> This feature is not tested in the production mode
+> and big projects.
+> You know, `guide+` will change your model files.
+> So please get backup before testing this feature, and
+> if you find a bug, please report it in my telegram account
+> [@MahdiSaremi](https://t.me/MahdiSaremi), or just PR.
+> 
+> Thanks
 
 ## Present
 
@@ -131,3 +143,55 @@ Output document:
  * @property string gender_label(bool $emoji)
  */
 ```
+
+## Docblock vs Mixin
+
+Set the config `laplus.guide.type` to `docblock` or `mixin`
+to see the different.
+
+### Docblock
+
+Docblock will generate the output documents in the model
+class file like this:
+
+```php
+/**
+ * @Guide
+ * @property int $id
+ * @property string $name
+ * @EndGuide
+ */
+class User extends Model
+```
+
+### Mixin
+
+Mixin is the better way to add documentation to the class.
+
+Mixin will create a random class and add the documents in
+that file:
+
+```php
+<?php
+
+namespace Rapid\_Stub;
+
+/**
+ * @property int $id
+ * @property string $name
+ */
+class b10a8db164e0754105b7a99be72e3fe5 { }
+```
+
+Then add this class as `@mixin` to the actual model:
+
+```php
+/**
+ * @Guide
+ * @mixin \Rapid\_Stub\b10a8db164e0754105b7a99be72e3fe5
+ * @EndGuide
+ */
+class User extends Model
+```
+
+Mixin keeps your code simple and readable :)
