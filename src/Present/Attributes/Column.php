@@ -288,14 +288,16 @@ class Column extends Attribute
     }
 
     /**
-     * Set the starting value of an auto-incrementing field (MySQL/PostgreSQL)
+     * Set the starting value of an auto-incrementing field (MySQL / PostgreSQL)
      *
      * @param int $startingValue
      * @return $this
      */
     public function startingValue(int $startingValue)
     {
-        return $this->from($startingValue);
+        $this->columnData['startingValue'] = $startingValue;
+        
+        return $this;
     }
 
     /**
@@ -414,7 +416,7 @@ class Column extends Attribute
             return 'mixed';
         }
 
-        $prefix = @$this->columnData['nullable'] ? 'null|' : '';
+        $prefix = $this->columnData['nullable'] ? 'null|' : '';
 
         if (is_string($this->cast))
         {
