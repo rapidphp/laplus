@@ -77,7 +77,7 @@ return [
         */
         'mixin' => [
             'namespace' => 'Rapid\_Stub',
-            'path' => storage_path('framework/rapid/guide.stub.php'),
+            'path' => storage_path('stubs/rapid/guide.stub.php'),
         ],
 
     ],
