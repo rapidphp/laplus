@@ -18,7 +18,7 @@ php artisan guide+
 > You know, `guide+` will change your model files.
 > So please get backup before testing this feature, and
 > if you find a bug, please report it in my telegram account
-> [@MahdiSaremi](https://t.me/MahdiSaremi), or just PR.
+> [@Mahdi_Saremi](https://t.me/Mahdi_Saremi), or just PR.
 > 
 > Thanks
 
