@@ -82,7 +82,7 @@ class LaplusSnapshotCommand extends LaplusBaseResourceCommand
             $this->snapshotFileContent = 'Laplus Snapshot';
         }
 
-        parent::generateAll($map);
+        return parent::generateAll($map);
     }
 
 }
