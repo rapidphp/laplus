@@ -83,9 +83,9 @@ class ModelGuideTest extends TestCase
             '@method \Illuminate\Database\Eloquent\Relations\HasOne<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testOne()',
             '@property ?\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $testOne',
             '@method \Illuminate\Database\Eloquent\Relations\HasMany<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testMany()',
-            '@property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testMany',
+            '@property \Illuminate\Database\Eloquent\Collection<int, \Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testMany',
             '@method \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testBelMany()',
-            '@property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testBelMany',
+            '@property \Illuminate\Database\Eloquent\Collection<int, \Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testBelMany',
         ]);
     }
 
@@ -172,7 +172,7 @@ class ModelGuideTest extends TestCase
 
         $guide->assertSame([
             '@property null|\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $test Test Relationship',
-            '@property \Illuminate\Database\Eloquent\Collection<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testMany',
+            '@property \Illuminate\Database\Eloquent\Collection<int, \Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testMany',
         ]);
     }
 

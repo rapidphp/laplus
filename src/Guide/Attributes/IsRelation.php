@@ -69,7 +69,7 @@ class IsRelation implements DocblockAttributeContract
             )
             {
                 return [
-                    sprintf("@property %s<%s> $%s", $scope->typeHint(Collection::class), $typeHint, $reflection->getName()) . ($summary ? ' ' . $summary : ''),
+                    sprintf("@property %s<int, %s> $%s", $scope->typeHint(Collection::class), $typeHint, $reflection->getName()) . ($summary ? ' ' . $summary : ''),
                 ];
             }
 

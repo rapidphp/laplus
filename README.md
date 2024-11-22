@@ -239,7 +239,7 @@ It generates:
  * @Guide
  * @property int $id
  * @property string $name
- * @property Collection<Avatar> $avatars
+ * @property Collection<int, Avatar> $avatars
  * @property string $name_label
  * @property string name_label()
  * @property string $first_name
