@@ -9,7 +9,7 @@ use Rapid\Laplus\Present\Attributes\Attribute;
 trait HasPresent
 {
 
-    protected Present $_presentObject;
+    protected array $_presentObjects = [];
 
     // /**
     //  * Present the model inline
@@ -88,20 +88,20 @@ trait HasPresent
      *
      * @return Present
      */
-    public function getPresent()
+    public function getPresent() : Present
     {
-        if (!isset($this->_presentObject))
+        if (!isset($this->_presentObjects[static::class]))
         {
-            static::$_presentInstances[static::class] = $this;
-            $this->_presentObject = $this->makePresent();
+            static::$_presentInstances[static::class] ??= $this;
+            return $this->_presentObjects[static::class] = $this->makePresent();
         }
 
-        return $this->_presentObject;
+        return $this->_presentObjects[static::class];
     }
 
     protected static $_presentInstances = [];
 
-    public static function getPresentableInstance() : Model
+    public static function getPresentableInstance() : static
     {
         return static::$_presentInstances[static::class] ??= new static;
     }
