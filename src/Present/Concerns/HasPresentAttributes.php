@@ -13,7 +13,7 @@ trait HasPresentAttributes
      */
     public function hasGetMutator($key)
     {
-        if (array_key_exists($key, $this->_presentObject->getters))
+        if (($present = $this->getPresent()) && array_key_exists($key, $present->getters))
         {
             return true;
         }
@@ -29,7 +29,7 @@ trait HasPresentAttributes
      */
     public function hasSetMutator($key)
     {
-        if (array_key_exists($key, $this->_presentObject->setters))
+        if (($present = $this->getPresent()) && array_key_exists($key, $present->setters))
         {
             return true;
         }
@@ -46,9 +46,9 @@ trait HasPresentAttributes
      */
     protected function mutateAttribute($key, $value)
     {
-        if (array_key_exists($key, $this->_presentObject->getters))
+        if (($present = $this->getPresent()) && array_key_exists($key, $present->getters))
         {
-            return $this->_presentObject->getters[$key]($value, $this, $key, $this->attributes);
+            return $present->getters[$key]($value, $this, $key, $this->attributes);
         }
 
         return parent::mutateAttribute($key, $value);
@@ -63,9 +63,9 @@ trait HasPresentAttributes
      */
     protected function setMutatedAttributeValue($key, $value)
     {
-        if (array_key_exists($key, $this->_presentObject->setters))
+        if (($present = $this->getPresent()) && array_key_exists($key, $present->setters))
         {
-            return $this->_presentObject->setters[$key]($value, $this, $key, $this->attributes);
+            return $present->setters[$key]($value, $this, $key, $this->attributes);
         }
 
         return parent::setMutatedAttributeValue($key, $value);

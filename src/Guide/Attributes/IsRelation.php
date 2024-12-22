@@ -36,7 +36,7 @@ class IsRelation implements DocblockAttributeContract
 
             if (isset($this->type))
             {
-                $typeHint = $scope->typeHint(implode('|', (array) $this->type));
+                $typeHint = implode('|', array_map($scope->typeHint(...), (array) $this->type));
             }
             elseif ($sample instanceof MorphTo)
             {

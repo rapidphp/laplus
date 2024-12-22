@@ -185,6 +185,14 @@ class MorphsAttr extends Attribute
         return $arg;
     }
 
+    protected array $types;
+
+    public function types(string|array $classes)
+    {
+        $this->types = $classes;
+        return $this;
+    }
+
     /**
      * @inheritDoc
      */
@@ -192,8 +200,13 @@ class MorphsAttr extends Attribute
     {
         $doc = parent::docblock($scope);
 
-        $doc[] = sprintf("@method %s %s()", $scope->typeHint(MorphTo::class), $this->name);
-        $doc[] = sprintf("@property ?%s \$%s", $scope->typeHint(Model::class), $this->name);
+        $instances = $this->types ?? [Model::class];
+
+        if ($this->includeAttr)
+        {
+            $doc[] = sprintf("@method %s %s()", $scope->typeHint(MorphTo::class), $this->name);
+            $doc[] = sprintf("@property null|%s \$%s", implode('|', array_map($scope->typeHint(...), $instances)), $this->name);
+        }
 
         return $doc;
     }
