@@ -27,7 +27,10 @@ class GuideScope
             '/[a-zA-Z0-9_\\\\]+/',
             function ($matches)
             {
-                if (class_exists($matches[0]))
+                if (str_contains($matches[0], '\\') ||
+                    class_exists($matches[0]) ||
+                    interface_exists($matches[0]) ||
+                    enum_exists($matches[0]))
                 {
                     return $this->simplify('\\' . $matches[0]);
                 }

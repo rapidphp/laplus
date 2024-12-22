@@ -189,7 +189,7 @@ class MorphsAttr extends Attribute
 
     public function types(string|array $classes)
     {
-        $this->types = $classes;
+        $this->types = (array)$classes;
         return $this;
     }
 
