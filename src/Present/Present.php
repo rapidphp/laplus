@@ -8,7 +8,6 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Attributes\Attribute;
-use Rapid\Laplus\Present\Attributes\Column;
 use Rapid\Laplus\Present\Attributes\Index;
 
 abstract class Present

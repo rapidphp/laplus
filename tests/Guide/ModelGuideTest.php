@@ -70,6 +70,9 @@ class ModelGuideTest extends TestCase
                 $present->hasOne(_TestModel1ForGuide::class, 'testOne');
                 $present->hasMany(_TestModel1ForGuide::class, 'testMany');
                 $present->belongsToMany(_TestModel1ForGuide::class, 'testBelMany');
+                $present->morphs('first_morph');
+                $present->morphs('second_morph')->types([_TestModel1ForGuide::class, ModelGuideTest::class]);
+                $present->morphsId('third_morph');
             }
         };
 
@@ -86,6 +89,11 @@ class ModelGuideTest extends TestCase
             '@property \Illuminate\Database\Eloquent\Collection<int, \Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testMany',
             '@method \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> testBelMany()',
             '@property \Illuminate\Database\Eloquent\Collection<int, \Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testBelMany',
+            '@method \Illuminate\Database\Eloquent\Relations\MorphTo first_morph()',
+            '@property null|\Illuminate\Database\Eloquent\Model $first_morph',
+            '@method \Illuminate\Database\Eloquent\Relations\MorphTo second_morph()',
+            '@property null|\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide|\Rapid\Laplus\Tests\Guide\ModelGuideTest $second_morph',
+
         ]);
     }
 
@@ -165,6 +173,12 @@ class ModelGuideTest extends TestCase
                 return $this->hasMany(_TestModel1ForGuide::class);
             }
 
+            #[IsRelation([_TestModel1ForGuide::class, ModelGuideTest::class])]
+            public function testMorph()
+            {
+                return $this->morphTo();
+            }
+
         };
 
         $guide = new TestGuide;
@@ -173,6 +187,7 @@ class ModelGuideTest extends TestCase
         $guide->assertSame([
             '@property null|\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide $test Test Relationship',
             '@property \Illuminate\Database\Eloquent\Collection<int, \Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide> $testMany',
+            '@property null|\Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide|\Rapid\Laplus\Tests\Guide\ModelGuideTest $testMorph',
         ]);
     }
 

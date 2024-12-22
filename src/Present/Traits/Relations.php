@@ -206,6 +206,19 @@ trait Relations
     }
 
     /**
+     * Define morphs columns (not relationship)
+     *
+     * @param string      $name
+     * @param string|null $relation
+     * @param string|null $indexName
+     * @return MorphsAttr
+     */
+    public function morphsId(string $name, string $relation = null, string $indexName = null)
+    {
+        return $this->morphs(...func_get_args())->excludeAttr();
+    }
+
+    /**
      * Define morphs columns and relationship
      *
      * @param string      $name
