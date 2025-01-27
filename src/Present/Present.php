@@ -44,6 +44,7 @@ abstract class Present
         $this->getters = [];
         $this->setters = [];
 
+        $this->isYielded = false;
         $this->present();
         $this->yield();
 
@@ -88,6 +89,7 @@ abstract class Present
      */
     protected function presentTable()
     {
+        $this->isYielded = false;
         $this->present();
         $this->yield();
     }
