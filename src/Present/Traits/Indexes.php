@@ -2,6 +2,7 @@
 
 namespace Rapid\Laplus\Present\Traits;
 
+use Rapid\Laplus\Present\Attributes\Column;
 use Rapid\Laplus\Present\Attributes\Index;
 
 /**
@@ -32,7 +33,7 @@ trait Indexes
      */
     protected function indexCommand($type, $columns, $index, $algorithm = null): Index
     {
-        $columns = (array)$columns;
+        $columns = $this->extractColumnNames($columns);
 
         $index = $index ?: $this->createIndexName($type, $columns);
 
@@ -53,6 +54,29 @@ trait Indexes
         $index = strtolower($table . '_' . implode('_', $columns) . '_' . $type);
 
         return str_replace(['-', '.'], '_', $index);
+    }
+
+    /**
+     * Extract column names
+     *
+     * @param $columns
+     * @return array
+     */
+    protected function extractColumnNames($columns): array
+    {
+        if ($columns instanceof Column) {
+            return [$columns->name];
+        }
+
+        if (is_array($columns)) {
+            foreach ($columns as $key => $column) {
+                if ($column instanceof Column) {
+                    $columns[$key] = $column->name;
+                }
+            }
+        }
+
+        return (array)$columns;
     }
 
     /**
