@@ -200,6 +200,11 @@ trait Columns
         return $this->column($column, 'jsonb')->cast('json');
     }
 
+    public function jsonArray(string $column)
+    {
+        return $this->column($column, 'json')->cast('array');
+    }
+
     public function date(string $column)
     {
         return $this->column($column, 'date')->cast('date');
