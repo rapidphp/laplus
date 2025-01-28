@@ -83,8 +83,9 @@ Output document:
 
 ```php
 /**
- * @property string $full_name
- * @property string|int $family
+ * @property-read string $full_name
+ * @property-read string $fullName
+ * @property-write string|int $family
  */
 ```
 
@@ -110,10 +111,33 @@ Output document:
 
 ```php
 /**
- * @property ?User $user
+ * @property-read ?User $user
  */
 ```
 
+### Is Attribute
+
+Mark the attributes with this attribute to generate the desired docblock in Laplus:
+
+```php
+#[IsAttribute('string')]
+public function fullName(): Attribute
+{
+    return Attribute::make(
+        get: fn () => $this->first_name . ' ' . $this->last_name,
+        set: fn ($value) => [$this->first_name, $this->last_name] = explode(' ', $value, 2),
+    );
+}
+```
+
+Output document:
+
+```php
+/**
+ * @property string $fullName
+ * @property string $full_name
+ */
+```
 
 ## Labels
 
@@ -138,9 +162,9 @@ Output document:
 
 ```php
 /**
- * @property string $name_label
- * @property string name_label(bool $emoji = false)
- * @property string gender_label(bool $emoji)
+ * @property-read string $name_label
+ * @property-read string name_label(bool $emoji = false)
+ * @property-read string gender_label(bool $emoji)
  */
 ```
 

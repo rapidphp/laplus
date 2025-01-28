@@ -37,8 +37,7 @@ class UserLabelTranslator extends LabelTranslator
     
     public function role()
     {
-        return match ($this->value)
-        {
+        return match ($this->value) {
             0 => "Developer",
             1 => "Admin",
             2 => "Member",
@@ -135,8 +134,7 @@ enum Gender : string
     
     public function getTranslatedLabel()
     {
-        return match ($this)
-        {
+        return match ($this) {
             self::Male => "MALE",
             self::Female => "FEMALE",
         };

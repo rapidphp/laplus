@@ -128,6 +128,16 @@ class MoviePresent extends Present
 }
 ```
 
+### Present Arrays
+
+```php
+public function present()
+{
+    $this->json('object');
+    $this->jsonArray('array');
+}
+```
+
 ### Present Attribute
 
 Add attribute with callback to define custom values:
@@ -178,12 +188,20 @@ class UserPresent extends Present
 }
 ```
 
-Don't forget adding the `HasPresentAttributes`:
+Example Many-To-Many relationship:
 
 ```php
-class MyModel extends Model
+class BlogCategory extends Model
 {
-    use HasPresentAttributes;
+    use HasPresent;
+    
+    protected function present(Present $present)
+    {
+        $present->unique([
+            $present->belongsTo(Blog::class)->cascadeOnDelete(),
+            $present->belongsTo(Category::class)->cascadeOnDelete(),
+        ]);
+    }
 }
 ```
 
@@ -192,7 +210,10 @@ You can set fillable or not-fillable a column:
 ```php
 $this->text('name')->fillable(); // Default is enabled
 $this->text('icon')->fillable(false);
+$this->string('slug')->notFillable();
 ```
+
+> Note: The `id`, `created_at` and `updated_at` are not fillable by default.
 
 ### Hidden
 Or hide a column:
@@ -209,14 +230,14 @@ $this->datetime('modify_at'); // Cast = 'datatime'
 Set casting type:
 ```php
 $this->string('password')->cast('hashed');
-$this->string('true_false')->cast('boolean');
+$this->string('is_active')->cast('boolean');
 $this->string('test')->cast(TestCastClass::class);
-$this->datetime('modify_at')->cast(null);
+$this->datetime('modify_at')->noCast();
 ```
 
 Custom casting:
 ```php
-$this->text('days')->castUsing(
+$this->string('days')->castUsing(
     get: fn ($value) => +substr($value, 0, -5),
     set: fn ($value) => "$value Days",
 );
