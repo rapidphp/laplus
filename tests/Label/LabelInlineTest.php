@@ -11,28 +11,27 @@ use Rapid\Laplus\Tests\TestCase;
 class LabelInlineTest extends TestCase
 {
 
-    public function make(array $attributes = [])
-    {
-        return new class($attributes) extends Model
-        {
-            use HasPresent, HasLabels;
-
-            protected function present(Present $present)
-            {
-                $present->id();
-                $present->integer('age')->label(fn ($age) => "$age years old");
-                $present->string('fixed')->label("Doesn't matter what is value");
-                $present->string('status')->label(fn ($status, $default = 'Not Set') => $status ?? $default);
-            }
-        };
-    }
-
     public function test_label_that_defined_normally()
     {
         $record = $this->make(['age' => 20]);
 
         $this->assertSame("20 years old", $record->label('age'));
         $this->assertSame("20 years old", $record->age_label);
+    }
+
+    public function make(array $attributes = [])
+    {
+        return new class($attributes) extends Model {
+            use HasPresent, HasLabels;
+
+            protected function present(Present $present)
+            {
+                $present->id();
+                $present->integer('age')->label(fn($age) => "$age years old");
+                $present->string('fixed')->label("Doesn't matter what is value");
+                $present->string('status')->label(fn($status, $default = 'Not Set') => $status ?? $default);
+            }
+        };
     }
 
     public function test_label_that_defined_fixed()

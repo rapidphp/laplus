@@ -9,7 +9,7 @@ abstract readonly class Resource
      * Create instance from config
      *
      * @param string $name
-     * @param array  $config
+     * @param array $config
      * @return static
      */
     public static abstract function fromConfig(string $name, array $config): Resource;

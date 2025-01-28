@@ -6,10 +6,10 @@ class IndexListState extends ColumnListState
 {
 
     public function __construct(
-        array $added = [],
-        array $changed = [],
-        array $removed = [],
-        array $renamed = [],
+        array       $added = [],
+        array       $changed = [],
+        array       $removed = [],
+        array       $renamed = [],
         public bool $depended = false,
     )
     {

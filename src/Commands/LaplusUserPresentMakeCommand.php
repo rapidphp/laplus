@@ -13,8 +13,7 @@ class LaplusUserPresentMakeCommand extends LaplusPresentMakeCommand
 
     public function handle()
     {
-        if (!$this->argument('name'))
-        {
+        if (!$this->argument('name')) {
             $this->input->setArgument('name', 'UserPresent');
         }
 
@@ -29,7 +28,7 @@ class LaplusUserPresentMakeCommand extends LaplusPresentMakeCommand
     protected function getArguments()
     {
         return [
-            ['name', InputArgument::OPTIONAL, 'The name of the '.strtolower($this->type)],
+            ['name', InputArgument::OPTIONAL, 'The name of the ' . strtolower($this->type)],
         ];
     }
 

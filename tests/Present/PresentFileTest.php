@@ -14,20 +14,6 @@ use Rapid\Laplus\Tests\TestCase;
 class PresentFileTest extends TestCase
 {
 
-    public function make()
-    {
-        return new class extends Model
-        {
-            use HasPresent, HasColumnFiles;
-
-            protected function present(Present $present)
-            {
-                $present->id();
-                $present->file('image')->diskPublic()->url(fn($model, $name) => "localhost/{$name}");
-            }
-        };
-    }
-
     public function test_file()
     {
         $test = $this->make()->setRawAttributes([
@@ -42,16 +28,15 @@ class PresentFileTest extends TestCase
         $this->assertSame("localhost/test.png", $test->file('image')->url());
     }
 
-    public function make_self()
+    public function make()
     {
-        return new class extends Model
-        {
-            use HasPresent, HasSelfFiles;
+        return new class extends Model {
+            use HasPresent, HasColumnFiles;
 
             protected function present(Present $present)
             {
                 $present->id();
-                $present->file('file')->diskPublic()->url(fn($model, $name) => "localhost/{$name}");
+                $present->file('image')->diskPublic()->url(fn($model, $name) => "localhost/{$name}");
             }
         };
     }
@@ -68,6 +53,19 @@ class PresentFileTest extends TestCase
 
         $this->assertSame(Storage::disk('public')->path('test.png'), $test->path());
         $this->assertSame("localhost/test.png", $test->url());
+    }
+
+    public function make_self()
+    {
+        return new class extends Model {
+            use HasPresent, HasSelfFiles;
+
+            protected function present(Present $present)
+            {
+                $present->id();
+                $present->file('file')->diskPublic()->url(fn($model, $name) => "localhost/{$name}");
+            }
+        };
     }
 
 }

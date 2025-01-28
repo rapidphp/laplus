@@ -5,17 +5,11 @@ namespace Rapid\Laplus\Tests\Present;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Rapid\Laplus\Present\Generate\MigrationExporter;
 use Rapid\Laplus\Present\Generate\MigrationGenerator;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
-use Rapid\Laplus\Tests\Present\Model\ModelLaplusFirst;
-use Rapid\Laplus\Tests\Present\Model\ModelLaplusPresentable;
-use Rapid\Laplus\Tests\Present\Model\ModelLaplusSecond;
-use Rapid\Laplus\Tests\Present\Models\Relations\Post;
-use Rapid\Laplus\Tests\Present\Models\Relations\User;
 use Rapid\Laplus\Tests\TestCase;
 
 class PresentGenerateTest extends TestCase
@@ -27,13 +21,12 @@ class PresentGenerateTest extends TestCase
     public function generate(
         Closure $schema,
         Closure $present,
-        string $table = 'tests',
+        string  $table = 'tests',
     )
     {
         $generator = new MigrationGenerator();
 
-        $generator->resolveTableFromMigration(function () use ($schema, $table)
-        {
+        $generator->resolveTableFromMigration(function () use ($schema, $table) {
             Schema::create($table, $schema);
         });
 
@@ -41,8 +34,7 @@ class PresentGenerateTest extends TestCase
         static::$__table = $table;
 
         $generator->pass([
-            new class extends Model
-            {
+            new class extends Model {
                 use HasPresent;
 
                 protected function present(Present $present)
@@ -54,46 +46,41 @@ class PresentGenerateTest extends TestCase
                 {
                     return PresentGenerateTest::$__table;
                 }
-            }
+            },
         ]);
 
         $exporter = new MigrationExporter();
 
         return $exporter->exportMigrationStubs(
-            $exporter->exportMigrationFiles([$generator])
+            $exporter->exportMigrationFiles([$generator]),
         );
     }
-
 
     public function test_no_change()
     {
         $this->assertEmpty(
             $this->generate(
-                function (Blueprint $table)
-                {
+                function (Blueprint $table) {
                     $table->id();
                     $table->text('test');
                 },
-                function (Present $table)
-                {
+                function (Present $table) {
                     $table->id();
                     $table->text('test');
-                }
-            )
+                },
+            ),
         );
     }
 
     public function test_rename()
     {
         $stubs = $this->generate(
-            function (Blueprint $table)
-            {
+            function (Blueprint $table) {
                 $table->text('foo');
             },
-            function (Present $table)
-            {
+            function (Present $table) {
                 $table->text('bar')->old('foo');
-            }
+            },
         );
 
         $this->assertCount(1, $stubs);
@@ -104,14 +91,12 @@ class PresentGenerateTest extends TestCase
     public function test_change_type()
     {
         $stubs = $this->generate(
-            function (Blueprint $table)
-            {
+            function (Blueprint $table) {
                 $table->integer('foo');
             },
-            function (Present $table)
-            {
+            function (Present $table) {
                 $table->text('foo');
-            }
+            },
         );
 
         $this->assertCount(1, $stubs);
@@ -122,13 +107,11 @@ class PresentGenerateTest extends TestCase
     public function test_add_column()
     {
         $stubs = $this->generate(
-            function (Blueprint $table)
-            {
+            function (Blueprint $table) {
             },
-            function (Present $table)
-            {
+            function (Present $table) {
                 $table->text('foo');
-            }
+            },
         );
 
         $this->assertCount(1, $stubs);
@@ -139,15 +122,13 @@ class PresentGenerateTest extends TestCase
     public function test_remove_column()
     {
         $stubs = $this->generate(
-            function (Blueprint $table)
-            {
+            function (Blueprint $table) {
                 $table->id();
                 $table->text('foo');
             },
-            function (Present $table)
-            {
+            function (Present $table) {
                 $table->id();
-            }
+            },
         );
 
         $this->assertCount(1, $stubs);

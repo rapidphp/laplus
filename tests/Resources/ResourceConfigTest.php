@@ -31,7 +31,7 @@ class ResourceConfigTest extends TestCase
             ],
             'd' => [
                 'type' => 'modular',
-                'modules' => __DIR__.'/Modules',
+                'modules' => __DIR__ . '/Modules',
                 'models' => 'Models',
                 'migrations' => 'Migrations',
             ],
@@ -46,8 +46,8 @@ class ResourceConfigTest extends TestCase
         $this->assertSame(['a-models' => 'a-migrations'], $laplus->getResource('a')->resolve());
 
         $this->assertSame([
-            __DIR__.'/Modules/Bar/Models' => __DIR__.'/Modules/Bar/Migrations',
-            __DIR__.'/Modules/Foo/Models' => __DIR__.'/Modules/Foo/Migrations',
+            __DIR__ . '/Modules/Bar/Models' => __DIR__ . '/Modules/Bar/Migrations',
+            __DIR__ . '/Modules/Foo/Models' => __DIR__ . '/Modules/Foo/Migrations',
         ], $laplus->getResource('d')->resolve());
     }
 

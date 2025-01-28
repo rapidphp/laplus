@@ -5,19 +5,23 @@ namespace Rapid\Laplus\Present\Attributes;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\ColumnDefinition;
 use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Present;
 
 class BelongsToAttr extends Column
 {
+    protected $withDefault = false;
+    protected ?string $onDelete = null;
+    protected ?string $onUpdate = null;
+    protected array $using = [];
+    protected $includeAttr = true;
+
     public function __construct(
-        public Model $related,
-        string $foreignKey,
+        public Model  $related,
+        string        $foreignKey,
         public string $ownerKey,
         public string $relationName,
-        string $columnType,
+        string        $columnType,
     )
     {
         parent::__construct($foreignKey, $columnType, [$foreignKey]);
@@ -33,8 +37,7 @@ class BelongsToAttr extends Column
     {
         parent::boot($present);
 
-        if ($this->includeAttr)
-        {
+        if ($this->includeAttr) {
             $present->instance::resolveRelationUsing(
                 $this->relationName,
                 $this->getRelation(...),
@@ -65,7 +68,7 @@ class BelongsToAttr extends Column
 
     /**
      * Get relation value
-     * 
+     *
      * @param Model $model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -74,13 +77,25 @@ class BelongsToAttr extends Column
         return $this->fireUsing(
             $model->belongsTo($this->related::class, $this->name, $this->ownerKey, $this->relationName)
                 ->withDefault($this->withDefault),
-            $model
+            $model,
         );
     }
 
+    /**
+     * Fire using callbacks
+     *
+     * @param       $arg
+     * @param Model $model
+     * @return mixed
+     */
+    protected function fireUsing($arg, Model $model)
+    {
+        foreach ($this->using as $callback) {
+            $arg = $callback($arg, $model);
+        }
 
-
-    protected $withDefault = false;
+        return $arg;
+    }
 
     /**
      * Set default value
@@ -93,9 +108,6 @@ class BelongsToAttr extends Column
         $this->withDefault = $callback;
         return $this;
     }
-
-
-    protected ?string $onDelete = null;
 
     /**
      * Cascade on delete
@@ -146,9 +158,6 @@ class BelongsToAttr extends Column
         return $this;
     }
 
-
-    protected ?string $onUpdate = null;
-
     /**
      * Cascade on delete
      *
@@ -198,9 +207,6 @@ class BelongsToAttr extends Column
         return $this;
     }
 
-
-    protected array $using = [];
-
     /**
      * Fire callback when creating relation
      *
@@ -216,28 +222,8 @@ class BelongsToAttr extends Column
     }
 
     /**
-     * Fire using callbacks
-     *
-     * @param       $arg
-     * @param Model $model
-     * @return mixed
-     */
-    protected function fireUsing($arg, Model $model)
-    {
-        foreach ($this->using as $callback)
-        {
-            $arg = $callback($arg, $model);
-        }
-
-        return $arg;
-    }
-
-    
-    protected $includeAttr = true;
-
-    /**
      * Include creating relation attribute in the model
-     * 
+     *
      * @param bool $value
      * @return $this
      */
@@ -262,12 +248,11 @@ class BelongsToAttr extends Column
     /**
      * @inheritDoc
      */
-    public function docblock(GuideScope $scope) : array
+    public function docblock(GuideScope $scope): array
     {
         $doc = parent::docblock($scope);
 
-        if ($this->includeAttr)
-        {
+        if ($this->includeAttr) {
             $doc[] = sprintf("@method %s<%s> %s()", $scope->typeHint(BelongsTo::class), $scope->typeHint($this->related::class), $this->relationName);
             $doc[] = sprintf("@property-read ?%s \$%s", $scope->typeHint($this->related::class), $this->relationName);
         }

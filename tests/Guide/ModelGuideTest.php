@@ -40,8 +40,7 @@ class ModelGuideTest extends TestCase
 
     public function test_generate_custom_hint()
     {
-        $class = new class extends Model
-        {
+        $class = new class extends Model {
             use HasPresent;
 
             protected function present(Present $present)
@@ -62,8 +61,7 @@ class ModelGuideTest extends TestCase
 
     public function test_generate_relations()
     {
-        $class = new class extends Model
-        {
+        $class = new class extends Model {
             use HasPresent;
 
             protected function present(Present $present)
@@ -104,14 +102,13 @@ class ModelGuideTest extends TestCase
 
     public function test_generate_model_attributes()
     {
-        $class = new class extends Model
-        {
+        $class = new class extends Model {
 
             /**
              * Full Name
              * @return string
              */
-            public function getFullNameAttribute() : string
+            public function getFullNameAttribute(): string
             {
                 return '';
             }
@@ -132,7 +129,7 @@ class ModelGuideTest extends TestCase
              * @param bool $value
              * @return void
              */
-            public function setFooAttribute(bool $value) : void
+            public function setFooAttribute(bool $value): void
             {
             }
 
@@ -141,7 +138,7 @@ class ModelGuideTest extends TestCase
              *
              * @return int
              */
-            public function getBarAttribute() : int
+            public function getBarAttribute(): int
             {
                 return 0;
             }
@@ -161,18 +158,17 @@ class ModelGuideTest extends TestCase
 
     public function test_generate_model_modern_attributes()
     {
-        $class = new class extends Model
-        {
+        $class = new class extends Model {
 
             /**
              * Full Name
              */
             #[IsAttribute('string')]
-            public function fullName() : Attribute
+            public function fullName(): Attribute
             {
                 return Attribute::make(
-                    get: fn () => null,
-                    set: fn () => null,
+                    get: fn() => null,
+                    set: fn() => null,
                 );
             }
 
@@ -182,9 +178,9 @@ class ModelGuideTest extends TestCase
              * @return Attribute
              */
             #[IsAttribute(['null', 'int', _TestModel1ForGuide::class])]
-            public function foo() : Attribute
+            public function foo(): Attribute
             {
-                return Attribute::set(fn () => null);
+                return Attribute::set(fn() => null);
             }
 
             /**
@@ -193,9 +189,9 @@ class ModelGuideTest extends TestCase
              * @return Attribute
              */
             #[IsAttribute]
-            public function bar() : Attribute
+            public function bar(): Attribute
             {
-                return Attribute::get(fn () => null);
+                return Attribute::get(fn() => null);
             }
 
         };
@@ -213,8 +209,7 @@ class ModelGuideTest extends TestCase
 
     public function test_generate_attributes()
     {
-        $class = new class extends Model
-        {
+        $class = new class extends Model {
 
             /**
              * Test Relationship
@@ -251,8 +246,7 @@ class ModelGuideTest extends TestCase
 
     public function test_generate_default_morphs()
     {
-        $class = new class extends Model
-        {
+        $class = new class extends Model {
 
             #[IsRelation]
             public function test()
@@ -272,8 +266,7 @@ class ModelGuideTest extends TestCase
 
     public function test_generate_morphs()
     {
-        $class = new class extends Model
-        {
+        $class = new class extends Model {
 
             #[IsRelation(['A', 'B'])]
             public function test()

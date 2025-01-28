@@ -11,14 +11,16 @@ use Rapid\Laplus\Present\Present;
 class BelongsToManyAttr extends Attribute
 {
 
+    protected array $using = [];
+
     public function __construct(
-        public Model $related,
-        public ?Model $pivot = null,
+        public Model   $related,
+        public ?Model  $pivot = null,
         public ?string $foreignPivotKey = null,
         public ?string $relatedPivotKey = null,
         public ?string $parentKey = null,
         public ?string $relatedKey = null,
-        string $relationName = '',
+        string         $relationName = '',
     )
     {
         parent::__construct($relationName);
@@ -47,13 +49,25 @@ class BelongsToManyAttr extends Attribute
     {
         return $this->fireUsing(
             $model->belongsToMany($this->related::class, $this->pivot?->getTable(), $this->foreignPivotKey, $this->relatedPivotKey, $this->parentKey, $this->relatedKey, $this->name),
-            $model
+            $model,
         );
     }
 
+    /**
+     * Fire using callbacks
+     *
+     * @param       $arg
+     * @param Model $model
+     * @return mixed
+     */
+    protected function fireUsing($arg, Model $model)
+    {
+        foreach ($this->using as $callback) {
+            $arg = $callback($arg, $model);
+        }
 
-
-    protected array $using = [];
+        return $arg;
+    }
 
     /**
      * Fire callback when creating relation
@@ -70,26 +84,9 @@ class BelongsToManyAttr extends Attribute
     }
 
     /**
-     * Fire using callbacks
-     *
-     * @param       $arg
-     * @param Model $model
-     * @return mixed
-     */
-    protected function fireUsing($arg, Model $model)
-    {
-        foreach ($this->using as $callback)
-        {
-            $arg = $callback($arg, $model);
-        }
-
-        return $arg;
-    }
-
-    /**
      * @inheritDoc
      */
-    public function docblock(GuideScope $scope) : array
+    public function docblock(GuideScope $scope): array
     {
         $doc = parent::docblock($scope);
 

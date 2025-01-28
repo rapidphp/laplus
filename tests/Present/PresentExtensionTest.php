@@ -13,8 +13,7 @@ class PresentExtensionTest extends TestCase
 
     public function test_extend_with_callback()
     {
-        $record = new class extends Model
-        {
+        $record = new class extends Model {
             use HasPresent;
 
             protected function present(Present $present)
@@ -24,8 +23,7 @@ class PresentExtensionTest extends TestCase
 
             protected static function booted()
             {
-                static::extendPresent(function (Present $present)
-                {
+                static::extendPresent(function (Present $present) {
                     $present->string('name');
                 });
             }
@@ -36,8 +34,7 @@ class PresentExtensionTest extends TestCase
 
     public function test_extend_with_extension()
     {
-        $record = new class extends Model
-        {
+        $record = new class extends Model {
             use HasPresent;
 
             protected function present(Present $present)
@@ -47,8 +44,7 @@ class PresentExtensionTest extends TestCase
 
             protected static function booted()
             {
-                static::extendPresent(new class extends PresentExtension
-                {
+                static::extendPresent(new class extends PresentExtension {
                     public function extend(Present $present)
                     {
                         $present->string('name');
@@ -62,8 +58,7 @@ class PresentExtensionTest extends TestCase
 
     public function test_extend_with_custom_yield()
     {
-        $record = new class extends Model
-        {
+        $record = new class extends Model {
             use HasPresent;
 
             protected function present(Present $present)
@@ -75,8 +70,7 @@ class PresentExtensionTest extends TestCase
 
             protected static function booted()
             {
-                static::extendPresent(function (Present $present)
-                {
+                static::extendPresent(function (Present $present) {
                     $present->string('name');
                 });
             }

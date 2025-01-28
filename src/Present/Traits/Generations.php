@@ -12,6 +12,7 @@ trait Generations
 {
 
     public MigrationGenerator $generator;
+    public string $generatingTable;
 
     public function passGenerator(MigrationGenerator $generator)
     {
@@ -22,13 +23,15 @@ trait Generations
         unset($this->generator);
     }
 
-
-    public string $generatingTable;
+    public function getGeneratingBlueprint()
+    {
+        return $this->generator->getTable($this->generatingTable);
+    }
 
     /**
      * Generate table modifier
      *
-     * @param string  $table
+     * @param string $table
      * @param Closure $callback
      * @return void
      */
@@ -42,13 +45,11 @@ trait Generations
 
         $callback();
 
-        foreach ($this->attributes as $attribute)
-        {
+        foreach ($this->attributes as $attribute) {
             $attribute->generate($this);
         }
 
-        foreach ($this->indexes as $index)
-        {
+        foreach ($this->indexes as $index) {
             $index->generate($this);
         }
 
@@ -56,11 +57,6 @@ trait Generations
         $this->attributes = $old_attributes;
         if (isset($old_table)) $this->generatingTable = $old_table;
         else unset($this->generatingTable);
-    }
-
-    public function getGeneratingBlueprint()
-    {
-        return $this->generator->getTable($this->generatingTable);
     }
 
 }

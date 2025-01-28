@@ -12,10 +12,17 @@ use Rapid\Laplus\Tests\TestCase;
 class PresentCastingTest extends TestCase
 {
 
+    public function test_primitive_type_casting()
+    {
+        $model = $this->make(['int' => '10', 'at' => '2000/01/01 12:00']);
+
+        $this->assertSame(10, $model->int);
+        $this->assertInstanceOf(Carbon::class, $model->at);
+    }
+
     public function make(array $attributes = [])
     {
-        return new class($attributes) extends Model
-        {
+        return new class($attributes) extends Model {
             use HasPresent, HasPresentAttributes;
 
             protected function present(Present $present)
@@ -30,14 +37,6 @@ class PresentCastingTest extends TestCase
                 $present->enum('some', SomeEnum::class);
             }
         };
-    }
-
-    public function test_primitive_type_casting()
-    {
-        $model = $this->make(['int' => '10', 'at' => '2000/01/01 12:00']);
-
-        $this->assertSame(10, $model->int);
-        $this->assertInstanceOf(Carbon::class, $model->at);
     }
 
     public function test_cast_using()
@@ -69,7 +68,7 @@ class PresentCastingTest extends TestCase
 
         $this->assertFalse(
             in_array('at_year', $model->getFillable()),
-            "Assert 'at_year' out of fillable list, failed"
+            "Assert 'at_year' out of fillable list, failed",
         );
     }
 

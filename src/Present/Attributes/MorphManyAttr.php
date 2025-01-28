@@ -11,10 +11,12 @@ use Rapid\Laplus\Present\Present;
 class MorphManyAttr extends Attribute
 {
 
+    protected array $using = [];
+
     public function __construct(
-        public Model $related,
+        public Model  $related,
         public string $morphName,
-        string $relationName,
+        string        $relationName,
     )
     {
         parent::__construct($relationName);
@@ -43,13 +45,25 @@ class MorphManyAttr extends Attribute
     {
         return $this->fireUsing(
             $model->morphMany($this->related::class, $this->morphName),
-            $model
+            $model,
         );
     }
 
+    /**
+     * Fire using callbacks
+     *
+     * @param       $arg
+     * @param Model $model
+     * @return mixed
+     */
+    protected function fireUsing($arg, Model $model)
+    {
+        foreach ($this->using as $callback) {
+            $arg = $callback($arg, $model);
+        }
 
-
-    protected array $using = [];
+        return $arg;
+    }
 
     /**
      * Fire callback when creating relation
@@ -66,26 +80,9 @@ class MorphManyAttr extends Attribute
     }
 
     /**
-     * Fire using callbacks
-     *
-     * @param       $arg
-     * @param Model $model
-     * @return mixed
-     */
-    protected function fireUsing($arg, Model $model)
-    {
-        foreach ($this->using as $callback)
-        {
-            $arg = $callback($arg, $model);
-        }
-
-        return $arg;
-    }
-
-    /**
      * @inheritDoc
      */
-    public function docblock(GuideScope $scope) : array
+    public function docblock(GuideScope $scope): array
     {
         $doc = parent::docblock($scope);
 

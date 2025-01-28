@@ -11,8 +11,7 @@ trait HasSelfFiles
 
     public static function bootHasSelfFile()
     {
-        static::deleted(function (Model $record)
-        {
+        static::deleted(function (Model $record) {
             $record->file()->delete();
         });
     }
@@ -25,12 +24,21 @@ trait HasSelfFiles
     public function file()
     {
         $attr = $this->getPresent()->getAttribute('file');
-        if ($attr instanceof FileColumn)
-        {
+        if ($attr instanceof FileColumn) {
             return $attr->getFileValue($this->getAttribute('file'), $this);
         }
 
         throw new \InvalidArgumentException("Attribute [file] should be a File");
+    }
+
+    /**
+     * Get file disk name
+     *
+     * @return ?string
+     */
+    public static function getDiskName()
+    {
+        return static::attr('file', 'disk');
     }
 
     /**
@@ -51,16 +59,6 @@ trait HasSelfFiles
     public function path()
     {
         return $this->file()->path();
-    }
-
-    /**
-     * Get file disk name
-     *
-     * @return ?string
-     */
-    public static function getDiskName()
-    {
-        return static::attr('file', 'disk');
     }
 
 }

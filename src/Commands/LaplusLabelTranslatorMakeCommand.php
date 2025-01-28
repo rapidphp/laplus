@@ -22,7 +22,7 @@ class LaplusLabelTranslatorMakeCommand extends GeneratorCommand
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace.'\\LabelTranslators';
+        return $rootNamespace . '\\LabelTranslators';
     }
 
     /**

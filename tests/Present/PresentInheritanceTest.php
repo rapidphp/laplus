@@ -12,14 +12,12 @@ class PresentInheritanceTest extends TestCase
 
     public function test_call_the_parent()
     {
-        $record = new class extends Model
-        {
+        $record = new class extends Model {
             use HasPresent;
 
-            protected function makePresent() : Present
+            protected function makePresent(): Present
             {
-                return new class($this) extends Present
-                {
+                return new class($this) extends Present {
                     protected function thinkItsParent()
                     {
                         $this->id();
@@ -29,8 +27,7 @@ class PresentInheritanceTest extends TestCase
 
                     protected function present()
                     {
-                        $this->atYield($this->thinkItsParent(...), function ()
-                        {
+                        $this->atYield($this->thinkItsParent(...), function () {
                             $this->string('name');
                         });
                     }
@@ -43,14 +40,12 @@ class PresentInheritanceTest extends TestCase
 
     public function test_call_the_chained_parents()
     {
-        $record = new class extends Model
-        {
+        $record = new class extends Model {
             use HasPresent;
 
-            protected function makePresent() : Present
+            protected function makePresent(): Present
             {
-                return new class($this) extends Present
-                {
+                return new class($this) extends Present {
                     protected function thinkItsParentOfParent()
                     {
                         $this->id();
@@ -60,8 +55,7 @@ class PresentInheritanceTest extends TestCase
 
                     protected function thinkItsParent()
                     {
-                        $this->atYield($this->thinkItsParentOfParent(...), function ()
-                        {
+                        $this->atYield($this->thinkItsParentOfParent(...), function () {
                             $this->string('name');
                             $this->yield();
                             $this->integer('age');
@@ -70,8 +64,7 @@ class PresentInheritanceTest extends TestCase
 
                     protected function present()
                     {
-                        $this->atYield($this->thinkItsParent(...), function ()
-                        {
+                        $this->atYield($this->thinkItsParent(...), function () {
                             $this->string('friend_name');
                             $this->yield();
                         });

@@ -18,7 +18,7 @@ class EditGenerateTest extends TestCase
     {
         $generate = new MigrationGenerator();
         $generate->resolveTableFromMigration(
-            _BasicEditGenerateTestModel::blueprint(...)
+            _BasicEditGenerateTestModel::blueprint(...),
         );
         $generate->pass([
             _BasicEditGenerateTestModel::class,
@@ -55,8 +55,7 @@ class _BasicEditGenerateTestModel extends Model
 
     public static function blueprint()
     {
-        Schema::create('tests', function (Blueprint $table)
-        {
+        Schema::create('tests', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->integer('aje');

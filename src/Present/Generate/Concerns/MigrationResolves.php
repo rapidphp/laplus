@@ -43,24 +43,20 @@ trait MigrationResolves
     public function resolveTableFromDatabase()
     {
         // TODO : This function is soon feature
-        Schema::create('users', function (Blueprint $table)
-        {
+        Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->text('name');
         });
         $this->definedMigrationState = [];
-        foreach (Schema::getTables() as $table)
-        {
+        foreach (Schema::getTables() as $table) {
             $name = $table['name'];
 
-            foreach (Schema::getColumns($name) as $column)
-            {
+            foreach (Schema::getColumns($name) as $column) {
                 @$this->definedMigrationState[$name]['columns'][$column['name']] =
                     new ColumnDefinition(Arr::mapWithKeys($column, fn($value, $key) => [Str::camel($key) => $value]));
             }
 
-            foreach (Schema::getIndexes($name) as $index)
-            {
+            foreach (Schema::getIndexes($name) as $index) {
                 @$this->definedMigrationState[$name]['indexes'][$index['name']] =
                     new ColumnDefinition(Arr::mapWithKeys($index, fn($value, $key) => [Str::camel($key) => $value]));
             }

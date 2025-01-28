@@ -6,9 +6,9 @@ use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Str;
+use Rapid\Laplus\Laplus;
 use Rapid\Laplus\Present\Generate\MigrationExporter;
 use Rapid\Laplus\Present\HasPresent;
-use Rapid\Laplus\Laplus;
 use Rapid\Laplus\Resources\Resource;
 
 abstract class LaplusBaseResourceCommand extends Command
@@ -18,6 +18,7 @@ abstract class LaplusBaseResourceCommand extends Command
      * @var Resource[]
      */
     public array $resources;
+    public MigrationExporter $exporter;
 
     /**
      * Handle resource command
@@ -27,33 +28,26 @@ abstract class LaplusBaseResourceCommand extends Command
     public function handle()
     {
         // Entered name option -> Using special resource
-        if ($name = $this->option('name'))
-        {
+        if ($name = $this->option('name')) {
             $resource = Laplus::getResource($name);
 
-            if (!$resource)
-            {
+            if (!$resource) {
                 $this->error("Laplus resource [$name] not found");
                 return 1;
             }
 
             $this->runGenerate([$resource]);
             return 0;
-        }
-        // Entered migrations & models options -> Using input
-        elseif ($this->option('migrations') || $this->option('models'))
-        {
+        } // Entered migrations & models options -> Using input
+        elseif ($this->option('migrations') || $this->option('models')) {
             $this->generateAll([
-                $this->option('models') => $this->option('migrations')
+                $this->option('models') => $this->option('migrations'),
             ]);
             return 0;
-        }
-        // Using all resources
-        else
-        {
+        } // Using all resources
+        else {
             $resources = Laplus::getResources();
-            if (!$resources)
-            {
+            if (!$resources) {
                 $this->error("Missing resource configuration. fill the [laplus.resources] config");
                 return 1;
             }
@@ -63,14 +57,12 @@ abstract class LaplusBaseResourceCommand extends Command
         }
     }
 
-    public MigrationExporter $exporter;
-
     public function runGenerate(array $resources)
     {
         $this->resources = $resources;
 
         $map = collect($this->resources)
-            ->mapWithKeys(fn (Resource $resource) => $resource->resolve())
+            ->mapWithKeys(fn(Resource $resource) => $resource->resolve())
             ->toArray();
 
         $this->exporter = new MigrationExporter();
@@ -82,8 +74,7 @@ abstract class LaplusBaseResourceCommand extends Command
     public function generateAll(array $map): array
     {
         $all = [];
-        foreach ($map as $modelsPath => $migrationsPath)
-        {
+        foreach ($map as $modelsPath => $migrationsPath) {
             $all[$migrationsPath] = $this->generate($modelsPath, $migrationsPath);
         }
 
@@ -109,39 +100,30 @@ abstract class LaplusBaseResourceCommand extends Command
 
     protected function discoverModels(string $path)
     {
-        if (file_exists($path))
-        {
-            foreach (scandir($path) as $sub)
-            {
+        if (file_exists($path)) {
+            foreach (scandir($path) as $sub) {
                 if ($sub == '.' || $sub == '..')
                     continue;
 
                 $subPath = $path . '/' . $sub;
 
-                if (is_dir($subPath))
-                {
-                    foreach ($this->discoverModels($subPath) as $model)
-                    {
+                if (is_dir($subPath)) {
+                    foreach ($this->discoverModels($subPath) as $model) {
                         yield $model;
                     }
-                }
-                else
-                {
-                    if (str_ends_with($sub, '.php'))
-                    {
+                } else {
+                    if (str_ends_with($sub, '.php')) {
                         $contents = @file_get_contents($subPath);
                         if (
                             preg_match('/namespace\s+(.*?)\s*;/', $contents, $namespaceMatch) &&
                             preg_match('/class\s+(.*?)[\s\n\r{]/', $contents, $classMatch)
-                        )
-                        {
+                        ) {
                             $class = $namespaceMatch[1] . "\\" . $classMatch[1];
                             if (
                                 class_exists($class) &&
                                 is_a($class, Model::class, true) &&
                                 in_array(HasPresent::class, class_uses_recursive($class))
-                            )
-                            {
+                            ) {
                                 yield $class;
                             }
                         }
@@ -153,32 +135,24 @@ abstract class LaplusBaseResourceCommand extends Command
 
     protected function discoverMigrations(string $path)
     {
-        if (!file_exists($path))
-        {
+        if (!file_exists($path)) {
             @mkdir($path, recursive: true);
         }
 
-        foreach (scandir($path) as $sub)
-        {
+        foreach (scandir($path) as $sub) {
             if ($sub == '.' || $sub == '..')
                 continue;
 
             $subPath = $path . '/' . $sub;
 
-            if (is_dir($subPath))
-            {
-                foreach ($this->discoverMigrations($subPath) as $migration)
-                {
+            if (is_dir($subPath)) {
+                foreach ($this->discoverMigrations($subPath) as $migration) {
                     yield $migration;
                 }
-            }
-            else
-            {
-                if (str_ends_with($sub, '.php'))
-                {
+            } else {
+                if (str_ends_with($sub, '.php')) {
                     $value = include $subPath;
-                    if ($value instanceof Migration)
-                    {
+                    if ($value instanceof Migration) {
                         yield $value;
                     }
                 }
@@ -191,8 +165,7 @@ abstract class LaplusBaseResourceCommand extends Command
         if (file_exists($path)) return;
 
         $path = str_replace('\\', '/', $path);
-        if (substr_count($path, '/') > 2)
-        {
+        if (substr_count($path, '/') > 2) {
             $this->makeReadyToWrite(Str::beforeLast($path, '/'));
         }
 

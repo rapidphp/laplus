@@ -12,16 +12,42 @@ use Rapid\Laplus\Tests\TestCase;
 class LabelTranslatorBooleansTest extends TestCase
 {
 
+    public function test_true_false_booleans()
+    {
+        $this->assertSame(
+            'True',
+            $this->make(['tf' => true])->label('tf'),
+        );
+
+        $this->assertSame(
+            'True',
+            $this->make(['tf' => "A True Value"])->label('tf'),
+        );
+
+        $this->assertSame(
+            'False',
+            $this->make(['tf' => false])->label('tf'),
+        );
+
+        $this->assertSame(
+            'False',
+            $this->make(['tf' => ''])->label('tf'),
+        );
+
+        $this->assertSame(
+            'Undefined',
+            $this->make(['tf' => null])->label('tf'),
+        );
+    }
+
     public function make(array $attributes = [])
     {
-        return new class($attributes) extends Model
-        {
+        return new class($attributes) extends Model {
             use HasPresent, HasLabels;
 
-            protected function makeLabelTranslator() : ?LabelTranslator
+            protected function makeLabelTranslator(): ?LabelTranslator
             {
-                return new class($this) extends LabelTranslator
-                {
+                return new class($this) extends LabelTranslator {
                     public function tf()
                     {
                         return $this->asTrueFalse;
@@ -57,59 +83,31 @@ class LabelTranslatorBooleansTest extends TestCase
         };
     }
 
-    public function test_true_false_booleans()
-    {
-        $this->assertSame(
-            'True',
-            $this->make(['tf' => true])->label('tf')
-        );
-
-        $this->assertSame(
-            'True',
-            $this->make(['tf' => "A True Value"])->label('tf')
-        );
-
-        $this->assertSame(
-            'False',
-            $this->make(['tf' => false])->label('tf')
-        );
-
-        $this->assertSame(
-            'False',
-            $this->make(['tf' => ''])->label('tf')
-        );
-
-        $this->assertSame(
-            'Undefined',
-            $this->make(['tf' => null])->label('tf')
-        );
-    }
-
     public function test_on_off_booleans()
     {
         $this->assertSame(
             'On',
-            $this->make(['oo' => true])->label('oo')
+            $this->make(['oo' => true])->label('oo'),
         );
 
         $this->assertSame(
             'On',
-            $this->make(['oo' => "A True Value"])->label('oo')
+            $this->make(['oo' => "A True Value"])->label('oo'),
         );
 
         $this->assertSame(
             'Off',
-            $this->make(['oo' => false])->label('oo')
+            $this->make(['oo' => false])->label('oo'),
         );
 
         $this->assertSame(
             'Off',
-            $this->make(['oo' => ''])->label('oo')
+            $this->make(['oo' => ''])->label('oo'),
         );
 
         $this->assertSame(
             'Undefined',
-            $this->make(['oo' => null])->label('oo')
+            $this->make(['oo' => null])->label('oo'),
         );
     }
 
@@ -117,27 +115,27 @@ class LabelTranslatorBooleansTest extends TestCase
     {
         $this->assertSame(
             'Yes',
-            $this->make(['yn' => true])->label('yn')
+            $this->make(['yn' => true])->label('yn'),
         );
 
         $this->assertSame(
             'Yes',
-            $this->make(['yn' => "A True Value"])->label('yn')
+            $this->make(['yn' => "A True Value"])->label('yn'),
         );
 
         $this->assertSame(
             'No',
-            $this->make(['yn' => false])->label('yn')
+            $this->make(['yn' => false])->label('yn'),
         );
 
         $this->assertSame(
             'No',
-            $this->make(['yn' => ''])->label('yn')
+            $this->make(['yn' => ''])->label('yn'),
         );
 
         $this->assertSame(
             'Undefined',
-            $this->make(['yn' => null])->label('yn')
+            $this->make(['yn' => null])->label('yn'),
         );
     }
 
@@ -145,17 +143,17 @@ class LabelTranslatorBooleansTest extends TestCase
     {
         $this->assertSame(
             'Yes',
-            $this->make(['yn' => true])->label('yn_not_null')
+            $this->make(['yn' => true])->label('yn_not_null'),
         );
 
         $this->assertSame(
             'No',
-            $this->make(['yn' => false])->label('yn_not_null')
+            $this->make(['yn' => false])->label('yn_not_null'),
         );
 
         $this->assertSame(
             'No',
-            $this->make(['yn' => null])->label('yn_not_null')
+            $this->make(['yn' => null])->label('yn_not_null'),
         );
     }
 

@@ -11,14 +11,16 @@ use Rapid\Laplus\Present\Present;
 class HasManyThroughAttr extends Attribute
 {
 
+    protected array $using = [];
+
     public function __construct(
-        public Model $related,
-        public Model $through,
+        public Model  $related,
+        public Model  $through,
         public string $firstKey,
         public string $secondKey,
         public string $localKey,
         public string $secondLocalKey,
-        string $relationName,
+        string        $relationName,
     )
     {
         parent::__construct($relationName);
@@ -47,13 +49,25 @@ class HasManyThroughAttr extends Attribute
     {
         return $this->fireUsing(
             $model->hasManyThrough($this->related::class, $this->through::class, $this->firstKey, $this->secondKey, $this->localKey, $this->secondLocalKey),
-            $model
+            $model,
         );
     }
 
+    /**
+     * Fire using callbacks
+     *
+     * @param       $arg
+     * @param Model $model
+     * @return mixed
+     */
+    protected function fireUsing($arg, Model $model)
+    {
+        foreach ($this->using as $callback) {
+            $arg = $callback($arg, $model);
+        }
 
-
-    protected array $using = [];
+        return $arg;
+    }
 
     /**
      * Fire callback when creating relation
@@ -70,26 +84,9 @@ class HasManyThroughAttr extends Attribute
     }
 
     /**
-     * Fire using callbacks
-     *
-     * @param       $arg
-     * @param Model $model
-     * @return mixed
-     */
-    protected function fireUsing($arg, Model $model)
-    {
-        foreach ($this->using as $callback)
-        {
-            $arg = $callback($arg, $model);
-        }
-
-        return $arg;
-    }
-
-    /**
      * @inheritDoc
      */
-    public function docblock(GuideScope $scope) : array
+    public function docblock(GuideScope $scope): array
     {
         $doc = parent::docblock($scope);
 

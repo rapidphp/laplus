@@ -14,7 +14,7 @@ class LaplusModelMakeCommand extends ModelMakeCommand
 
     public function handle()
     {
-        if (parent::handle() === false && ! $this->option('force')) {
+        if (parent::handle() === false && !$this->option('force')) {
             return false;
         }
 
@@ -29,8 +29,7 @@ class LaplusModelMakeCommand extends ModelMakeCommand
      */
     protected function createPresent()
     {
-        if (!$this->option('inline'))
-        {
+        if (!$this->option('inline')) {
             $modelClass = Str::studly(class_basename($this->argument('name')));
 
             $modelName = $this->qualifyClass($this->getNameInput());
@@ -53,8 +52,7 @@ class LaplusModelMakeCommand extends ModelMakeCommand
      */
     protected function createLabelTranslator()
     {
-        if ($this->option('label'))
-        {
+        if ($this->option('label')) {
             $modelClass = Str::studly(class_basename($this->argument('name')));
 
             $modelName = $this->qualifyClass($this->getNameInput());
@@ -72,20 +70,13 @@ class LaplusModelMakeCommand extends ModelMakeCommand
 
     protected function getStub()
     {
-        if ($this->option('inline') && $this->option('label'))
-        {
+        if ($this->option('inline') && $this->option('label')) {
             return __DIR__ . '/stubs/model-inline-with-label.stub';
-        }
-        elseif ($this->option('inline'))
-        {
+        } elseif ($this->option('inline')) {
             return __DIR__ . '/stubs/model-inline.stub';
-        }
-        elseif ($this->option('label'))
-        {
+        } elseif ($this->option('label')) {
             return __DIR__ . '/stubs/model-with-label.stub';
-        }
-        else
-        {
+        } else {
             return __DIR__ . '/stubs/model.stub';
         }
     }

@@ -9,16 +9,15 @@ use Rapid\Laplus\Guide\GuideScope;
 class MixinGuide extends Guide
 {
 
+    protected $stub;
+    protected GuideScope $scope;
+
     public function __construct(
         protected string $stubPath,
         protected string $stubNamespace = 'Rapid\\_Stub',
     )
     {
     }
-
-    protected $stub;
-
-    protected GuideScope $scope;
 
     protected function open()
     {
@@ -38,13 +37,12 @@ class MixinGuide extends Guide
     {
         $stubName = '_' . md5($author->class);
 
-        $this->modifyFile($author, function ($contents) use ($author, $stubName)
-        {
+        $this->modifyFile($author, function ($contents) use ($author, $stubName) {
             return $this->commentClass(
                 $contents,
                 $author->class,
                 'Guide',
-                ["@mixin \\{$this->stubNamespace}\\{$stubName}"]
+                ["@mixin \\{$this->stubNamespace}\\{$stubName}"],
             );
         });
 

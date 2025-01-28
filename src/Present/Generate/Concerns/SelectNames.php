@@ -2,8 +2,6 @@
 
 namespace Rapid\Laplus\Present\Generate\Concerns;
 
-use Illuminate\Support\Fluent;
-
 trait SelectNames
 {
 
@@ -14,13 +12,11 @@ trait SelectNames
 
     public function nameOfModifyColumn(string $column, array $changes, string $table)
     {
-        if (count($changes) == 1)
-        {
+        if (count($changes) == 1) {
             return "change_{$column}_{$changes[0]}_in_{$table}_table";
         }
 
-        if (count($changes) == 2)
-        {
+        if (count($changes) == 2) {
             return "change_{$column}_{$changes[0]}_and_{$changes[1]}_in_{$table}_table";
         }
 

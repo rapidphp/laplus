@@ -10,16 +10,21 @@ use Rapid\Laplus\Tests\TestCase;
 class LabelWithoutPresentTest extends TestCase
 {
 
+    public function test_model_with_label_without_present()
+    {
+        $record = $this->make();
+
+        $this->assertSame("Test Passed", $record->test_label);
+    }
+
     public function make(array $attributes = [])
     {
-        return new class($attributes) extends Model
-        {
+        return new class($attributes) extends Model {
             use HasLabels;
 
-            protected function makeLabelTranslator() : ?LabelTranslator
+            protected function makeLabelTranslator(): ?LabelTranslator
             {
-                return new class($this) extends LabelTranslator
-                {
+                return new class($this) extends LabelTranslator {
                     public function test()
                     {
                         return "Test Passed";
@@ -27,13 +32,6 @@ class LabelWithoutPresentTest extends TestCase
                 };
             }
         };
-    }
-
-    public function test_model_with_label_without_present()
-    {
-        $record = $this->make();
-
-        $this->assertSame("Test Passed", $record->test_label);
     }
 
 }

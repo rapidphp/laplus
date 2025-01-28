@@ -14,28 +14,6 @@ trait Columns
 {
 
     /**
-     * Create new column
-     *
-     * @param string         $column
-     * @param string|Closure $method
-     * @param                ...$args
-     * @return Column
-     */
-    public function column(string $column, string|Closure $method, ...$args)
-    {
-        if (is_string($method))
-        {
-            return $this->attribute(
-                new Column($column, $method, [$column, ...$args])
-            );
-        }
-
-        return $this->attribute(
-            new Column($column, $method, $args)
-        );
-    }
-
-    /**
      * Create new id column
      *
      * @param string $column
@@ -45,6 +23,28 @@ trait Columns
     {
         return $this->column($column, 'id')->cast('int');
     }
+
+    /**
+     * Create new column
+     *
+     * @param string $column
+     * @param string|Closure $method
+     * @param                ...$args
+     * @return Column
+     */
+    public function column(string $column, string|Closure $method, ...$args)
+    {
+        if (is_string($method)) {
+            return $this->attribute(
+                new Column($column, $method, [$column, ...$args]),
+            );
+        }
+
+        return $this->attribute(
+            new Column($column, $method, $args),
+        );
+    }
+
     public function increments(string $column)
     {
         return $this->column($column, 'increments')->cast('int');
@@ -78,11 +78,6 @@ trait Columns
     public function char(string $column, $length = null)
     {
         return $this->column($column, 'char', $length);
-    }
-
-    public function string(string $column, $length = null)
-    {
-        return $this->column($column, 'string', $length);
     }
 
     public function tinyText(string $column)
@@ -177,10 +172,8 @@ trait Columns
 
     public function enum(string $column, array|string $allowed)
     {
-        if (is_string($allowed))
-        {
-            if (!is_a($allowed, \BackedEnum::class, true))
-            {
+        if (is_string($allowed)) {
+            if (!is_a($allowed, \BackedEnum::class, true)) {
                 throw new \TypeError("Expected BackedEnum, given [{$allowed}]");
             }
 
@@ -212,11 +205,6 @@ trait Columns
         return $this->column($column, 'date')->cast('date');
     }
 
-    public function dateTime(string $column, int $precision = 0)
-    {
-        return $this->column($column, 'dateTime', $precision)->cast('datetime');
-    }
-
     public function dateTimeTz(string $column, int $precision = 0)
     {
         return $this->column($column, 'dateTimeTz', $precision)->cast('datetime');
@@ -232,21 +220,16 @@ trait Columns
         return $this->column($column, 'timeTz', $precision)->cast('datetime');
     }
 
-    public function timestamp(string $column, int $precision = 0)
-    {
-        return $this->column($column, 'timestamp', $precision)->cast('datetime');
-    }
-
-    public function timestampTz(string $column, int $precision = 0)
-    {
-        return $this->column($column, 'timestampTz', $precision)->cast('datetime');
-    }
-
     public function timestamps(int $precision = 0)
     {
         $this->timestamp('created_at', $precision)->nullable();
 
         $this->timestamp('updated_at', $precision)->nullable();
+    }
+
+    public function timestamp(string $column, int $precision = 0)
+    {
+        return $this->column($column, 'timestamp', $precision)->cast('datetime');
     }
 
     public function timestampsTz(int $precision = 0)
@@ -256,11 +239,21 @@ trait Columns
         $this->timestampTz('updated_at', $precision)->nullable();
     }
 
+    public function timestampTz(string $column, int $precision = 0)
+    {
+        return $this->column($column, 'timestampTz', $precision)->cast('datetime');
+    }
+
     public function datetimes(int $precision = 0)
     {
         $this->datetime('created_at', $precision)->nullable();
 
         $this->datetime('updated_at', $precision)->nullable();
+    }
+
+    public function dateTime(string $column, int $precision = 0)
+    {
+        return $this->column($column, 'dateTime', $precision)->cast('datetime');
     }
 
     public function softDeletes(string $column = 'deleted_at', int $precision = 0)
@@ -326,6 +319,11 @@ trait Columns
     public function rememberToken()
     {
         return $this->string('remember_token', 100)->nullable()->hidden();
+    }
+
+    public function string(string $column, $length = null)
+    {
+        return $this->column($column, 'string', $length);
     }
 
     public function password(string $column = 'password')

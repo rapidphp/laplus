@@ -28,7 +28,7 @@ class IsAttribute implements DocblockAttributeContract
         $accessSuffix = match (true) {
             isset($attribute->get) && !isset($attribute->set) => '-read',
             isset($attribute->set) && !isset($attribute->get) => '-write',
-            default => null,
+            default                                           => null,
         };
 
         $typeHint = implode('|', array_map($scope->typeHint(...), (array)$this->type));

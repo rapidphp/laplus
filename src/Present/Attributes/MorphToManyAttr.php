@@ -11,16 +11,18 @@ use Rapid\Laplus\Present\Present;
 class MorphToManyAttr extends Attribute
 {
 
+    protected array $using = [];
+
     public function __construct(
-        public Model $related,
-        public string $morphName,
-        string $relationName,
-        public Model $pivot,
+        public Model   $related,
+        public string  $morphName,
+        string         $relationName,
+        public Model   $pivot,
         public ?string $foreignPivotKey = null,
         public ?string $relatedPivotKey = null,
         public ?string $parentKey = null,
         public ?string $relatedKey = null,
-        public bool $inverse = false,
+        public bool    $inverse = false,
     )
     {
         parent::__construct($relationName);
@@ -54,13 +56,25 @@ class MorphToManyAttr extends Attribute
                 $this->relatedKey, $this->name,
                 $this->inverse,
             ),
-            $model
+            $model,
         );
     }
 
+    /**
+     * Fire using callbacks
+     *
+     * @param       $arg
+     * @param Model $model
+     * @return mixed
+     */
+    protected function fireUsing($arg, Model $model)
+    {
+        foreach ($this->using as $callback) {
+            $arg = $callback($arg, $model);
+        }
 
-
-    protected array $using = [];
+        return $arg;
+    }
 
     /**
      * Fire callback when creating relation
@@ -77,26 +91,9 @@ class MorphToManyAttr extends Attribute
     }
 
     /**
-     * Fire using callbacks
-     *
-     * @param       $arg
-     * @param Model $model
-     * @return mixed
-     */
-    protected function fireUsing($arg, Model $model)
-    {
-        foreach ($this->using as $callback)
-        {
-            $arg = $callback($arg, $model);
-        }
-
-        return $arg;
-    }
-
-    /**
      * @inheritDoc
      */
-    public function docblock(GuideScope $scope) : array
+    public function docblock(GuideScope $scope): array
     {
         $doc = parent::docblock($scope);
 

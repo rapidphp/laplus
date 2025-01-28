@@ -14,9 +14,8 @@ class GuideTest extends TestCase
     public function test_docblock_extract()
     {
         $guide = new TestGuide;
-        $author = new class($guide, 'FooModel') extends GuideAuthor
-        {
-            public function docblock(GuideScope $scope) : array
+        $author = new class($guide, 'FooModel') extends GuideAuthor {
+            public function docblock(GuideScope $scope): array
             {
                 return ['Foo', 'Bar'];
             }
@@ -32,9 +31,8 @@ class GuideTest extends TestCase
     public function test_comment_with_no_comments()
     {
         $guide = new TestGuide;
-        $author = new class($guide, 'FooModel') extends GuideAuthor
-        {
-            public function docblock(GuideScope $scope) : array
+        $author = new class($guide, 'FooModel') extends GuideAuthor {
+            public function docblock(GuideScope $scope): array
             {
                 return ['Foo', 'Bar'];
             }
@@ -57,7 +55,7 @@ class GuideTest extends TestCase
             <?php
             class FooModel extends Model
             { }
-            CODE
+            CODE,
         );
 
     }
@@ -65,9 +63,8 @@ class GuideTest extends TestCase
     public function test_comment_with_normal_comments()
     {
         $guide = new TestGuide;
-        $author = new class($guide, 'FooModel') extends GuideAuthor
-        {
-            public function docblock(GuideScope $scope) : array
+        $author = new class($guide, 'FooModel') extends GuideAuthor {
+            public function docblock(GuideScope $scope): array
             {
                 return ['Foo', 'Bar'];
             }
@@ -95,7 +92,7 @@ class GuideTest extends TestCase
              */
             class FooModel extends Model
             { }
-            CODE
+            CODE,
         );
 
     }
@@ -103,9 +100,8 @@ class GuideTest extends TestCase
     public function test_comment_with_exists_guide_comments()
     {
         $guide = new TestGuide;
-        $author = new class($guide, 'FooModel') extends GuideAuthor
-        {
-            public function docblock(GuideScope $scope) : array
+        $author = new class($guide, 'FooModel') extends GuideAuthor {
+            public function docblock(GuideScope $scope): array
             {
                 return ['Foo', 'Bar'];
             }
@@ -133,7 +129,7 @@ class GuideTest extends TestCase
              */
             class FooModel extends Model
             { }
-            CODE
+            CODE,
         );
 
     }
@@ -141,9 +137,8 @@ class GuideTest extends TestCase
     public function test_comment_classes_with_no_simplify()
     {
         $guide = new TestGuide;
-        $author = new class($guide, 'FooModel') extends GuideAuthor
-        {
-            public function docblock(GuideScope $scope) : array
+        $author = new class($guide, 'FooModel') extends GuideAuthor {
+            public function docblock(GuideScope $scope): array
             {
                 return [
                     $scope->typeHint(_TestModel1ForGuide::class),
@@ -160,9 +155,8 @@ class GuideTest extends TestCase
     public function test_comment_classes_with_same_namespace_simplify()
     {
         $guide = new TestGuide("Rapid\Laplus\Tests\Guide\Models");
-        $author = new class($guide, 'FooModel') extends GuideAuthor
-        {
-            public function docblock(GuideScope $scope) : array
+        $author = new class($guide, 'FooModel') extends GuideAuthor {
+            public function docblock(GuideScope $scope): array
             {
                 return [
                     $scope->typeHint(_TestModel1ForGuide::class),
@@ -179,9 +173,8 @@ class GuideTest extends TestCase
     public function test_comment_classes_with_sub_namespace_simplify()
     {
         $guide = new TestGuide("Rapid\Laplus\Tests\Guide");
-        $author = new class($guide, 'FooModel') extends GuideAuthor
-        {
-            public function docblock(GuideScope $scope) : array
+        $author = new class($guide, 'FooModel') extends GuideAuthor {
+            public function docblock(GuideScope $scope): array
             {
                 return [
                     $scope->typeHint(_TestModel1ForGuide::class),
@@ -198,9 +191,8 @@ class GuideTest extends TestCase
     public function test_comment_classes_with_used_simplify()
     {
         $guide = new TestGuide(null, [_TestModel1ForGuide::class => 'TestModel']);
-        $author = new class($guide, 'FooModel') extends GuideAuthor
-        {
-            public function docblock(GuideScope $scope) : array
+        $author = new class($guide, 'FooModel') extends GuideAuthor {
+            public function docblock(GuideScope $scope): array
             {
                 return [
                     $scope->typeHint(_TestModel1ForGuide::class),

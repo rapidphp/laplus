@@ -3,7 +3,6 @@
 namespace Rapid\Laplus;
 
 use Illuminate\Support\ServiceProvider;
-use Rapid\Laplus\Laplus;
 
 class LaplusServiceProvider extends ServiceProvider
 {
@@ -38,12 +37,9 @@ class LaplusServiceProvider extends ServiceProvider
         Laplus::loadConfig(config()->get('laplus.resources', []));
 
         $this->callAfterResolving('migrator', function ($migrator) {
-            foreach (config()->get('laplus.resources', []) as $name => $config)
-            {
-                if (@$config['merge_to_config'])
-                {
-                    foreach (Laplus::getResource($name)->resolve() as $modelPath => $migrationPath)
-                    {
+            foreach (config()->get('laplus.resources', []) as $name => $config) {
+                if (@$config['merge_to_config']) {
+                    foreach (Laplus::getResource($name)->resolve() as $modelPath => $migrationPath) {
                         $migrator->path($migrationPath);
                     }
                 }
@@ -53,7 +49,7 @@ class LaplusServiceProvider extends ServiceProvider
 
     public function registerLang()
     {
-        $lang = __DIR__.'/../lang';
+        $lang = __DIR__ . '/../lang';
 
         $this->publishes([$lang => $this->app->langPath('vendor/laplus')], ['laplus:lang', 'lang']);
 

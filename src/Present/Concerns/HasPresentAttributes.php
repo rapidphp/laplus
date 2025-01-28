@@ -8,13 +8,12 @@ trait HasPresentAttributes
     /**
      * Determine if a get mutator exists for an attribute.
      *
-     * @param  string  $key
+     * @param string $key
      * @return bool
      */
     public function hasGetMutator($key)
     {
-        if (($present = $this->getPresent()) && array_key_exists($key, $present->getters))
-        {
+        if (($present = $this->getPresent()) && array_key_exists($key, $present->getters)) {
             return true;
         }
 
@@ -24,13 +23,12 @@ trait HasPresentAttributes
     /**
      * Determine if a set mutator exists for an attribute.
      *
-     * @param  string  $key
+     * @param string $key
      * @return bool
      */
     public function hasSetMutator($key)
     {
-        if (($present = $this->getPresent()) && array_key_exists($key, $present->setters))
-        {
+        if (($present = $this->getPresent()) && array_key_exists($key, $present->setters)) {
             return true;
         }
 
@@ -40,14 +38,13 @@ trait HasPresentAttributes
     /**
      * Get the value of an attribute using its mutator.
      *
-     * @param  string  $key
-     * @param  mixed  $value
+     * @param string $key
+     * @param mixed $value
      * @return mixed
      */
     protected function mutateAttribute($key, $value)
     {
-        if (($present = $this->getPresent()) && array_key_exists($key, $present->getters))
-        {
+        if (($present = $this->getPresent()) && array_key_exists($key, $present->getters)) {
             return $present->getters[$key]($value, $this, $key, $this->attributes);
         }
 
@@ -57,14 +54,13 @@ trait HasPresentAttributes
     /**
      * Set the value of an attribute using its mutator.
      *
-     * @param  string  $key
-     * @param  mixed  $value
+     * @param string $key
+     * @param mixed $value
      * @return mixed
      */
     protected function setMutatedAttributeValue($key, $value)
     {
-        if (($present = $this->getPresent()) && array_key_exists($key, $present->setters))
-        {
+        if (($present = $this->getPresent()) && array_key_exists($key, $present->setters)) {
             return $present->setters[$key]($value, $this, $key, $this->attributes);
         }
 

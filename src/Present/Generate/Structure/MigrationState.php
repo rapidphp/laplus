@@ -6,14 +6,16 @@ class MigrationState
 {
 
 
+    protected ?array $suggests = [];
+
     public function __construct(
-        public string $fileName,
-        public string $table,
-        public string $command,
+        public string             $fileName,
+        public string             $table,
+        public string             $command,
         public ?DefinedTableState $before = null,
-        public ColumnListState $columns = new ColumnListState(),
-        public IndexListState $indexes = new IndexListState(),
-        public bool $isLazy = false,
+        public ColumnListState    $columns = new ColumnListState(),
+        public IndexListState     $indexes = new IndexListState(),
+        public bool               $isLazy = false,
     )
     {
     }
@@ -24,9 +26,6 @@ class MigrationState
             $this->columns->isEmpty() &&
             $this->indexes->isEmpty();
     }
-
-
-    protected ?array $suggests = [];
 
     public function suggestName(string $id, string $name, bool $override = true)
     {
@@ -44,8 +43,7 @@ class MigrationState
 
     public function getBestFileName()
     {
-        if (is_array($this->suggests) && count($this->suggests) == 1)
-        {
+        if (is_array($this->suggests) && count($this->suggests) == 1) {
             return head($this->suggests);
         }
 
