@@ -37,6 +37,17 @@ class Attribute
     }
 
     /**
+     * Remove attribute fillable
+     *
+     * @return $this
+     */
+    public function notFillable()
+    {
+        $this->fillable = false;
+        return $this;
+    }
+
+    /**
      * Set attribute fillable
      *
      * @param bool $value

@@ -21,7 +21,7 @@ trait Columns
      */
     public function id(string $column = 'id')
     {
-        return $this->column($column, 'id')->cast('int');
+        return $this->column($column, 'id')->cast('int')->notFillable();
     }
 
     /**
@@ -222,9 +222,8 @@ trait Columns
 
     public function timestamps(int $precision = 0)
     {
-        $this->timestamp('created_at', $precision)->nullable();
-
-        $this->timestamp('updated_at', $precision)->nullable();
+        $this->timestamp('created_at', $precision)->nullable()->notFillable();
+        $this->timestamp('updated_at', $precision)->nullable()->notFillable();
     }
 
     public function timestamp(string $column, int $precision = 0)
