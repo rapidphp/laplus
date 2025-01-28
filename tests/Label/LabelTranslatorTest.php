@@ -23,7 +23,7 @@ class LabelTranslatorTest extends TestCase
 
     public function make(array $attributes = [])
     {
-        return new class($attributes) extends Model {
+        return (new class extends Model {
             use HasPresent, HasLabels;
 
             protected function makeLabelTranslator(): ?LabelTranslator
@@ -72,7 +72,7 @@ class LabelTranslatorTest extends TestCase
                 $present->string('empty');
                 $present->timestamps();
             }
-        };
+        })->setRawAttributes($attributes);
     }
 
     public function test_label_that_defined_fixed()

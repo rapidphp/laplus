@@ -35,7 +35,7 @@ class PresentInheritanceTest extends TestCase
             }
         };
 
-        $this->assertSame(['id', 'name', 'created_at', 'updated_at'], $record->getFillable());
+        $this->assertSame(['name'], $record->getFillable());
     }
 
     public function test_call_the_chained_parents()
@@ -73,7 +73,7 @@ class PresentInheritanceTest extends TestCase
             }
         };
 
-        $this->assertSame(['id', 'name', 'friend_name', 'age', 'created_at', 'updated_at'], $record->getFillable());
+        $this->assertSame(['name', 'friend_name', 'age'], $record->getFillable());
     }
 
 }

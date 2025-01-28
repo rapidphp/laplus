@@ -29,7 +29,7 @@ class PresentExtensionTest extends TestCase
             }
         };
 
-        $this->assertSame(['id', 'name'], $record->getFillable());
+        $this->assertSame(['name'], $record->getFillable());
     }
 
     public function test_extend_with_extension()
@@ -53,7 +53,7 @@ class PresentExtensionTest extends TestCase
             }
         };
 
-        $this->assertSame(['id', 'name'], $record->getFillable());
+        $this->assertSame(['name'], $record->getFillable());
     }
 
     public function test_extend_with_custom_yield()
@@ -76,7 +76,7 @@ class PresentExtensionTest extends TestCase
             }
         };
 
-        $this->assertSame(['id', 'name', 'last'], $record->getFillable());
+        $this->assertSame(['name', 'last'], $record->getFillable());
     }
 
 }

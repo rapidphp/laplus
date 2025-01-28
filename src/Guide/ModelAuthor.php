@@ -73,7 +73,7 @@ class ModelAuthor extends GuideAuthor
             $methodIn = implode(', ', $methodIn);
 
             if ($canUseAsProperty)
-                $docblock[] = "@property string \${$name}_label" . ($info ? ' ' . $info : '');
+                $docblock[] = "@property-read string \${$name}_label" . ($info ? ' ' . $info : '');
 
             $docblock[] = "@method string {$name}_label($methodIn)" . ($info ? ' ' . $info : '');
         }

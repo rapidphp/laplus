@@ -26,14 +26,14 @@ class ModelGuideTest extends TestCase
             '@property string $name',
             '@property float $money',
             '@property array $friends List of friends',
-            '@property string $name_label Test name',
+            '@property-read string $name_label Test name',
             '@method string name_label() Test name',
-            '@property string $money_label Money Test',
+            '@property-read string $money_label Money Test',
             '@method string money_label(string $currency = "$") Money Test',
             '@method string friends_label(int $max)',
-            '@property string $created_at_label',
+            '@property-read string $created_at_label',
             '@method string created_at_label()',
-            '@property string $updated_at_label',
+            '@property-read string $updated_at_label',
             '@method string updated_at_label()',
         ]);
     }
