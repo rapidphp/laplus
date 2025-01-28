@@ -19,7 +19,7 @@ class _TestModel1ForGuide extends Model
         $present->json('friends')->docHint('List of friends');
     }
 
-    protected function getLabelTranslatorClass() : ?string
+    protected function getLabelTranslatorClass(): ?string
     {
         return _TestLabel1ForGuide::class;
     }

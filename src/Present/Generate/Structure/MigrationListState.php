@@ -24,10 +24,8 @@ class MigrationListState
 
     public function forgetEmpty()
     {
-        foreach ($this->all as $index => $migration)
-        {
-            if ($migration->isEmpty())
-            {
+        foreach ($this->all as $index => $migration) {
+            if ($migration->isEmpty()) {
                 unset($this->all[$index]);
             }
         }

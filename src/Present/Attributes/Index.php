@@ -10,8 +10,8 @@ class Index
     public function __construct(
         public string $name,
         public string $type,
-        public array $columns,
-        public array $indexData = [],
+        public array  $columns,
+        public array  $indexData = [],
     )
     {
     }
@@ -40,8 +40,7 @@ class Index
 
         $index = $table->{$this->type}($this->columns, $this->name);
 
-        foreach ($this->indexData as $method => $arg)
-        {
+        foreach ($this->indexData as $method => $arg) {
             $index->{$method}($arg);
         }
 

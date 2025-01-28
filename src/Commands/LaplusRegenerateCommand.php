@@ -22,12 +22,9 @@ class LaplusRegenerateCommand extends LaplusGenerateCommand
 
     public function handle()
     {
-        if ($this->option('all') && !$this->output->confirm("All the migrations will be deleted! Are you sure?", false))
-        {
+        if ($this->option('all') && !$this->output->confirm("All the migrations will be deleted! Are you sure?", false)) {
             return 1;
-        }
-        elseif (!$this->option('all') && !$this->output->confirm("All the migrations after last snapshot will be deleted! Are you sure?", false))
-        {
+        } elseif (!$this->option('all') && !$this->output->confirm("All the migrations after last snapshot will be deleted! Are you sure?", false)) {
             return 1;
         }
 
@@ -38,20 +35,17 @@ class LaplusRegenerateCommand extends LaplusGenerateCommand
     {
         // Detect target migrations
         $target = collect(@scandir($migrationPath) ?: [])
-            ->filter(fn ($file) => is_file($migrationPath . '/' . $file) && !str_starts_with($file, '0001_01_01'));
+            ->filter(fn($file) => is_file($migrationPath . '/' . $file) && !str_starts_with($file, '0001_01_01'));
 
         // Filter snapshot
-        if (!$this->option('all'))
-        {
-            if ($lastSnapshot = $target->last(fn ($file) => str_ends_with($file, '.snapshot')))
-            {
+        if (!$this->option('all')) {
+            if ($lastSnapshot = $target->last(fn($file) => str_ends_with($file, '.snapshot'))) {
                 $target = $target->slice($target->values()->search($lastSnapshot) + 1);
             }
         }
 
         // Delete old migrations
-        foreach ($target as $file)
-        {
+        foreach ($target as $file) {
             @unlink($migrationPath . '/' . $file);
         }
 

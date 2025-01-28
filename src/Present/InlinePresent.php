@@ -13,17 +13,6 @@ final class InlinePresent extends Present
     }
 
     /**
-     * Present the model using callback
-     *
-     * @return void
-     */
-    protected function present()
-    {
-        ($this->callback)($this);
-    }
-
-
-    /**
      * Make inline present
      *
      * @param Model $instance
@@ -33,6 +22,16 @@ final class InlinePresent extends Present
     public static function make(Model $instance, $callback)
     {
         return new InlinePresent($instance, $callback);
+    }
+
+    /**
+     * Present the model using callback
+     *
+     * @return void
+     */
+    protected function present()
+    {
+        ($this->callback)($this);
     }
 
 }

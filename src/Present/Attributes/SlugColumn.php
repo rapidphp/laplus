@@ -9,6 +9,14 @@ use Rapid\Laplus\Present\Present;
 class SlugColumn extends Column
 {
 
+    protected string $used = 'title';
+    /**
+     * Column is unique
+     *
+     * @var bool
+     */
+    protected bool $isUnique = false;
+
     /**
      * Boots the attribute
      *
@@ -19,23 +27,17 @@ class SlugColumn extends Column
     {
         parent::boot($present);
 
-        $present->instance::creating(function (Model $model)
-        {
-            if ($model->getAttribute($this->name) === null)
-            {
-                if (null !== $value = $model->getAttribute($this->used))
-                {
+        $present->instance::creating(function (Model $model) {
+            if ($model->getAttribute($this->name) === null) {
+                if (null !== $value = $model->getAttribute($this->used)) {
                     $model->setAttribute($this->name, $this->createSlug($value, $model::class));
                 }
             }
         });
 
-        $present->instance::updating(function (Model $model)
-        {
-            if ($model->getAttribute($this->name) === null || ($model->wasChanged($this->used) && !$model->wasChanged($this->name)))
-            {
-                if (null !== $value = $model->getAttribute($this->used))
-                {
+        $present->instance::updating(function (Model $model) {
+            if ($model->getAttribute($this->name) === null || ($model->wasChanged($this->used) && !$model->wasChanged($this->name))) {
+                if (null !== $value = $model->getAttribute($this->used)) {
                     $model->setAttribute($this->name, $this->createSlug($value, $model::class, $model));
                 }
             }
@@ -45,9 +47,9 @@ class SlugColumn extends Column
     /**
      * Create slug
      *
-     * @param string      $value
+     * @param string $value
      * @param string|null $model
-     * @param Model|null  $expect
+     * @param Model|null $expect
      * @return string
      */
     protected function createSlug(string $value, string $model = null, Model $expect = null)
@@ -56,8 +58,7 @@ class SlugColumn extends Column
         $slug = Str::slug($value, language: null);
 
         // Normal column
-        if (!$this->isUnique)
-        {
+        if (!$this->isUnique) {
             return $slug;
         }
 
@@ -66,8 +67,7 @@ class SlugColumn extends Column
             $expect ?
                 !$model::where($this->name, $slug)->where('id', '!=', $expect->id)->exists() :
                 !$model::where($this->name, $slug)->exists()
-        )
-        {
+        ) {
             return $slug;
         }
 
@@ -76,11 +76,9 @@ class SlugColumn extends Column
             ->where($this->name, 'regexp', '^' . preg_quote($slug) . '\-')->pluck($this->name);
 
         $max = 1;
-        foreach ($likes as $like)
-        {
+        foreach ($likes as $like) {
             $like = substr($like, strlen($slug) + 1);
-            if (is_numeric($like) && $like > $max)
-            {
+            if (is_numeric($like) && $like > $max) {
                 $max = $like;
             }
         }
@@ -88,8 +86,6 @@ class SlugColumn extends Column
         // Create slug with new number
         return $slug . '-' . ++$max;
     }
-
-    protected string $used = 'title';
 
     /**
      * Set used column to create slug
@@ -103,13 +99,6 @@ class SlugColumn extends Column
 
         return $this;
     }
-
-    /**
-     * Column is unique
-     *
-     * @var bool
-     */
-    protected bool $isUnique = false;
 
     /**
      * Make slug column unique

@@ -2,15 +2,9 @@
 
 namespace Rapid\Laplus\Tests\Present;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Schema;
-use Rapid\Laplus\Present\HasPresent;
-use Rapid\Laplus\Present\Present;
 use Rapid\Laplus\Tests\Present\Model\ModelLaplusFirst;
 use Rapid\Laplus\Tests\Present\Model\ModelLaplusSecond;
 use Rapid\Laplus\Tests\Present\Models\Relations\Post;

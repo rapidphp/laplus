@@ -2,7 +2,7 @@
 
 namespace Rapid\Laplus\Tests\Present;
 
-enum SomeEnum : string
+enum SomeEnum: string
 {
 
     case First = 'First';

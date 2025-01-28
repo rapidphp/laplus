@@ -72,8 +72,7 @@ trait MigrationGenerates
 
     protected function generateChanges()
     {
-        foreach ($this->tables as $tableName => $table)
-        {
+        foreach ($this->tables as $tableName => $table) {
             $migration = new MigrationState(
                 fileName: '',
                 table: $tableName,
@@ -88,12 +87,9 @@ trait MigrationGenerates
             $this->generateNewCommands($table, $migration);
 
             // Choosing name
-            if (!$this->definedState->get($tableName))
-            {
+            if (!$this->definedState->get($tableName)) {
                 $migration->forceName($this->nameOfCreateTable($tableName));
-            }
-            else
-            {
+            } else {
                 $migration->fileName = $this->nameOfModifyTable($tableName);
             }
 
@@ -102,107 +98,9 @@ trait MigrationGenerates
         }
     }
 
-    protected function generateRemoves()
-    {
-        foreach ($this->definedState->tables as $name => $table)
-        {
-            $removedColumns = [];
-            $removedIndexes = [];
-            foreach ($table->columns as $columnName => $column)
-            {
-                if (!isset($this->marked[$name]['columns'][$columnName]))
-                {
-                    $removedColumns[] = $columnName;
-                }
-            }
-            foreach ($table->indexes as $indexName => $index)
-            {
-                if (!isset($this->marked[$name]['indexes'][$indexName]))
-                {
-                    $removedIndexes[] = $indexName;
-                }
-            }
-
-            // Table is not exists -> Drop table
-            if (!isset($this->tables[$name]))
-            {
-                if ($this->includeDropTables && !in_array($name, ['password_reset_tokens', 'sessions', 'cache', 'cache_locks', 'jobs', 'job_batches', 'failed_jobs']))
-                {
-                    $this->newState->add(
-                        new MigrationState(
-                            fileName: $this->nameOfDropTable($name),
-                            table: $name,
-                            command: 'drop',
-                        )
-                    );
-                }
-            }
-            // Drop columns & indexes
-            else if ($removedColumns || $removedIndexes)
-            {
-                foreach (array_reverse($this->newState->all) as $migration)
-                {
-                    if ($migration->table == $name)
-                    {
-                        array_push($migration->columns->removed, ...$removedColumns);
-                        array_push($migration->indexes->removed, ...$removedIndexes);
-
-                        if (count($removedColumns) == 1)
-                        {
-                            $migration->suggestName($removedColumns[0], $this->nameOfRemoveColumn($removedColumns[0], $migration->table));
-                        }
-
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    protected function generateDependedIndexes()
-    {
-        $insert = new MigrationListState();
-
-        foreach ($this->newState->all as $migration)
-        {
-            if ($migration->command == 'table' && $migration->indexes->depended)
-            {
-                $migration->indexes->depended = false;
-                $this->newState->add(
-                    (new MigrationState(
-                        fileName: $this->nameOfAddIndexes($migration->table),
-                        table: $migration->table,
-                        command: 'table',
-
-                        indexes: new IndexListState(
-                            added: $migration->indexes->added,
-                            changed: $migration->indexes->changed,
-                        ),
-                    ))->lazy(),
-                );
-                $insert->add(
-                    (new MigrationState(
-                        fileName: $this->nameOfRemoveIndexes($migration->table),
-                        table: $migration->table,
-                        command: 'table',
-                        indexes: new IndexListState(
-                            removed: $migration->indexes->removed,
-                        )
-                    ))->lazy(),
-                );
-
-                $migration->indexes = new IndexListState();
-            }
-        }
-
-        $this->newState = new MigrationListState([...$insert->all, ...$this->newState->all]);
-    }
-
-
     protected function generateNewColumns(Blueprint $table, MigrationState $migration)
     {
-        foreach ($table->getColumns() as $column)
-        {
+        foreach ($table->getColumns() as $column) {
             $columnName = $column->name;
 
             // Find old name
@@ -212,22 +110,17 @@ trait MigrationGenerates
             unset($column->oldNames);
 
             // Rename column
-            if ($hasOldName)
-            {
+            if ($hasOldName) {
                 $this->generateRenameColumn($migration, $oldName, $columnName);
             }
 
             // Exists column -> Changed or nothing
-            if (isset($this->definedState->get($migration->table)?->columns[$oldName]))
-            {
-                if ($changes = $this->findColumnChanges($column, $this->definedState->get($migration->table)->columns[$oldName]))
-                {
+            if (isset($this->definedState->get($migration->table)?->columns[$oldName])) {
+                if ($changes = $this->findColumnChanges($column, $this->definedState->get($migration->table)->columns[$oldName])) {
                     $this->generateChangeColumn($migration, $column, $changes);
                 }
-            }
-            // New column
-            elseif (!$hasOldName)
-            {
+            } // New column
+            elseif (!$hasOldName) {
                 $this->generateAddColumn($migration, $column);
             }
 
@@ -260,25 +153,18 @@ trait MigrationGenerates
         $migration->suggestName($column->name, $this->nameOfAddColumn($column->name, $migration->table));
     }
 
-
     protected function generateNewCommands(Blueprint $table, MigrationState $migration)
     {
-        foreach ($table->getCommands() as $command)
-        {
+        foreach ($table->getCommands() as $command) {
             /** @var string $index */
-            if ($index = $command->get('index'))
-            {
+            if ($index = $command->get('index')) {
                 // Exists index -> Changed or nothing
-                if (isset($this->definedState->get($migration->table)->indexes[$index]))
-                {
-                    if ($changes = $this->findColumnChanges($command, $this->definedState->get($migration->table)->indexes[$index]))
-                    {
+                if (isset($this->definedState->get($migration->table)->indexes[$index])) {
+                    if ($changes = $this->findColumnChanges($command, $this->definedState->get($migration->table)->indexes[$index])) {
                         $this->generateChangeIndex($migration, $index, $command, $changes);
                     }
-                }
-                // New index
-                else
-                {
+                } // New index
+                else {
                     $this->generateNewIndex($migration, $index, $command);
                 }
 
@@ -292,8 +178,7 @@ trait MigrationGenerates
         $migration->indexes->changed($index, $command);
         $this->currentState->getOrCreate($migration->table)->indexes[$index] = $command;
 
-        if ($on = $command->get('on'))
-        {
+        if ($on = $command->get('on')) {
             $migration->indexes->depended = true;
         }
     }
@@ -303,10 +188,91 @@ trait MigrationGenerates
         $migration->indexes->added($index, $command);
         $this->currentState->getOrCreate($migration->table)->indexes[$index] = $command;
 
-        if ($on = $command->get('on'))
-        {
+        if ($on = $command->get('on')) {
             $migration->indexes->depended = true;
         }
+    }
+
+    protected function generateRemoves()
+    {
+        foreach ($this->definedState->tables as $name => $table) {
+            $removedColumns = [];
+            $removedIndexes = [];
+            foreach ($table->columns as $columnName => $column) {
+                if (!isset($this->marked[$name]['columns'][$columnName])) {
+                    $removedColumns[] = $columnName;
+                }
+            }
+            foreach ($table->indexes as $indexName => $index) {
+                if (!isset($this->marked[$name]['indexes'][$indexName])) {
+                    $removedIndexes[] = $indexName;
+                }
+            }
+
+            // Table is not exists -> Drop table
+            if (!isset($this->tables[$name])) {
+                if ($this->includeDropTables && !in_array($name, ['password_reset_tokens', 'sessions', 'cache', 'cache_locks', 'jobs', 'job_batches', 'failed_jobs'])) {
+                    $this->newState->add(
+                        new MigrationState(
+                            fileName: $this->nameOfDropTable($name),
+                            table: $name,
+                            command: 'drop',
+                        ),
+                    );
+                }
+            } // Drop columns & indexes
+            else if ($removedColumns || $removedIndexes) {
+                foreach (array_reverse($this->newState->all) as $migration) {
+                    if ($migration->table == $name) {
+                        array_push($migration->columns->removed, ...$removedColumns);
+                        array_push($migration->indexes->removed, ...$removedIndexes);
+
+                        if (count($removedColumns) == 1) {
+                            $migration->suggestName($removedColumns[0], $this->nameOfRemoveColumn($removedColumns[0], $migration->table));
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    protected function generateDependedIndexes()
+    {
+        $insert = new MigrationListState();
+
+        foreach ($this->newState->all as $migration) {
+            if ($migration->command == 'table' && $migration->indexes->depended) {
+                $migration->indexes->depended = false;
+                $this->newState->add(
+                    (new MigrationState(
+                        fileName: $this->nameOfAddIndexes($migration->table),
+                        table: $migration->table,
+                        command: 'table',
+
+                        indexes: new IndexListState(
+                            added: $migration->indexes->added,
+                            changed: $migration->indexes->changed,
+                        ),
+                    ))->lazy(),
+                );
+                $insert->add(
+                    (new MigrationState(
+                        fileName: $this->nameOfRemoveIndexes($migration->table),
+                        table: $migration->table,
+                        command: 'table',
+                        indexes: new IndexListState(
+                            removed: $migration->indexes->removed,
+                        ),
+                    ))->lazy(),
+                );
+
+                $migration->indexes = new IndexListState();
+            }
+        }
+
+        $this->newState = new MigrationListState([...$insert->all, ...$this->newState->all]);
     }
 
 }

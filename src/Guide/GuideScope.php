@@ -9,7 +9,7 @@ class GuideScope
 
     public function __construct(
         public ?string $namespace,
-        public array $uses,
+        public array   $uses,
     )
     {
     }
@@ -25,21 +25,17 @@ class GuideScope
     {
         return preg_replace_callback(
             '/[a-zA-Z0-9_\\\\]+/',
-            function ($matches)
-            {
+            function ($matches) {
                 if (str_contains($matches[0], '\\') ||
                     class_exists($matches[0]) ||
                     interface_exists($matches[0]) ||
-                    enum_exists($matches[0]))
-                {
+                    enum_exists($matches[0])) {
                     return $this->simplify('\\' . $matches[0]);
-                }
-                else
-                {
+                } else {
                     return $matches[0];
                 }
             },
-            $type
+            $type,
         );
     }
 
@@ -49,33 +45,25 @@ class GuideScope
      * @param string $class
      * @return string
      */
-    public function simplify(string $class) : string
+    public function simplify(string $class): string
     {
         $class = ltrim($class, '\\');
 
-        if (array_key_exists($class, $this->uses))
-        {
+        if (array_key_exists($class, $this->uses)) {
             return $this->uses[$class];
         }
 
-        if (Str::contains($class, '\\'))
-        {
+        if (Str::contains($class, '\\')) {
             $namespace = Str::beforeLast($class, '\\');
             $className = Str::afterLast($class, '\\');
 
-            if ($namespace === $this->namespace)
-            {
+            if ($namespace === $this->namespace) {
                 return $className;
-            }
-            elseif ($this->namespace && Str::startsWith($namespace, $this->namespace . '\\'))
-            {
+            } elseif ($this->namespace && Str::startsWith($namespace, $this->namespace . '\\')) {
                 return substr($namespace, strlen($this->namespace) + 1) . '\\' . $className;
             }
-        }
-        else
-        {
-            if ($this->namespace === null)
-            {
+        } else {
+            if ($this->namespace === null) {
                 return $class;
             }
         }
@@ -83,18 +71,16 @@ class GuideScope
         return '\\' . $class;
     }
 
-    public function summary(string|false $comments) : ?string
+    public function summary(string|false $comments): ?string
     {
-        if ($comments === false)
-        {
+        if ($comments === false) {
             return null;
         }
 
         $comments = preg_replace('/^\/\*\*[\s\n*]*/', '', $comments);
         $comments = trim(explode("\n", $comments, 2)[0]);
 
-        if (str_starts_with($comments, '@'))
-        {
+        if (str_starts_with($comments, '@')) {
             return null;
         }
 

@@ -34,7 +34,7 @@ class _TestLabel1ForGuide extends LabelTranslator
      */
     public function friends(int $max)
     {
-        return (string) $max;
+        return (string)$max;
     }
 
 }

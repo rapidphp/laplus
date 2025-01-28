@@ -9,6 +9,12 @@ use Rapid\Laplus\Present\Present;
 class Column extends Attribute
 {
 
+    protected array $oldNames = [];
+    protected array $columnData = [
+        'nullable' => false,
+    ];
+    protected ?array $columnIndex = null;
+
     public function __construct(
         string          $name,
         protected       $createUsingMethod,
@@ -19,39 +25,30 @@ class Column extends Attribute
         $this->fillable = true;
     }
 
-
     public function generate(Present $present)
     {
         parent::generate($present);
 
         $table = $present->getGeneratingBlueprint();
 
-        if (is_string($this->createUsingMethod))
-        {
+        if (is_string($this->createUsingMethod)) {
             $column = $table->{$this->createUsingMethod}(...$this->createUsingArgs);
-        }
-        else
-        {
+        } else {
             $column = ($this->createUsingMethod)($table, ...$this->createUsingArgs);
         }
 
-        foreach ($this->columnData as $method => $arg)
-        {
+        foreach ($this->columnData as $method => $arg) {
             $column->{$method}($arg);
         }
 
-        if (isset($this->columnIndex))
-        {
+        if (isset($this->columnIndex)) {
             $column->{$this->columnIndex[0]}($this->columnIndex[1]);
         }
 
-        if ($this->oldNames)
-        {
+        if ($this->oldNames) {
             $column->oldNames($this->oldNames);
         }
     }
-
-    protected array $oldNames = [];
 
     /**
      * Set old column names.
@@ -67,13 +64,6 @@ class Column extends Attribute
         array_push($this->oldNames, $name, ...$names);
         return $this;
     }
-
-
-    protected array $columnData = [
-        'nullable' => false,
-    ];
-
-    protected ?array $columnIndex = null;
 
     /**
      * Allow NULL values to be inserted into the column
@@ -212,6 +202,19 @@ class Column extends Attribute
     // }
 
     /**
+     * Set the starting value of an auto-incrementing field (MySQL / PostgreSQL)
+     *
+     * @param int $startingValue
+     * @return $this
+     */
+    public function startingValue(int $startingValue)
+    {
+        $this->columnData['startingValue'] = $startingValue;
+
+        return $this;
+    }
+
+    /**
      * Add an index
      *
      * @param bool|string|null $indexName
@@ -284,19 +287,6 @@ class Column extends Attribute
     {
         $this->columnIndex = ['spatialIndex', $indexName];
 
-        return $this;
-    }
-
-    /**
-     * Set the starting value of an auto-incrementing field (MySQL / PostgreSQL)
-     *
-     * @param int $startingValue
-     * @return $this
-     */
-    public function startingValue(int $startingValue)
-    {
-        $this->columnData['startingValue'] = $startingValue;
-        
         return $this;
     }
 
@@ -389,7 +379,7 @@ class Column extends Attribute
     /**
      * @inheritDoc
      */
-    public function docblock(GuideScope $scope) : array
+    public function docblock(GuideScope $scope): array
     {
         $doc = [];
 
@@ -404,57 +394,49 @@ class Column extends Attribute
      *
      * @return string
      */
-    public function getDocblockTypeHint() : string
+    public function getDocblockTypeHint(): string
     {
-        if (isset($this->typeHint))
-        {
+        if (isset($this->typeHint)) {
             return $this->typeHint;
         }
 
-        if ($this->castUsing)
-        {
+        if ($this->castUsing) {
             return $this->getDefaultDocblockTypeHint();
         }
 
         $prefix = $this->columnData['nullable'] ? 'null|' : '';
 
-        if (is_string($this->cast))
-        {
-            return $prefix . match ($this->cast)
-            {
-                'json'                                 => 'array',
-                'timestamp', 'int'                     => 'int',
-                'date', 'dateTime', 'datetime', 'time' => '\\' . Carbon::class,
-                'hashed'                               => 'string',
-                default                                => match (true)
-                {
-                    !class_exists($this->cast)                  => $this->cast,
-                    is_a($this->cast, \BackedEnum::class, true) => $this->cast,
-                    default                                     => $this->getDefaultDocblockTypeHint(),
-                }
-            };
+        if (is_string($this->cast)) {
+            return $prefix . match ($this->cast) {
+                    'json'                                 => 'array',
+                    'timestamp', 'int'                     => 'int',
+                    'date', 'dateTime', 'datetime', 'time' => '\\' . Carbon::class,
+                    'hashed'                               => 'string',
+                    default                                => match (true) {
+                        !class_exists($this->cast)                  => $this->cast,
+                        is_a($this->cast, \BackedEnum::class, true) => $this->cast,
+                        default                                     => $this->getDefaultDocblockTypeHint(),
+                    }
+                };
         }
 
-        if (str_ends_with($this->createUsingMethod, 'Integer'))
-        {
+        if (str_ends_with($this->createUsingMethod, 'Integer')) {
             return $prefix . 'int';
         }
 
-        return $prefix . match (strtolower($this->columnData['type'] ?? ''))
-        {
-            'string', 'varchar', 'char' => 'string',
-            'json', 'array'             => 'array',
-            default                     => match ($this->createUsingMethod)
-            {
-                'string', 'text'                     => 'string',
-                'int', 'integer', 'decimal', 'float' => 'int',
-                'boolean'                            => 'bool',
-                default                              => $this->getDefaultDocblockTypeHint(),
-            },
-        };
+        return $prefix . match (strtolower($this->columnData['type'] ?? '')) {
+                'string', 'varchar', 'char' => 'string',
+                'json', 'array'             => 'array',
+                default                     => match ($this->createUsingMethod) {
+                    'string', 'text'                     => 'string',
+                    'int', 'integer', 'decimal', 'float' => 'int',
+                    'boolean'                            => 'bool',
+                    default                              => $this->getDefaultDocblockTypeHint(),
+                },
+            };
     }
 
-    protected function getDefaultDocblockTypeHint() : string
+    protected function getDefaultDocblockTypeHint(): string
     {
         return 'mixed';
     }

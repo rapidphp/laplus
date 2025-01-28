@@ -2,7 +2,6 @@
 
 namespace Rapid\Laplus\Present\Attributes;
 
-use Closure;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,11 +11,13 @@ use Rapid\Laplus\Present\Present;
 class HasManyAttr extends Attribute
 {
 
+    protected array $using = [];
+
     public function __construct(
-        public Model $related,
+        public Model  $related,
         public string $foreignKey,
         public string $localKey,
-        string $relationName,
+        string        $relationName,
     )
     {
         parent::__construct($relationName);
@@ -45,14 +46,25 @@ class HasManyAttr extends Attribute
     {
         return $this->fireUsing(
             $model->hasMany($this->related::class, $this->foreignKey, $this->localKey),
-            $model
+            $model,
         );
     }
 
+    /**
+     * Fire using callbacks
+     *
+     * @param       $arg
+     * @param Model $model
+     * @return mixed
+     */
+    protected function fireUsing($arg, Model $model)
+    {
+        foreach ($this->using as $callback) {
+            $arg = $callback($arg, $model);
+        }
 
-
-
-    protected array $using = [];
+        return $arg;
+    }
 
     /**
      * Fire callback when creating relation
@@ -69,31 +81,14 @@ class HasManyAttr extends Attribute
     }
 
     /**
-     * Fire using callbacks
-     *
-     * @param       $arg
-     * @param Model $model
-     * @return mixed
-     */
-    protected function fireUsing($arg, Model $model)
-    {
-        foreach ($this->using as $callback)
-        {
-            $arg = $callback($arg, $model);
-        }
-
-        return $arg;
-    }
-
-    /**
      * @inheritDoc
      */
-    public function docblock(GuideScope $scope) : array
+    public function docblock(GuideScope $scope): array
     {
         $doc = parent::docblock($scope);
 
         $doc[] = sprintf("@method %s<%s> %s()", $scope->typeHint(HasMany::class), $scope->typeHint($this->related::class), $this->name);
-        $doc[] = sprintf("@property %s<int, %s> \$%s", $scope->typeHint(Collection::class), $scope->typeHint($this->related::class), $this->name);
+        $doc[] = sprintf("@property-read %s<int, %s> \$%s", $scope->typeHint(Collection::class), $scope->typeHint($this->related::class), $this->name);
 
         return $doc;
     }

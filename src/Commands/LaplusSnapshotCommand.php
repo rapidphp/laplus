@@ -2,9 +2,6 @@
 
 namespace Rapid\Laplus\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Str;
-
 class LaplusSnapshotCommand extends LaplusBaseResourceCommand
 {
 
@@ -22,11 +19,12 @@ class LaplusSnapshotCommand extends LaplusBaseResourceCommand
      * @var string
      */
     protected $description = 'Take new snapshot';
+    protected string $snapshotFileName;
+    protected string $snapshotFileContent;
 
     public function handle()
     {
-        if ($this->option('regenerate'))
-        {
+        if ($this->option('regenerate')) {
 
         }
 
@@ -51,24 +49,18 @@ class LaplusSnapshotCommand extends LaplusBaseResourceCommand
         // Nothing to export
     }
 
-    protected string $snapshotFileName;
-    protected string $snapshotFileContent;
-
-    public function generateAll(array $map) : array
+    public function generateAll(array $map): array
     {
-        if ($map)
-        {
+        if ($map) {
             $suggestedFileName = [];
-            foreach ($map as $modelsPath => $migrationsPath)
-            {
+            foreach ($map as $modelsPath => $migrationsPath) {
                 $bestName = date('Y_m_d_His');
                 $lastExistsFile = @last(@scandir($migrationsPath) ?: []);
                 if (
                     $lastExistsFile &&
                     is_file($migrationsPath . '/' . $lastExistsFile) &&
                     preg_match('/^(\d{4})_(\d{2})_(\d{2})_(\d{6})/', $lastExistsFile, $matches)
-                )
-                {
+                ) {
                     $matches[4]++;
                     $matches[4] = @str_repeat('0', 6 - strlen($matches[4])) . $matches[4];
                     $bestName = $matches[1] . '_' . $matches[2] . '_' . $matches[3] . '_' . $matches[4];

@@ -31,12 +31,10 @@ class SchemaCollectingData
         $table = new Blueprint($tableName, $callback);
 
         $renameColumn = [];
-        foreach ($table->getCommands() as $command)
-        {
+        foreach ($table->getCommands() as $command) {
             if ($command instanceof ColumnDefinition) continue;
 
-            switch ($command->name)
-            {
+            switch ($command->name) {
                 case 'renameColumn':
                     $column = $this->state->get($tableName)->columns[$command->from];
                     $this->state->get($tableName)->columns[$command->to] = $column;
@@ -46,8 +44,7 @@ class SchemaCollectingData
                     break;
 
                 case 'dropColumn':
-                    foreach ($command->columns as $column)
-                    {
+                    foreach ($command->columns as $column) {
                         unset($this->state->get($tableName)->columns[$column]);
                     }
                     break;
@@ -87,24 +84,20 @@ class SchemaCollectingData
             }
         }
 
-        foreach ($table->getColumns() as $column)
-        {
+        foreach ($table->getColumns() as $column) {
             $this->state->get($tableName)->columns[$column->name] = $column;
 
-            if ($column->primary)
-            {
+            if ($column->primary) {
                 $this->state->get($tableName)->indexes[$tableName . '_' . $column->name . '_primary'] = new Fluent([
                     "name" => "primary",
                     "columns" => [$column->name],
-                    "algorithm" => null
+                    "algorithm" => null,
                 ]);
-            }
-            elseif ($column->fulltext)
-            {
+            } elseif ($column->fulltext) {
                 $this->state->get($tableName)->indexes[$tableName . '_' . $column->name . '_fulltext'] = new Fluent([
                     "name" => "fulltext",
                     "columns" => [$column->name],
-                    "algorithm" => null
+                    "algorithm" => null,
                 ]);
             }
         }

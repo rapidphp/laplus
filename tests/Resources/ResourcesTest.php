@@ -18,11 +18,11 @@ class ResourcesTest extends TestCase
 
     public function test_modular_resource()
     {
-        $resource = new ModularResource(__DIR__.'/Modules', 'Models', 'Migrations');
+        $resource = new ModularResource(__DIR__ . '/Modules', 'Models', 'Migrations');
 
         $this->assertSame([
-            __DIR__.'/Modules/Bar/Models' => __DIR__.'/Modules/Bar/Migrations',
-            __DIR__.'/Modules/Foo/Models' => __DIR__.'/Modules/Foo/Migrations',
+            __DIR__ . '/Modules/Bar/Models' => __DIR__ . '/Modules/Bar/Migrations',
+            __DIR__ . '/Modules/Foo/Models' => __DIR__ . '/Modules/Foo/Migrations',
         ], $resource->resolve());
     }
 

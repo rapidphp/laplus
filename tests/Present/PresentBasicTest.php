@@ -10,10 +10,16 @@ use Rapid\Laplus\Tests\TestCase;
 class PresentBasicTest extends TestCase
 {
 
+    public function test_fillable()
+    {
+        $model = $this->make();
+
+        $this->assertSame(['name'], $model->getFillable());
+    }
+
     public function make(array $attributes = [])
     {
-        return new class($attributes) extends Model
-        {
+        return (new class extends Model {
             use HasPresent;
 
             protected function present(Present $present)
@@ -21,14 +27,7 @@ class PresentBasicTest extends TestCase
                 $present->id();
                 $present->text('name');
             }
-        };
-    }
-
-    public function test_fillable()
-    {
-        $model = $this->make();
-
-        $this->assertSame(['id', 'name'], $model->getFillable());
+        })->setRawAttributes($attributes);
     }
 
     public function test_casts()

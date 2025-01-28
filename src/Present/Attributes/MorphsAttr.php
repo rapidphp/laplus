@@ -10,9 +10,15 @@ use Rapid\Laplus\Present\Present;
 class MorphsAttr extends Attribute
 {
 
+    protected string $type = '';
+    protected $nullable = false;
+    protected $includeAttr = true;
+    protected array $using = [];
+    protected array $types;
+
     public function __construct(
-        string $name,
-        public string $relation,
+        string         $name,
+        public string  $relation,
         public ?string $indexName,
     )
     {
@@ -30,18 +36,15 @@ class MorphsAttr extends Attribute
     {
         parent::boot($present);
 
-        if ($this->isFillable())
-        {
+        if ($this->isFillable()) {
             array_push($present->fillable, "{$this->name}_id", "{$this->name}_type");
         }
 
-        if ($this->isHidden())
-        {
+        if ($this->isHidden()) {
             array_push($present->hidden, "{$this->name}_id", "{$this->name}_type");
         }
 
-        if ($this->includeAttr)
-        {
+        if ($this->includeAttr) {
             $present->instance::resolveRelationUsing($this->relation, $this->getRelation(...));
         }
     }
@@ -70,12 +73,25 @@ class MorphsAttr extends Attribute
     {
         return $this->fireUsing(
             $model->morphTo($this->relation, "{$this->name}_type", "{$this->name}_id"),
-            $model
+            $model,
         );
     }
 
-    
-    protected string $type = '';
+    /**
+     * Fire using callbacks
+     *
+     * @param       $arg
+     * @param Model $model
+     * @return mixed
+     */
+    protected function fireUsing($arg, Model $model)
+    {
+        foreach ($this->using as $callback) {
+            $arg = $callback($arg, $model);
+        }
+
+        return $arg;
+    }
 
     /**
      * Set morphs type to uuid
@@ -110,9 +126,6 @@ class MorphsAttr extends Attribute
         return $this;
     }
 
-
-    protected $nullable = false;
-
     /**
      * Set morphs columns nullable
      *
@@ -124,8 +137,6 @@ class MorphsAttr extends Attribute
         $this->nullable = $value;
         return $this;
     }
-
-    protected $includeAttr = true;
 
     /**
      * Include creating relation attribute in the model
@@ -151,9 +162,6 @@ class MorphsAttr extends Attribute
         return $this;
     }
 
-
-    protected array $using = [];
-
     /**
      * Fire callback when creating relation
      *
@@ -168,25 +176,6 @@ class MorphsAttr extends Attribute
         return $this;
     }
 
-    /**
-     * Fire using callbacks
-     *
-     * @param       $arg
-     * @param Model $model
-     * @return mixed
-     */
-    protected function fireUsing($arg, Model $model)
-    {
-        foreach ($this->using as $callback)
-        {
-            $arg = $callback($arg, $model);
-        }
-
-        return $arg;
-    }
-
-    protected array $types;
-
     public function types(string|array $classes)
     {
         $this->types = (array)$classes;
@@ -196,16 +185,17 @@ class MorphsAttr extends Attribute
     /**
      * @inheritDoc
      */
-    public function docblock(GuideScope $scope) : array
+    public function docblock(GuideScope $scope): array
     {
         $doc = parent::docblock($scope);
 
         $instances = $this->types ?? [Model::class];
 
-        if ($this->includeAttr)
-        {
+        if ($this->includeAttr) {
             $doc[] = sprintf("@method %s %s()", $scope->typeHint(MorphTo::class), $this->name);
-            $doc[] = sprintf("@property null|%s \$%s", implode('|', array_map($scope->typeHint(...), $instances)), $this->name);
+            $doc[] = sprintf("@property-read null|%s \$%s", implode('|', array_map($scope->typeHint(...), $instances)), $this->name);
+            $doc[] = sprintf("@property string \$%s_type", $this->name);
+            $doc[] = sprintf("@property int|string \$%s_id", $this->name);
         }
 
         return $doc;

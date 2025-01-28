@@ -16,8 +16,7 @@ class MigrationExporter
     public function exportMigrationFiles(array $generators)
     {
         $generates = [];
-        foreach ($generators as $tag => $generator)
-        {
+        foreach ($generators as $tag => $generator) {
             $generates[$tag] = [$generator, $generator->generate()];
         }
 
@@ -44,17 +43,14 @@ class MigrationExporter
          * @var MigrationGenerator $generator
          * @var MigrationListState $migrations
          */
-        foreach ($migrationsAll as $tag => [$generator, $migrations])
-        {
+        foreach ($migrationsAll as $tag => [$generator, $migrations]) {
             $createdTables = isset($generator->definedMigrationState) ? array_keys($generator->definedMigrationState->tables) : [];
-            foreach ($migrations->all as $migration)
-            {
+            foreach ($migrations->all as $migration) {
                 if ($migration->isLazy) continue;
 
                 $name = date('Y_m_d_His', $dateIndex++) . '_' . $migration->getBestFileName();
 
-                switch ($migration->command)
-                {
+                switch ($migration->command) {
                     case 'table':
                         $tableName = $migration->table;
                         $isCreating = !in_array($tableName, $createdTables) && !in_array($tableName, $createdLocallyTables);
@@ -85,17 +81,14 @@ class MigrationExporter
          * @var MigrationGenerator $generator
          * @var MigrationListState $migrations
          */
-        foreach ($migrationsAll as $tag => [$generator, $migrations])
-        {
+        foreach ($migrationsAll as $tag => [$generator, $migrations]) {
             $createdTables = isset($generator->definedMigrationState) ? array_keys($generator->definedMigrationState->tables) : [];
-            foreach ($migrations->all as $migration)
-            {
+            foreach ($migrations->all as $migration) {
                 if (!$migration->isLazy) continue;
 
                 $name = date('Y_m_d_His', $dateIndex++) . '_' . $migration->getBestFileName();
 
-                switch ($migration->command)
-                {
+                switch ($migration->command) {
                     case 'table':
                         $tableName = $migration->table;
                         $isCreating = !in_array($tableName, $createdTables) && !in_array($tableName, $createdLocallyTables);
@@ -133,8 +126,7 @@ class MigrationExporter
         $stub = file_get_contents(__DIR__ . '/../../Commands/stubs/migration.stub');
 
         $result = [];
-        foreach ($files->files as $name => $file)
-        {
+        foreach ($files->files as $name => $file) {
             $up = implode("\n        ", $file->up);
             $down = implode("\n        ", $file->down);
 

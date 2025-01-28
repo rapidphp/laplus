@@ -11,10 +11,13 @@ use Rapid\Laplus\Present\Present;
 class MorphOneAttr extends Attribute
 {
 
+    protected $withDefault = false;
+    protected array $using = [];
+
     public function __construct(
-        public Model $related,
+        public Model  $related,
         public string $morphName,
-        string $relationName,
+        string        $relationName,
     )
     {
         parent::__construct($relationName);
@@ -44,13 +47,25 @@ class MorphOneAttr extends Attribute
         return $this->fireUsing(
             $model->morphOne($this->related::class, $this->morphName)
                 ->withDefault($this->withDefault),
-            $model
+            $model,
         );
     }
 
+    /**
+     * Fire using callbacks
+     *
+     * @param       $arg
+     * @param Model $model
+     * @return mixed
+     */
+    protected function fireUsing($arg, Model $model)
+    {
+        foreach ($this->using as $callback) {
+            $arg = $callback($arg, $model);
+        }
 
-
-    protected $withDefault = false;
+        return $arg;
+    }
 
     /**
      * Set default value
@@ -64,8 +79,17 @@ class MorphOneAttr extends Attribute
         return $this;
     }
 
-
-    protected array $using = [];
+    /**
+     * Indicate that the relation is the latest single result of a larger morph relationship.
+     *
+     * @param string|array|null $column
+     * @param string|null $relation
+     * @return $this
+     */
+    public function latestOfMany($column = 'id', $relation = null)
+    {
+        return $this->using(fn(MorphOne $morph) => $morph->latestOfMany($column, $relation));
+    }
 
     /**
      * Fire callback when creating relation
@@ -82,39 +106,10 @@ class MorphOneAttr extends Attribute
     }
 
     /**
-     * Fire using callbacks
-     *
-     * @param       $arg
-     * @param Model $model
-     * @return mixed
-     */
-    protected function fireUsing($arg, Model $model)
-    {
-        foreach ($this->using as $callback)
-        {
-            $arg = $callback($arg, $model);
-        }
-
-        return $arg;
-    }
-
-    /**
-     * Indicate that the relation is the latest single result of a larger morph relationship.
-     *
-     * @param  string|array|null  $column
-     * @param  string|null  $relation
-     * @return $this
-     */
-    public function latestOfMany($column = 'id', $relation = null)
-    {
-        return $this->using(fn(MorphOne $morph) => $morph->latestOfMany($column, $relation));
-    }
-
-    /**
      * Indicate that the relation is the oldest single result of a larger morph relationship.
      *
-     * @param  string|array|null  $column
-     * @param  string|null  $relation
+     * @param string|array|null $column
+     * @param string|null $relation
      * @return $this
      */
     public function oldestOfMany($column = 'id', $relation = null)
@@ -125,9 +120,9 @@ class MorphOneAttr extends Attribute
     /**
      * Indicate that the relation is a single result of a larger morph relationship.
      *
-     * @param  Closure|string|array|null   $column
-     * @param  string|Closure|null $aggregate
-     * @param  string|null         $relation
+     * @param Closure|string|array|null $column
+     * @param string|Closure|null $aggregate
+     * @param string|null $relation
      * @return $this
      */
     public function ofMany($column = 'id', $aggregate = 'MAX', $relation = null)
@@ -138,12 +133,12 @@ class MorphOneAttr extends Attribute
     /**
      * @inheritDoc
      */
-    public function docblock(GuideScope $scope) : array
+    public function docblock(GuideScope $scope): array
     {
         $doc = parent::docblock($scope);
 
         $doc[] = sprintf("@method %s<%s> %s()", $scope->typeHint(MorphOne::class), $scope->typeHint($this->related::class), $this->name);
-        $doc[] = sprintf("@property ?%s \$%s", $scope->typeHint($this->related::class), $this->name);
+        $doc[] = sprintf("@property-read ?%s \$%s", $scope->typeHint($this->related::class), $this->name);
 
         return $doc;
     }

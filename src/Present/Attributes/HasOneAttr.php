@@ -11,11 +11,14 @@ use Rapid\Laplus\Present\Present;
 class HasOneAttr extends Attribute
 {
 
+    protected $withDefault = false;
+    protected array $using = [];
+
     public function __construct(
-        public Model $related,
+        public Model  $related,
         public string $foreignKey,
         public string $localKey,
-        string $relationName,
+        string        $relationName,
     )
     {
         parent::__construct($relationName);
@@ -45,13 +48,25 @@ class HasOneAttr extends Attribute
         return $this->fireUsing(
             $model->hasOne($this->related::class, $this->foreignKey, $this->localKey)
                 ->withDefault($this->withDefault),
-            $model
+            $model,
         );
     }
 
+    /**
+     * Fire using callbacks
+     *
+     * @param       $arg
+     * @param Model $model
+     * @return mixed
+     */
+    protected function fireUsing($arg, Model $model)
+    {
+        foreach ($this->using as $callback) {
+            $arg = $callback($arg, $model);
+        }
 
-
-    protected $withDefault = false;
+        return $arg;
+    }
 
     /**
      * Set default value
@@ -65,8 +80,17 @@ class HasOneAttr extends Attribute
         return $this;
     }
 
-
-    protected array $using = [];
+    /**
+     * Indicate that the relation is the latest single result of a larger one-to-many relationship.
+     *
+     * @param string|array|null $column
+     * @param string|null $relation
+     * @return $this
+     */
+    public function latestOfMany($column = 'id', $relation = null)
+    {
+        return $this->using(fn(HasOne $hasOne) => $hasOne->latestOfMany($column, $relation));
+    }
 
     /**
      * Fire callback when creating relation
@@ -83,40 +107,10 @@ class HasOneAttr extends Attribute
     }
 
     /**
-     * Fire using callbacks
-     *
-     * @param       $arg
-     * @param Model $model
-     * @return mixed
-     */
-    protected function fireUsing($arg, Model $model)
-    {
-        foreach ($this->using as $callback)
-        {
-            $arg = $callback($arg, $model);
-        }
-
-        return $arg;
-    }
-
-
-    /**
-     * Indicate that the relation is the latest single result of a larger one-to-many relationship.
-     *
-     * @param  string|array|null  $column
-     * @param  string|null  $relation
-     * @return $this
-     */
-    public function latestOfMany($column = 'id', $relation = null)
-    {
-        return $this->using(fn(HasOne $hasOne) => $hasOne->latestOfMany($column, $relation));
-    }
-
-    /**
      * Indicate that the relation is the oldest single result of a larger one-to-many relationship.
      *
-     * @param  string|array|null  $column
-     * @param  string|null  $relation
+     * @param string|array|null $column
+     * @param string|null $relation
      * @return $this
      */
     public function oldestOfMany($column = 'id', $relation = null)
@@ -127,9 +121,9 @@ class HasOneAttr extends Attribute
     /**
      * Indicate that the relation is a single result of a larger one-to-many relationship.
      *
-     * @param  Closure|string|array|null   $column
-     * @param  string|Closure|null $aggregate
-     * @param  string|null         $relation
+     * @param Closure|string|array|null $column
+     * @param string|Closure|null $aggregate
+     * @param string|null $relation
      * @return $this
      */
     public function ofMany($column = 'id', $aggregate = 'MAX', $relation = null)
@@ -140,12 +134,12 @@ class HasOneAttr extends Attribute
     /**
      * @inheritDoc
      */
-    public function docblock(GuideScope $scope) : array
+    public function docblock(GuideScope $scope): array
     {
         $doc = parent::docblock($scope);
 
         $doc[] = sprintf("@method %s<%s> %s()", $scope->typeHint(HasOne::class), $scope->typeHint($this->related::class), $this->name);
-        $doc[] = sprintf("@property ?%s \$%s", $scope->typeHint($this->related::class), $this->name);
+        $doc[] = sprintf("@property-read ?%s \$%s", $scope->typeHint($this->related::class), $this->name);
 
         return $doc;
     }

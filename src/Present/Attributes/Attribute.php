@@ -2,9 +2,9 @@
 
 namespace Rapid\Laplus\Present\Attributes;
 
+use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Traits\Macroable;
-use Closure;
 use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Label\LabelTypeException;
 use Rapid\Laplus\Label\Translate;
@@ -15,17 +15,36 @@ class Attribute
 {
     use Macroable;
 
+    protected bool $fillable = false;
+    protected bool $hidden = false;
+    protected $cast;
+    protected $castUsing;
+    protected $getter;
+    protected $setter;
+    protected $labelUsing = null;
+    protected string $typeHint;
+    protected string $docHint;
+
     public function __construct(
         public string $name,
     )
     {
     }
 
-    protected bool $fillable = false;
-
     public function isFillable()
     {
         return $this->fillable;
+    }
+
+    /**
+     * Remove attribute fillable
+     *
+     * @return $this
+     */
+    public function notFillable()
+    {
+        $this->fillable = false;
+        return $this;
     }
 
     /**
@@ -39,8 +58,6 @@ class Attribute
         $this->fillable = $value;
         return $this;
     }
-
-    protected bool $hidden = false;
 
     /**
      * Set attribute visibility hidden
@@ -59,9 +76,6 @@ class Attribute
         return $this->hidden;
     }
 
-    protected $cast;
-    protected $castUsing;
-
     public function getCast()
     {
         return $this->cast;
@@ -70,18 +84,6 @@ class Attribute
     public function getCastUsing()
     {
         return $this->castUsing;
-    }
-
-    /**
-     * Set casting type
-     *
-     * @param $castType
-     * @return $this
-     */
-    public function cast($castType)
-    {
-        $this->cast = $castType;
-        return $this;
     }
 
     /**
@@ -108,32 +110,15 @@ class Attribute
         return $this->cast(PresentAttributeCast::class);
     }
 
-
-
-    protected $getter;
-    protected $setter;
-
     /**
-     * Define getter using callback
+     * Set casting type
      *
-     * @param callable|Closure($value, Model $model, string $key, array $attributes):mixed $callback
+     * @param $castType
      * @return $this
      */
-    public function getUsing($callback)
+    public function cast($castType)
     {
-        $this->getter = $callback;
-        return $this;
-    }
-
-    /**
-     * Define setter using callback
-     *
-     * @param callable|Closure($value, Model $model, string $key, array $attributes):mixed $callback
-     * @return $this
-     */
-    public function setUsing($callback)
-    {
-        $this->setter = $callback;
+        $this->cast = $castType;
         return $this;
     }
 
@@ -149,6 +134,18 @@ class Attribute
     }
 
     /**
+     * Define getter using callback
+     *
+     * @param callable|Closure($value, Model $model, string $key, array $attributes):mixed $callback
+     * @return $this
+     */
+    public function getUsing($callback)
+    {
+        $this->getter = $callback;
+        return $this;
+    }
+
+    /**
      * Make attribute readonly that throw an exception on set.
      *
      * @return $this
@@ -156,6 +153,18 @@ class Attribute
     public function readonly()
     {
         return $this->setUsing(fn() => throw new \Exception("Failed to set readonly attribute [$this->name]"));
+    }
+
+    /**
+     * Define setter using callback
+     *
+     * @param callable|Closure($value, Model $model, string $key, array $attributes):mixed $callback
+     * @return $this
+     */
+    public function setUsing($callback)
+    {
+        $this->setter = $callback;
+        return $this;
     }
 
     /**
@@ -178,9 +187,6 @@ class Attribute
         return $this->setter;
     }
 
-
-    protected $labelUsing = null;
-
     /**
      * Define attribute label (it's not recommended)
      *
@@ -193,24 +199,22 @@ class Attribute
         return $this;
     }
 
-    public function getLabelFor($value, array $args) : string
+    public function getLabelFor($value, array $args): string
     {
         $value = isset($this->labelUsing) ? value($this->labelUsing, $value, ...$args) : $value;
 
         $value = Translate::translateDeep($value, $args);
         $translated = Translate::tryTranslateSpecials($value);
 
-        if ($translated === null)
-        {
+        if ($translated === null) {
             $type = is_object($value) ? get_class($value) : gettype($value);
             throw new LabelTypeException(
-                sprintf("Label [%s] got as [%s], expected [string]", $this->name, $type)
+                sprintf("Label [%s] got as [%s], expected [string]", $this->name, $type),
             );
         }
 
         return $translated;
     }
-
 
     /**
      * Boots the attribute
@@ -239,14 +243,28 @@ class Attribute
      * @return array
      * @internal
      */
-    public function docblock(GuideScope $scope) : array
+    public function docblock(GuideScope $scope): array
     {
         return [];
     }
 
-    protected string $typeHint;
+    /**
+     * Set the document hint comment (if available)
+     *
+     * @param string $comment
+     * @param string|null $typeHint
+     * @return $this
+     */
+    public function docHint(string $comment, ?string $typeHint = null)
+    {
+        $this->docHint = str_replace("\n", ". ", $comment);
 
-    protected string $docHint;
+        if (isset($typeHint)) {
+            $this->typeHint($typeHint);
+        }
+
+        return $this;
+    }
 
     /**
      * Set the type hint (if available)
@@ -257,25 +275,6 @@ class Attribute
     public function typeHint(string $typeHint)
     {
         $this->typeHint = $typeHint;
-        return $this;
-    }
-
-    /**
-     * Set the document hint comment (if available)
-     *
-     * @param string      $comment
-     * @param string|null $typeHint
-     * @return $this
-     */
-    public function docHint(string $comment, ?string $typeHint = null)
-    {
-        $this->docHint = str_replace("\n", ". ", $comment);
-
-        if (isset($typeHint))
-        {
-            $this->typeHint($typeHint);
-        }
-
         return $this;
     }
 

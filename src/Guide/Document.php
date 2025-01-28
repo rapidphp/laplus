@@ -5,10 +5,9 @@ namespace Rapid\Laplus\Guide;
 class Document
 {
 
-    public static function object(mixed $object) : string
+    public static function object(mixed $object): string
     {
-        return match (gettype($object))
-        {
+        return match (gettype($object)) {
             'string'            => "\"" . addslashes($object) . "\"",
             'boolean'           => $object ? 'true' : 'false',
             // 'NULL'              => 'null',
@@ -18,19 +17,15 @@ class Document
         };
     }
 
-    public static function array(array $array) : string
+    public static function array(array $array): string
     {
         $doc = [];
         $i = 0;
-        foreach ($array as $key => $value)
-        {
-            if (is_int($key) && $key == $i)
-            {
+        foreach ($array as $key => $value) {
+            if (is_int($key) && $key == $i) {
                 $doc[] = static::object($value);
                 $i++;
-            }
-            else
-            {
+            } else {
                 $doc[] = static::object($key) . ' => ' . static::object($value);
             }
         }

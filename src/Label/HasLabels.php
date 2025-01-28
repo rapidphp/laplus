@@ -7,6 +7,34 @@ use Rapid\Laplus\Present\Present;
 trait HasLabels
 {
 
+    protected LabelTranslator|bool $_labelTranslator;
+
+    public function __get($key)
+    {
+        if (null !== $value = $this->getLabelUsingAttributeName($key)) {
+            return $value;
+        }
+
+        return parent::__get($key);
+    }
+
+    /**
+     * Get label if attribute is ends with "_label" and is label request.
+     * Used in "__get" method.
+     *
+     * @param string $attribute
+     * @param array $args
+     * @return string|null
+     */
+    protected function getLabelUsingAttributeName(string $attribute, array $args = [])
+    {
+        if (str_ends_with($attribute, '_label')) {
+            return $this->label(substr($attribute, 0, -6), ...$args);
+        }
+
+        return null;
+    }
+
     /**
      * Get label of attribute
      *
@@ -14,11 +42,10 @@ trait HasLabels
      * @param        ...$args
      * @return string
      */
-    public function label(string $name, ...$args) : string
+    public function label(string $name, ...$args): string
     {
         // Get using label translator
-        if (($labelTranslator = $this->getLabelTranslator())?->hasLabel($name))
-        {
+        if (($labelTranslator = $this->getLabelTranslator())?->hasLabel($name)) {
             return $labelTranslator->getLabel($name, ...$args);
         }
 
@@ -28,8 +55,7 @@ trait HasLabels
             method_exists($this, 'getPresent') &&
             ($present = $this->getPresent()) &&
             ($attr = $present->getAttribute($name))
-        )
-        {
+        ) {
             return $attr->getLabelFor($this->getAttribute($name), $args);
         }
 
@@ -37,55 +63,27 @@ trait HasLabels
     }
 
     /**
-     * Get label if attribute is ends with "_label" and is label request.
-     * Used in "__get" method.
+     * Get the label translator instance (value will be cached)
      *
-     * @param string $attribute
-     * @param array  $args
-     * @return string|null
+     * @return ?LabelTranslator
      */
-    protected function getLabelUsingAttributeName(string $attribute, array $args = [])
+    public function getLabelTranslator()
     {
-        if (str_ends_with($attribute, '_label'))
-        {
-            return $this->label(substr($attribute, 0, -6), ...$args);
+        if (!isset($this->_labelTranslator)) {
+            $this->_labelTranslator = $this->makeLabelTranslator() ?? false;
         }
 
-        return null;
+        return $this->_labelTranslator === false ? null : $this->_labelTranslator;
     }
-
-    public function __get($key)
-    {
-        if (null !== $value = $this->getLabelUsingAttributeName($key))
-        {
-            return $value;
-        }
-
-        return parent::__get($key);
-    }
-
-    public function __call($method, $parameters)
-    {
-        if (null !== $value = $this->getLabelUsingAttributeName($method, $parameters))
-        {
-            return $value;
-        }
-
-        return parent::__call($method, $parameters);
-    }
-
-
-    protected LabelTranslator|bool $_labelTranslator;
 
     /**
      * Get the label translator object
      *
      * @return ?LabelTranslator
      */
-    protected function makeLabelTranslator() : ?LabelTranslator
+    protected function makeLabelTranslator(): ?LabelTranslator
     {
-        if ($class = $this->getLabelTranslatorClass())
-        {
+        if ($class = $this->getLabelTranslatorClass()) {
             return new $class($this);
         }
 
@@ -97,24 +95,18 @@ trait HasLabels
      *
      * @return string|null
      */
-    protected function getLabelTranslatorClass() : ?string
+    protected function getLabelTranslatorClass(): ?string
     {
         return null;
     }
 
-    /**
-     * Get the label translator instance (value will be cached)
-     *
-     * @return ?LabelTranslator
-     */
-    public function getLabelTranslator()
+    public function __call($method, $parameters)
     {
-        if (!isset($this->_labelTranslator))
-        {
-            $this->_labelTranslator = $this->makeLabelTranslator() ?? false;
+        if (null !== $value = $this->getLabelUsingAttributeName($method, $parameters)) {
+            return $value;
         }
 
-        return $this->_labelTranslator === false ? null : $this->_labelTranslator;
+        return parent::__call($method, $parameters);
     }
 
 }

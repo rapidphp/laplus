@@ -9,6 +9,10 @@ use Rapid\Laplus\Present\Types\File;
 class FileColumn extends Column
 {
 
+    protected $urlUsing;
+    protected ?string $disk = null;
+    protected bool $deleteOnDelete = false;
+
     public function __construct(string $name)
     {
         parent::__construct($name, 'text', [$name]);
@@ -29,10 +33,8 @@ class FileColumn extends Column
     {
         parent::boot($present);
 
-        if ($this->deleteOnDelete)
-        {
-            $present->instance::deleted(function (Model $model)
-            {
+        if ($this->deleteOnDelete) {
+            $present->instance::deleted(function (Model $model) {
                 $model->getAttribute($this->name)->delete();
             });
         }
@@ -57,23 +59,6 @@ class FileColumn extends Column
         // }
     }
 
-
-    protected $urlUsing;
-
-    /**
-     * Set custom url using callback
-     *
-     * `fn (Model $model, string $name) => "url"`
-     *
-     * @param callable $callback
-     * @return $this
-     */
-    public function url(callable $callback)
-    {
-        $this->urlUsing = $callback;
-        return $this;
-    }
-
     /**
      * Set custom route as the file url
      *
@@ -85,11 +70,6 @@ class FileColumn extends Column
     public function urlRoute(string $route)
     {
         return $this->url(fn(Model $model) => route($route, $model));
-    }
-
-    public function getUrlUsing()
-    {
-        return $this->urlUsing;
     }
 
 
@@ -108,9 +88,34 @@ class FileColumn extends Column
     //     return $this;
     // }
 
+    /**
+     * Set custom url using callback
+     *
+     * `fn (Model $model, string $name) => "url"`
+     *
+     * @param callable $callback
+     * @return $this
+     */
+    public function url(callable $callback)
+    {
+        $this->urlUsing = $callback;
+        return $this;
+    }
 
+    public function getUrlUsing()
+    {
+        return $this->urlUsing;
+    }
 
-    protected ?string $disk = null;
+    /**
+     * Set file disk to public disk
+     *
+     * @return $this
+     */
+    public function diskPublic()
+    {
+        return $this->disk('public');
+    }
 
     /**
      * Set file disk
@@ -124,23 +129,10 @@ class FileColumn extends Column
         return $this;
     }
 
-    /**
-     * Set file disk to public disk
-     *
-     * @return $this
-     */
-    public function diskPublic()
-    {
-        return $this->disk('public');
-    }
-
     public function getDisk()
     {
         return $this->disk;
     }
-
-
-    protected bool $deleteOnDelete = false;
 
     public function deleteOnDelete()
     {
@@ -156,15 +148,14 @@ class FileColumn extends Column
 
     public function setFileValue($value)
     {
-        if ($value instanceof File)
-        {
+        if ($value instanceof File) {
             return $value->name;
         }
 
         return $value;
     }
 
-    protected function getDefaultDocblockTypeHint() : string
+    protected function getDefaultDocblockTypeHint(): string
     {
         return 'string';
     }

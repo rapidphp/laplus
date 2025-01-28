@@ -15,9 +15,22 @@ class LaplusFactory
     public array $resources = [];
 
     /**
+     * Merge configuration resources
+     *
+     * @param Resource[] $resources
+     * @return void
+     */
+    public function mergeResources(array $resources)
+    {
+        foreach ($resources as $name => $resource) {
+            $this->addResource($name, $resource);
+        }
+    }
+
+    /**
      * Add a resource path
      *
-     * @param string   $name
+     * @param string $name
      * @param Resource $resource
      * @return void
      */
@@ -27,34 +40,18 @@ class LaplusFactory
     }
 
     /**
-     * Merge configuration resources
-     *
-     * @param Resource[] $resources
-     * @return void
-     */
-    public function mergeResources(array $resources)
-    {
-        foreach ($resources as $name => $resource)
-        {
-            $this->addResource($name, $resource);
-        }
-    }
-
-    /**
      * @param array $config
      * @return void
      */
     public function loadConfig(array $config)
     {
-        foreach ($config as $name => $conf)
-        {
+        foreach ($config as $name => $conf) {
             $type = $conf['type'] ?? 'default';
 
-            $type = match ($type)
-            {
+            $type = match ($type) {
                 'default' => FixedResource::class,
                 'modular' => ModularResource::class,
-                default => $type,
+                default   => $type,
             };
 
             $this->addResource($name, $type::fromConfig($name, $conf));
@@ -67,7 +64,7 @@ class LaplusFactory
      * @param string $name
      * @return ?Resource
      */
-    public function getResource(string $name) : ?Resource
+    public function getResource(string $name): ?Resource
     {
         return $this->resources[$name] ?? null;
     }
@@ -77,7 +74,7 @@ class LaplusFactory
      *
      * @return Resource[]
      */
-    public function getResources() : array
+    public function getResources(): array
     {
         return $this->resources;
     }

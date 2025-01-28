@@ -22,7 +22,7 @@ class LaplusPresentMakeCommand extends GeneratorCommand
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace.'\\Presents';
+        return $rootNamespace . '\\Presents';
     }
 
     /**

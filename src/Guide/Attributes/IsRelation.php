@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Rapid\Laplus\Guide\GuideScope;
 use ReflectionMethod;
 
@@ -28,55 +27,41 @@ class IsRelation implements DocblockAttributeContract
     {
     }
 
-    public function docblock(GuideScope $scope, $reflection) : array
+    public function docblock(GuideScope $scope, $reflection): array
     {
-        if ($reflection instanceof ReflectionMethod)
-        {
+        if ($reflection instanceof ReflectionMethod) {
             $sample = $reflection->invoke($reflection->getDeclaringClass()->newInstance());
 
-            if (isset($this->type))
-            {
-                $typeHint = implode('|', array_map($scope->typeHint(...), (array) $this->type));
-            }
-            elseif ($sample instanceof MorphTo)
-            {
+            if (isset($this->type)) {
+                $typeHint = implode('|', array_map($scope->typeHint(...), (array)$this->type));
+            } elseif ($sample instanceof MorphTo) {
                 $typeHint = $scope->typeHint(Model::class);
-            }
-            elseif (method_exists($sample, 'getRelated'))
-            {
+            } elseif (method_exists($sample, 'getRelated')) {
                 $typeHint = $scope->typeHint(get_class($sample->getRelated()));
-            }
-            else
-            {
+            } else {
                 $typeHint = 'mixed';
             }
 
             $summary = $scope->summary($reflection->getDocComment());
 
-            if (
-                $sample instanceof BelongsTo || $sample instanceof HasOne || $sample instanceof HasOneThrough ||
-                $sample instanceof MorphOne
-            )
-            {
+            if ($sample instanceof BelongsTo || $sample instanceof HasOne || $sample instanceof HasOneThrough ||
+                $sample instanceof MorphOne) {
                 return [
-                    sprintf("@property null|%s $%s", $typeHint, $reflection->getName()) . ($summary ? ' ' . $summary : ''),
+                    sprintf("@property-read null|%s $%s", $typeHint, $reflection->getName()) . ($summary ? ' ' . $summary : ''),
                 ];
             }
 
-            if (
-                $sample instanceof HasMany || $sample instanceof BelongsToMany || $sample instanceof HasManyThrough ||
-                $sample instanceof MorphMany
-            )
-            {
+            if ($sample instanceof HasMany || $sample instanceof BelongsToMany || $sample instanceof HasManyThrough ||
+                $sample instanceof MorphMany) {
                 return [
-                    sprintf("@property %s<int, %s> $%s", $scope->typeHint(Collection::class), $typeHint, $reflection->getName()) . ($summary ? ' ' . $summary : ''),
+                    sprintf("@property-read %s<int, %s> $%s", $scope->typeHint(Collection::class), $typeHint, $reflection->getName()) . ($summary ? ' ' . $summary : ''),
                 ];
             }
 
             throw new \TypeError(sprintf(
                 "Method %s::%s() is not a relationship",
                 $reflection->getDeclaringClass()->getName(),
-                $reflection->getName()
+                $reflection->getName(),
             ));
         }
 
