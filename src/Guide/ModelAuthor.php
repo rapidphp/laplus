@@ -118,9 +118,24 @@ class ModelAuthor extends GuideAuthor
 
         foreach ($attributes as $name => $value)
         {
-            $type = $scope->typeHint($value['get'] ?? $value['set']);
+            $type = implode('|', array_unique([
+                ...isset($value['get']) ? explode('|', $scope->typeHint($value['get'])) : [],
+                ...isset($value['set']) ? explode('|', $scope->typeHint($value['set'])) : [],
+            ]));
+
+            $accessSuffix = match (true) {
+                isset($value['get']) && !isset($value['set']) => '-read',
+                isset($value['set']) && !isset($value['get']) => '-write',
+                default => null,
+            };
+
+            $camelCase = Str::camel($name);
+
             $summary = $value['summary'];
-            $docblock[] = "@property {$type} \${$name}" . ($summary ? ' ' . $summary : '');
+            $docblock[] = "@property{$accessSuffix} {$type} \${$name}" . ($summary ? ' ' . $summary : '');
+            if ($name != $camelCase) {
+                $docblock[] = "@property{$accessSuffix} {$type} \${$camelCase}" . ($summary ? ' ' . $summary : '');
+            }
         }
 
         return $docblock;
