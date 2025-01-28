@@ -206,6 +206,8 @@ class MorphsAttr extends Attribute
         {
             $doc[] = sprintf("@method %s %s()", $scope->typeHint(MorphTo::class), $this->name);
             $doc[] = sprintf("@property null|%s \$%s", implode('|', array_map($scope->typeHint(...), $instances)), $this->name);
+            $doc[] = sprintf("@property string \$%s_type", $this->name);
+            $doc[] = sprintf("@property int|string \$%s_id", $this->name);
         }
 
         return $doc;
