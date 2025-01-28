@@ -143,7 +143,7 @@ class MorphOneAttr extends Attribute
         $doc = parent::docblock($scope);
 
         $doc[] = sprintf("@method %s<%s> %s()", $scope->typeHint(MorphOne::class), $scope->typeHint($this->related::class), $this->name);
-        $doc[] = sprintf("@property ?%s \$%s", $scope->typeHint($this->related::class), $this->name);
+        $doc[] = sprintf("@property-read ?%s \$%s", $scope->typeHint($this->related::class), $this->name);
 
         return $doc;
     }

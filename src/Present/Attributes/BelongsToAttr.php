@@ -269,7 +269,7 @@ class BelongsToAttr extends Column
         if ($this->includeAttr)
         {
             $doc[] = sprintf("@method %s<%s> %s()", $scope->typeHint(BelongsTo::class), $scope->typeHint($this->related::class), $this->relationName);
-            $doc[] = sprintf("@property ?%s \$%s", $scope->typeHint($this->related::class), $this->relationName);
+            $doc[] = sprintf("@property-read ?%s \$%s", $scope->typeHint($this->related::class), $this->relationName);
         }
 
         return $doc;
