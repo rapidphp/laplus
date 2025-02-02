@@ -22,15 +22,18 @@ trait MigrationResolves
     public function resolveTableFromMigration(Closure $callback)
     {
         $laravelSchema = app()->get('db.schema');
-        app()->singleton('db.schema', SchemaCollectingData::class);
 
-        /** @var SchemaCollectingData $schema */
-        $schema = app('db.schema');
-        $schema->reset();
+        try {
+            app()->singleton('db.schema', SchemaCollectingData::class);
 
-        $callback();
+            /** @var SchemaCollectingData $schema */
+            $schema = app('db.schema');
+            $schema->reset();
 
-        app()->singleton('db.schema', get_class($laravelSchema));
+            $callback();
+        } finally {
+            app()->singleton('db.schema', fn() => $laravelSchema);
+        }
 
         $this->definedMigrationState = $schema->state;
     }
