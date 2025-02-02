@@ -63,6 +63,7 @@ class SchemaCollectingData
                 case 'fulltext':
                 case 'primary':
                 case 'foreign':
+                case 'unique':
                     $this->state->get($tableName)->indexes[$command->index] = $command;
                     break;
 
