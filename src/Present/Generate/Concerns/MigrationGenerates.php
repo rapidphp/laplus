@@ -4,7 +4,7 @@ namespace Rapid\Laplus\Present\Generate\Concerns;
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Fluent;
-use Rapid\Laplus\Present\Generate\Structure\DefinedMigrationState;
+use Rapid\Laplus\Present\Generate\Structure\DatabaseState;
 use Rapid\Laplus\Present\Generate\Structure\IndexListState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationListState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationState;
@@ -15,17 +15,17 @@ trait MigrationGenerates
     /**
      * The defined migration state
      *
-     * @var DefinedMigrationState
+     * @var DatabaseState
      */
-    protected DefinedMigrationState $definedState;
+    protected DatabaseState $definedState;
 
     /**
      * The current migration state.
      * Default is $definedState
      *
-     * @var DefinedMigrationState
+     * @var DatabaseState
      */
-    protected DefinedMigrationState $currentState;
+    protected DatabaseState $currentState;
 
     /**
      * New migrations
@@ -46,10 +46,10 @@ trait MigrationGenerates
      *
      * @return MigrationListState
      */
-    public function generate()
+    public function generate(): MigrationListState
     {
         // Initialize variables
-        $this->definedState = $this->definedMigrationState ?? new DefinedMigrationState();
+        $this->definedState = $this->resolvedState ?? new DatabaseState();
         $this->currentState = clone $this->definedState;
         $this->newState = new MigrationListState();
         $this->marked = [];
@@ -69,10 +69,9 @@ trait MigrationGenerates
         return $this->newState;
     }
 
-
-    protected function generateChanges()
+    protected function generateChanges(): void
     {
-        foreach ($this->tables as $tableName => $table) {
+        foreach ($this->blueprints as $tableName => $blueprint) {
             $migration = new MigrationState(
                 fileName: '',
                 table: $tableName,
@@ -81,10 +80,10 @@ trait MigrationGenerates
             );
 
             // Check new columns
-            $this->generateNewColumns($table, $migration);
+            $this->generateNewColumns($blueprint, $migration);
 
             // Check new commands
-            $this->generateNewCommands($table, $migration);
+            $this->generateNewCommands($blueprint, $migration);
 
             // Choosing name
             if (!$this->definedState->get($tableName)) {
@@ -98,9 +97,9 @@ trait MigrationGenerates
         }
     }
 
-    protected function generateNewColumns(Blueprint $table, MigrationState $migration)
+    protected function generateNewColumns(Blueprint $blueprint, MigrationState $migration): void
     {
-        foreach ($table->getColumns() as $column) {
+        foreach ($blueprint->getColumns() as $column) {
             $columnName = $column->name;
 
             // Find old name
@@ -128,7 +127,7 @@ trait MigrationGenerates
         }
     }
 
-    protected function generateRenameColumn(MigrationState $migration, string $old, string $new)
+    protected function generateRenameColumn(MigrationState $migration, string $old, string $new): void
     {
         $migration->columns->renamed($old, $new);
         $this->currentState->getOrCreate($migration->table)->columns[$new] = $this->currentState->get($migration->table)->columns[$old];
@@ -137,7 +136,7 @@ trait MigrationGenerates
         $migration->suggestName($new, $this->nameOfRenameColumn($old, $new, $migration->table));
     }
 
-    protected function generateChangeColumn(MigrationState $migration, Fluent $column, array $changes)
+    protected function generateChangeColumn(MigrationState $migration, Fluent $column, array $changes): void
     {
         $migration->columns->changed($column->name, $column);
         $this->currentState->getOrCreate($migration->table)->columns[$column->name] = $column;
@@ -145,7 +144,7 @@ trait MigrationGenerates
         $migration->suggestName($column->name, $this->nameOfModifyColumn($column->name, $changes, $migration->table), false);
     }
 
-    protected function generateAddColumn(MigrationState $migration, Fluent $column)
+    protected function generateAddColumn(MigrationState $migration, Fluent $column): void
     {
         $migration->columns->added($column->name, $column);
         $this->currentState->getOrCreate($migration->table)->columns[$column->name] = $column;
@@ -153,9 +152,9 @@ trait MigrationGenerates
         $migration->suggestName($column->name, $this->nameOfAddColumn($column->name, $migration->table));
     }
 
-    protected function generateNewCommands(Blueprint $table, MigrationState $migration)
+    protected function generateNewCommands(Blueprint $blueprint, MigrationState $migration): void
     {
-        foreach ($table->getCommands() as $command) {
+        foreach ($blueprint->getCommands() as $command) {
             /** @var string $index */
             if ($index = $command->get('index')) {
                 // Exists index -> Changed or nothing
@@ -173,7 +172,7 @@ trait MigrationGenerates
         }
     }
 
-    protected function generateChangeIndex(MigrationState $migration, string $index, Fluent $command, array $changes)
+    protected function generateChangeIndex(MigrationState $migration, string $index, Fluent $command, array $changes): void
     {
         $migration->indexes->changed($index, $command);
         $this->currentState->getOrCreate($migration->table)->indexes[$index] = $command;
@@ -183,7 +182,7 @@ trait MigrationGenerates
         }
     }
 
-    protected function generateNewIndex(MigrationState $migration, string $index, Fluent $command)
+    protected function generateNewIndex(MigrationState $migration, string $index, Fluent $command): void
     {
         $migration->indexes->added($index, $command);
         $this->currentState->getOrCreate($migration->table)->indexes[$index] = $command;
@@ -193,7 +192,7 @@ trait MigrationGenerates
         }
     }
 
-    protected function generateRemoves()
+    protected function generateRemoves(): void
     {
         foreach ($this->definedState->tables as $name => $table) {
             $removedColumns = [];
@@ -210,7 +209,7 @@ trait MigrationGenerates
             }
 
             // Table is not exists -> Drop table
-            if (!isset($this->tables[$name])) {
+            if (!isset($this->blueprints[$name])) {
                 if ($this->includeDropTables && !in_array($name, ['password_reset_tokens', 'sessions', 'cache', 'cache_locks', 'jobs', 'job_batches', 'failed_jobs'])) {
                     $this->newState->add(
                         new MigrationState(
@@ -238,7 +237,7 @@ trait MigrationGenerates
         }
     }
 
-    protected function generateDependedIndexes()
+    protected function generateDependedIndexes(): void
     {
         $insert = new MigrationListState();
 

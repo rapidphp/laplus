@@ -2,19 +2,19 @@
 
 namespace Rapid\Laplus\Present\Generate\Structure;
 
-class DefinedMigrationState
+class DatabaseState
 {
 
     public function __construct(
-        /** @var DefinedTableState[] */
+        /** @var TableState[] */
         public array $tables = [],
     )
     {
     }
 
-    public function getOrCreate(string $name)
+    public function getOrCreate(string $name): TableState
     {
-        return $this->get($name) ?? $this->tables[$name] = new DefinedTableState();
+        return $this->tables[$name] ??= new TableState();
     }
 
     public function get(string $name, $default = null)
@@ -22,7 +22,7 @@ class DefinedMigrationState
         return $this->tables[$name] ?? $default;
     }
 
-    public function put(string $name, DefinedTableState $table)
+    public function put(string $name, TableState $table)
     {
         $this->tables[$name] = $table;
     }

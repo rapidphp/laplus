@@ -3,7 +3,7 @@
 namespace Rapid\Laplus\Present\Generate;
 
 use Illuminate\Database\Schema\Blueprint;
-use Rapid\Laplus\Present\Generate\Structure\DefinedMigrationState;
+use Rapid\Laplus\Present\Generate\Structure\DatabaseState;
 use Rapid\Laplus\Present\Present;
 
 class MigrationGenerator
@@ -14,22 +14,37 @@ class MigrationGenerator
         Concerns\Finds;
 
     /**
+     * Include generate drop tables
+     *
      * @var bool
      */
     public bool $includeDropTables = true;
 
     /**
+     * List of blueprints
+     *
      * @var Blueprint[]
      */
-    public array $tables = [];
-    public DefinedMigrationState $definedMigrationState;
+    public array $blueprints = [];
 
-    public function getTable(string $name)
+    /**
+     * Get a blueprint or create a new
+     *
+     * @param string $name
+     * @return Blueprint
+     */
+    public function getBlueprintForTable(string $name): Blueprint
     {
-        return $this->tables[$name] ??= new Blueprint($name);
+        return $this->blueprints[$name] ??= new Blueprint($name);
     }
 
-    public function pass(array $models)
+    /**
+     * Pass models
+     *
+     * @param array $models
+     * @return void
+     */
+    public function pass(array $models): void
     {
         foreach ($models as $model) {
             /** @var Present $present */

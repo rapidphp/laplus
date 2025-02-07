@@ -3,6 +3,7 @@
 namespace Rapid\Laplus\Present\Traits;
 
 use Closure;
+use Illuminate\Database\Schema\Blueprint;
 use Rapid\Laplus\Present\Generate\MigrationGenerator;
 
 /**
@@ -14,7 +15,7 @@ trait Generations
     public MigrationGenerator $generator;
     public string $generatingTable;
 
-    public function passGenerator(MigrationGenerator $generator)
+    public function passGenerator(MigrationGenerator $generator): void
     {
         $this->generator = $generator;
 
@@ -23,9 +24,9 @@ trait Generations
         unset($this->generator);
     }
 
-    public function getGeneratingBlueprint()
+    public function getGeneratingBlueprint(): Blueprint
     {
-        return $this->generator->getTable($this->generatingTable);
+        return $this->generator->getBlueprintForTable($this->generatingTable);
     }
 
     /**
@@ -35,7 +36,7 @@ trait Generations
      * @param Closure $callback
      * @return void
      */
-    protected function table(string $table, Closure $callback)
+    protected function table(string $table, Closure $callback): void
     {
         // Keep old data
         $old_attributes = $this->attributes;

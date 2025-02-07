@@ -18,7 +18,7 @@ return [
 
         'main' => [
             'type' => 'default',
-            'migrations' => base_path('database/migrations/auto_generated'),
+            'migrations' => base_path('database/migrations/deploy'),
             'models' => base_path('app/Models'),
             'merge_to_config' => true,
         ],
@@ -27,10 +27,24 @@ return [
         //     'type' => 'modular',
         //     'modules' => base_path('Modules'),
         //     'models' => 'app/Models',
-        //     'migrations' => 'database/migrations/auto_generated',
+        //     'migrations' => 'database/migrations/deploy',
         //     'merge_to_config' => true,
         // ],
 
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dev Path
+    |--------------------------------------------------------------------------
+    |
+    | Dev path is a path with git ignore to test the application in the local
+    | environment.
+    |
+    */
+    'dev' => [
+        'migrations' => base_path('database/migrations/dev_generated'),
+        'git_ignore' => true,
     ],
 
     /*
@@ -78,6 +92,7 @@ return [
         'mixin' => [
             'namespace' => 'Rapid\_Stub',
             'path' => storage_path('stubs/rapid/guide.stub.php'),
+            'git_ignore' => false,
         ],
 
     ],

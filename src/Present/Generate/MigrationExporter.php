@@ -44,7 +44,7 @@ class MigrationExporter
          * @var MigrationListState $migrations
          */
         foreach ($migrationsAll as $tag => [$generator, $migrations]) {
-            $createdTables = isset($generator->definedMigrationState) ? array_keys($generator->definedMigrationState->tables) : [];
+            $createdTables = isset($generator->resolvedState) ? array_keys($generator->resolvedState->tables) : [];
             foreach ($migrations->all as $migration) {
                 if ($migration->isLazy) continue;
 
@@ -82,7 +82,7 @@ class MigrationExporter
          * @var MigrationListState $migrations
          */
         foreach ($migrationsAll as $tag => [$generator, $migrations]) {
-            $createdTables = isset($generator->definedMigrationState) ? array_keys($generator->definedMigrationState->tables) : [];
+            $createdTables = isset($generator->resolvedState) ? array_keys($generator->resolvedState->tables) : [];
             foreach ($migrations->all as $migration) {
                 if (!$migration->isLazy) continue;
 

@@ -36,7 +36,7 @@ class LaplusGuideCommand extends LaplusBaseResourceCommand
 
         $guide = match (config('laplus.guide.type')) {
             'docblock' => new DocblockGuide(),
-            'mixin'    => new MixinGuide(config('laplus.guide.mixin.path'), config('laplus.guide.mixin.namespace')),
+            'mixin'    => new MixinGuide(config('laplus.guide.mixin.path'), config('laplus.guide.mixin.namespace'), config('laplus.guide.mixin.git_ignore')),
             default    => throw new \Exception('Guide type not supported'),
         };
 

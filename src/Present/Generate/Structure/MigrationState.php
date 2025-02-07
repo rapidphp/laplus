@@ -9,13 +9,13 @@ class MigrationState
     protected ?array $suggests = [];
 
     public function __construct(
-        public string             $fileName,
-        public string             $table,
-        public string             $command,
-        public ?DefinedTableState $before = null,
-        public ColumnListState    $columns = new ColumnListState(),
-        public IndexListState     $indexes = new IndexListState(),
-        public bool               $isLazy = false,
+        public string          $fileName,
+        public string          $table,
+        public string          $command,
+        public ?TableState     $before = null,
+        public ColumnListState $columns = new ColumnListState(),
+        public IndexListState  $indexes = new IndexListState(),
+        public bool            $isLazy = false,
     )
     {
     }

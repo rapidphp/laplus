@@ -20,27 +20,27 @@ class ColumnListState
     {
     }
 
-    public function renamed(string $from, string $to)
+    public function renamed(string $from, string $to): void
     {
         $this->renamed[$from] = $to;
     }
 
-    public function changed(string $from, Fluent $to)
+    public function changed(string $from, Fluent $to): void
     {
         $this->changed[$from] = $to;
     }
 
-    public function removed(string $name)
+    public function removed(string $name): void
     {
         $this->removed[] = $name;
     }
 
-    public function added(string $name, Fluent $column)
+    public function added(string $name, Fluent $column): void
     {
         $this->added[$name] = $column;
     }
 
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         return empty($this->added) && empty($this->changed) && empty($this->removed) && empty($this->renamed);
     }

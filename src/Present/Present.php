@@ -18,8 +18,8 @@ abstract class Present
         Traits\Generations,
         Traits\Indexes;
 
-    private static $presents_model_cache = [];
-    private static $presents_class_cache = [];
+    private static array $presents_model_cache = [];
+    private static array $presents_class_cache = [];
     public array $fillable;
     public array $hidden;
     public array $casts;
@@ -27,12 +27,14 @@ abstract class Present
     public array $setters;
     protected bool $isYielded = false;
     protected array $parentYieldStack = [];
+
     /**
      * List of attributes
      *
      * @var array<Attribute>
      */
     protected array $attributes = [];
+
     /**
      * List of indexes
      *
@@ -52,7 +54,7 @@ abstract class Present
      *
      * @return void
      */
-    public function collectPresent()
+    public function collectPresent(): void
     {
         $this->fillable = [];
         $this->hidden = [];
@@ -97,7 +99,7 @@ abstract class Present
      *
      * @return void
      */
-    public function yield()
+    public function yield(): void
     {
         if ($this->parentYieldStack) {
             array_pop($this->parentYieldStack)();

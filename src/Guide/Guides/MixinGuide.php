@@ -2,6 +2,7 @@
 
 namespace Rapid\Laplus\Guide\Guides;
 
+use Rapid\Laplus\Editors\GitIgnoreEditor;
 use Rapid\Laplus\Guide\Guide;
 use Rapid\Laplus\Guide\GuideAuthor;
 use Rapid\Laplus\Guide\GuideScope;
@@ -15,13 +16,29 @@ class MixinGuide extends Guide
     public function __construct(
         protected string $stubPath,
         protected string $stubNamespace = 'Rapid\\_Stub',
+        protected bool   $gitIgnore = false,
     )
     {
+        if ($this->gitIgnore) {
+            GitIgnoreEditor
+                ::make(dirname($this->stubPath) . '/.gitignore')
+                ->add("./" . pathinfo($this->stubPath, PATHINFO_BASENAME))
+                ->save();
+        }
     }
 
     protected function open()
     {
         @mkdir(dirname($this->stubPath), recursive: true);
+
+        if ($this->gitIgnore) {
+            $gitIgnoreContents = @file_get_contents(dirname($this->stubPath) . '/.gitignore') ?: "";
+            $ignore = "./" . pathinfo($this->stubPath, PATHINFO_BASENAME);
+            if (!in_array($ignore, explode("\n", $gitIgnoreContents))) {
+                $gitIgnoreContents = "$ignore\n$gitIgnoreContents";
+            }
+        }
+
         $this->stub = fopen($this->stubPath, 'c');
         fwrite($this->stub, "<?php\n\nnamespace {$this->stubNamespace};\n\n");
 

@@ -22,19 +22,25 @@ class TestGuide extends Guide
         $this->scope = new GuideScope($namespace, $uses);
     }
 
-    public function assertContains(string $expected, string $message = '')
+    public function assertContains(string $expected, string $message = ''): static
     {
         Assert::assertContains($expected, $this->result, $message);
+
+        return $this;
     }
 
-    public function assertWriteComment(string $expected, string $contents, string $message = '')
+    public function assertWriteComment(string $expected, string $contents, string $message = ''): static
     {
-        Assert::assertSame($expected, $this->testComment($contents), $message);
+        $this->assertSameTwoStrings($expected, $this->testComment($contents), $message);
+
+        return $this;
     }
 
-    public function assertSame(array $excepted, string $message = '')
+    public function assertSame(array $excepted, string $message = ''): static
     {
         Assert::assertSame($excepted, $this->result, $message);
+
+        return $this;
     }
 
     public function testComment(string $contents): string
@@ -42,10 +48,21 @@ class TestGuide extends Guide
         return $this->commentClass($contents, $this->class, 'Guide', $this->result);
     }
 
-    protected function write(GuideAuthor $author)
+    protected function write(GuideAuthor $author): static
     {
         $this->class = $author->class;
         $this->result = $author->docblock($this->scope);
+
+        return $this;
+    }
+
+    protected function assertSameTwoStrings(string $expected, string $actual, string $message = ''): void
+    {
+        Assert::assertSame(
+            str_replace("\r", '', $expected),
+            str_replace("\r", '', $actual),
+            $message
+        );
     }
 
 }

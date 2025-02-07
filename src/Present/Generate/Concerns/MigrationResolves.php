@@ -8,10 +8,18 @@ use Illuminate\Database\Schema\ColumnDefinition;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
-use Rapid\Laplus\Present\Generate\SchemaCollectingData;
+use Rapid\Laplus\Present\Generate\SchemaTracker;
+use Rapid\Laplus\Present\Generate\Structure\DatabaseState;
 
 trait MigrationResolves
 {
+
+    /**
+     * The resolved database state
+     *
+     * @var DatabaseState
+     */
+    public DatabaseState $resolvedState;
 
     /**
      * Resolve current table status from migrations
@@ -19,23 +27,23 @@ trait MigrationResolves
      * @param Closure $callback
      * @return void
      */
-    public function resolveTableFromMigration(Closure $callback)
+    public function resolveTableFromMigration(Closure $callback): void
     {
-        $laravelSchema = app()->get('db.schema');
+        $defaultSchema = app()->get('db.schema');
 
         try {
-            app()->singleton('db.schema', SchemaCollectingData::class);
+            app()->singleton('db.schema', SchemaTracker::class);
 
-            /** @var SchemaCollectingData $schema */
+            /** @var SchemaTracker $schema */
             $schema = app('db.schema');
             $schema->reset();
 
             $callback();
         } finally {
-            app()->singleton('db.schema', fn() => $laravelSchema);
+            app()->singleton('db.schema', fn() => $defaultSchema);
         }
 
-        $this->definedMigrationState = $schema->state;
+        $this->resolvedState = $schema->state;
     }
 
     /**
@@ -43,27 +51,27 @@ trait MigrationResolves
      *
      * @return void
      */
-    public function resolveTableFromDatabase()
+    public function resolveTableFromDatabase(): void
     {
         // TODO : This function is soon feature
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->text('name');
-        });
-        $this->definedMigrationState = [];
-        foreach (Schema::getTables() as $table) {
-            $name = $table['name'];
-
-            foreach (Schema::getColumns($name) as $column) {
-                @$this->definedMigrationState[$name]['columns'][$column['name']] =
-                    new ColumnDefinition(Arr::mapWithKeys($column, fn($value, $key) => [Str::camel($key) => $value]));
-            }
-
-            foreach (Schema::getIndexes($name) as $index) {
-                @$this->definedMigrationState[$name]['indexes'][$index['name']] =
-                    new ColumnDefinition(Arr::mapWithKeys($index, fn($value, $key) => [Str::camel($key) => $value]));
-            }
-        }
+//        Schema::create('users', function (Blueprint $table) {
+//            $table->id();
+//            $table->text('name');
+//        });
+//        $this->resolvedState = [];
+//        foreach (Schema::getTables() as $table) {
+//            $name = $table['name'];
+//
+//            foreach (Schema::getColumns($name) as $column) {
+//                @$this->resolvedState[$name]['columns'][$column['name']] =
+//                    new ColumnDefinition(Arr::mapWithKeys($column, fn($value, $key) => [Str::camel($key) => $value]));
+//            }
+//
+//            foreach (Schema::getIndexes($name) as $index) {
+//                @$this->resolvedState[$name]['indexes'][$index['name']] =
+//                    new ColumnDefinition(Arr::mapWithKeys($index, fn($value, $key) => [Str::camel($key) => $value]));
+//            }
+//        }
     }
 
 }

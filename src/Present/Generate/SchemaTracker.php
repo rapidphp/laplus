@@ -6,22 +6,22 @@ use Closure;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\ColumnDefinition;
 use Illuminate\Support\Fluent;
-use Rapid\Laplus\Present\Generate\Structure\DefinedMigrationState;
-use Rapid\Laplus\Present\Generate\Structure\DefinedTableState;
+use Rapid\Laplus\Present\Generate\Structure\DatabaseState;
+use Rapid\Laplus\Present\Generate\Structure\TableState;
 
-class SchemaCollectingData
+class SchemaTracker
 {
 
-    public DefinedMigrationState $state;
+    public DatabaseState $state;
 
     public function reset()
     {
-        $this->state = new DefinedMigrationState();
+        $this->state = new DatabaseState();
     }
 
     public function create(string $tableName, Closure $callback)
     {
-        $this->state->put($tableName, new DefinedTableState());
+        $this->state->put($tableName, new TableState());
 
         $this->table($tableName, $callback);
     }
@@ -81,7 +81,7 @@ class SchemaCollectingData
                     break;
 
                 default:
-                    dd("Command", $command); // TODO : Unknown command
+                    throw new \RuntimeException("Internal error: unknown command " . print_r($command, true));
             }
         }
 

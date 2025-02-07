@@ -4,7 +4,7 @@ namespace Rapid\Laplus\Present\Generate\Structure;
 
 use Illuminate\Support\Fluent;
 
-class DefinedTableState
+class TableState
 {
 
     public function __construct(
