@@ -14,6 +14,7 @@ class GitIgnoreEditor
     {
         if (file_exists($path)) {
             if ($createIfNotExists) {
+                @mkdir(dirname($path), recursive: true);
                 touch($path);
             } else {
                 throw new \RuntimeException("File [$path] is not exists.");

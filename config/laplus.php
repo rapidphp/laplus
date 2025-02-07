@@ -72,17 +72,6 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Build On Generate Command
-        |--------------------------------------------------------------------------
-        |
-        | If set this value to true, the `guide+` command will run after each
-        | generating commands like `generate+` and `regenerate+`.
-        |
-        */
-        'on_generate' => false,
-
-        /*
-        |--------------------------------------------------------------------------
         | Mixin Guide Settings
         |--------------------------------------------------------------------------
         |
