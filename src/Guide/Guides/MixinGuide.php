@@ -21,7 +21,7 @@ class MixinGuide extends Guide
     {
         if ($this->gitIgnore) {
             GitIgnoreEditor
-                ::make(dirname($this->stubPath) . '/.gitignore')
+                ::make(dirname($this->stubPath))
                 ->add("./" . pathinfo($this->stubPath, PATHINFO_BASENAME))
                 ->save();
         }
