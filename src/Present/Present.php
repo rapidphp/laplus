@@ -13,10 +13,10 @@ use Rapid\Laplus\Present\Attributes\Index;
 abstract class Present
 {
     use Macroable;
-    use Traits\Columns,
-        Traits\Relations,
-        Traits\Generations,
-        Traits\Indexes;
+    use Concerns\Columns,
+        Concerns\Relations,
+        Concerns\Generations,
+        Concerns\Indexes;
 
     private static array $presents_model_cache = [];
     private static array $presents_class_cache = [];

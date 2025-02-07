@@ -1,6 +1,6 @@
 <?php
 
-namespace Rapid\Laplus\Present\Traits;
+namespace Rapid\Laplus\Present\Concerns;
 
 use Illuminate\Support\Str;
 use Rapid\Laplus\Present\Attributes\BelongsToAttr;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Rapid\Laplus\Present\Traits;
+namespace Rapid\Laplus\Present\Concerns;
 
 use Rapid\Laplus\Present\Attributes\Column;
 use Rapid\Laplus\Present\Attributes\Index;

@@ -37,22 +37,6 @@ trait HasPresent
         return static::$_presentExtends[static::class] ?? [];
     }
 
-    /**
-     * Get present attribute
-     *
-     * @param string $name
-     * @param string|null $get
-     * @return mixed|Attribute
-     */
-    public static function attr(string $name, ?string $get = null)
-    {
-        if (isset($get)) {
-            return static::getStaticPresentInstance()->getAttribute($name)->{'get' . $get}();
-        } else {
-            return static::getStaticPresentInstance()->getAttribute($name);
-        }
-    }
-
     public static function getStaticPresentInstance(): Present
     {
         return static::getPresentableInstance()->getPresent();

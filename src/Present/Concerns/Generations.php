@@ -1,6 +1,6 @@
 <?php
 
-namespace Rapid\Laplus\Present\Traits;
+namespace Rapid\Laplus\Present\Concerns;
 
 use Closure;
 use Illuminate\Database\Schema\Blueprint;
