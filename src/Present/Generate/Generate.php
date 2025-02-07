@@ -66,13 +66,13 @@ class Generate
         foreach ($this->getResourceMap() as $modelsPath => $migrationsPath) {
             $generator = new MigrationGenerator();
             $generator->resolveTableFromMigration(function () use ($migrationsPath) {
-                foreach ($this->discoverMigrations($migrationsPath) as $migration) {
+                foreach ($this->discoverMigrationsIn($migrationsPath) as $migration) {
                     $migration->up();
                 }
             });
 
             // Pass models
-            $generator->pass(iterator_to_array($this->discoverModels($modelsPath)));
+            $generator->pass(iterator_to_array($this->discoverModelsIn($modelsPath)));
 
             // Create folders
             @mkdir($migrationsPath, recursive: true);

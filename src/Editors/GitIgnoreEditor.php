@@ -12,7 +12,7 @@ class GitIgnoreEditor
         bool                   $createIfNotExists = true,
     )
     {
-        if (file_exists($path)) {
+        if (!file_exists($path)) {
             if ($createIfNotExists) {
                 @mkdir(dirname($path), recursive: true);
                 touch($path);
