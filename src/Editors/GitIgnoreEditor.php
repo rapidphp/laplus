@@ -8,20 +8,24 @@ class GitIgnoreEditor
     protected bool $isChanged = false;
 
     public function __construct(
-        public readonly string $path,
-        bool                   $createIfNotExists = true,
+        public string $path,
+        bool          $createIfNotExists = true,
     )
     {
-        if (!file_exists($path)) {
+        if (!str_ends_with('.gitignore', $this->path)) {
+            $this->path = $this->path . '/.gitignore';
+        }
+
+        if (!file_exists($this->path)) {
             if ($createIfNotExists) {
-                @mkdir(dirname($path), recursive: true);
-                touch($path);
+                @mkdir(dirname($this->path), recursive: true);
+                touch($this->path);
             } else {
-                throw new \RuntimeException("File [$path] is not exists.");
+                throw new \RuntimeException("File [$this->path] is not exists.");
             }
         }
 
-        $this->lines = file($path);
+        $this->lines = file($this->path);
     }
 
     public static function tryMake(string $path): ?static

@@ -17,8 +17,9 @@ class DevMigrationCommand extends Command
     public function handle()
     {
         if (config('laplus.dev.git_ignore')) {
-            GitIgnoreEditor::make(config('laplus.dev.migrations') . '/,gitignore')
+            GitIgnoreEditor::make(config('laplus.dev.migrations'))
                 ->add('*')
+                ->add('!.gitignore')
                 ->save();
         }
 
