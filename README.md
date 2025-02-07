@@ -11,6 +11,12 @@ public function present()
 }
 ```
 
+## Changelog
+
+- Commands changed
+- New Dev & Deploy options
+
+
 ## Features
 
 ### 1. Auto Migrations
