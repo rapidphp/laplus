@@ -123,7 +123,7 @@ class MigrationExporter
      */
     public function exportMigrationStubs(MigrationFileListState $files)
     {
-        $stub = file_get_contents(__DIR__ . '/../../Commands/stubs/migration.stub');
+        $stub = file_get_contents(__DIR__ . '/../../Commands/Make/stubs/migration.stub');
 
         $result = [];
         foreach ($files->files as $name => $file) {
