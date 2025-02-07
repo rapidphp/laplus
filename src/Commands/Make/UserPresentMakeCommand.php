@@ -1,14 +1,13 @@
 <?php
 
-namespace Rapid\Laplus\Commands;
+namespace Rapid\Laplus\Commands\Make;
 
 use Symfony\Component\Console\Input\InputArgument;
 
-class LaplusUserPresentMakeCommand extends LaplusPresentMakeCommand
+class UserPresentMakeCommand extends PresentMakeCommand
 {
 
     protected $name = 'make:user-present';
-
     protected $description = "Make new user-present class";
 
     public function handle()

@@ -8,16 +8,13 @@ class LaplusServiceProvider extends ServiceProvider
 {
 
     protected array $commands = [
-        Commands\LaplusGenerateCommand::class,
-        Commands\LaplusRegenerateCommand::class,
-        Commands\LaplusMigrateCommand::class,
-        Commands\LaplusModelMakeCommand::class,
-        Commands\LaplusPresentMakeCommand::class,
-        Commands\LaplusUserPresentMakeCommand::class,
-        Commands\LaplusLabelTranslatorMakeCommand::class,
-        Commands\LaplusSnapshotCommand::class,
-        Commands\LaplusGuideCommand::class,
+        Commands\Make\ModelMakeCommand::class,
+        Commands\Make\PresentMakeCommand::class,
+        Commands\Make\UserPresentMakeCommand::class,
+        Commands\Make\LabelTranslatorMakeCommand::class,
+        Commands\Dev\DevGuideCommand::class,
         Commands\Dev\DevMigrationCommand::class,
+        Commands\Dev\DevMigrateCommand::class,
         Commands\Deploy\DeployMigrationCommand::class,
     ];
 

@@ -1,16 +1,14 @@
 <?php
 
-namespace Rapid\Laplus\Commands;
+namespace Rapid\Laplus\Commands\Make;
 
 use Illuminate\Console\GeneratorCommand;
 
-class LaplusLabelTranslatorMakeCommand extends GeneratorCommand
+class LabelTranslatorMakeCommand extends GeneratorCommand
 {
 
     protected $name = 'make:label-translator';
-
     protected $type = "LabelTranslator";
-
     protected $description = "Make new label translator class";
 
 

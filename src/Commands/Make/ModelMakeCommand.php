@@ -1,12 +1,12 @@
 <?php
 
-namespace Rapid\Laplus\Commands;
+namespace Rapid\Laplus\Commands\Make;
 
-use Illuminate\Foundation\Console\ModelMakeCommand;
+use Illuminate\Foundation\Console\ModelMakeCommand as ConsoleModelMakeCommand;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
-class LaplusModelMakeCommand extends ModelMakeCommand
+class ModelMakeCommand extends ConsoleModelMakeCommand
 {
 
     protected $name = 'make:model-laplus';

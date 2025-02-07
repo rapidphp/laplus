@@ -1,16 +1,14 @@
 <?php
 
-namespace Rapid\Laplus\Commands;
+namespace Rapid\Laplus\Commands\Make;
 
 use Illuminate\Console\GeneratorCommand;
 
-class LaplusPresentMakeCommand extends GeneratorCommand
+class PresentMakeCommand extends GeneratorCommand
 {
 
     protected $name = 'make:present';
-
     protected $type = "Present";
-
     protected $description = "Make new present class";
 
 

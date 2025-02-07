@@ -3,16 +3,13 @@
 namespace Rapid\Laplus\Commands\Dev;
 
 use Illuminate\Console\Command;
-use Rapid\Laplus\Editors\GitIgnoreEditor;
 use Rapid\Laplus\Laplus;
 use Rapid\Laplus\Present\Generate\Generate;
-use Rapid\Laplus\Resources\MigrationResource;
 
 class DevMigrationCommand extends Command
 {
 
-    protected $signature = 'dev:migration';
-
+    protected $signature = 'dev:migration {--fresh : Fresh the previous migrations}';
     protected $description = 'Generate migration file in dev mode';
 
     public function handle()
@@ -21,6 +18,7 @@ class DevMigrationCommand extends Command
             ->resolve(Laplus::getResources())
             ->dev()
             ->addDevGitIgnores()
+            ->when($this->option('fresh'))->deleteDevMigrations()
             ->export();
 
         $this->components->info('Migration created successfully!');
