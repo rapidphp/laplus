@@ -12,13 +12,13 @@ abstract readonly class Resource
      * @param array $config
      * @return static
      */
-    public static abstract function fromConfig(string $name, array $config): Resource;
+    abstract public static function fromConfig(string $name, array $config): Resource;
 
     /**
-     * Get the model and migration paths.
+     * Get the resources
      *
-     * @return array<string, string>
+     * @return ResourceObject[]
      */
-    public abstract function resolve(): array;
+    abstract public function resolve(): array;
 
 }

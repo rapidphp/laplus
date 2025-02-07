@@ -14,9 +14,9 @@ class SchemaTracker
 
     public DatabaseState $state;
 
-    public function reset()
+    public function reset(?DatabaseState $state = null)
     {
-        $this->state = new DatabaseState();
+        $this->state = $state ?? new DatabaseState();
     }
 
     public function create(string $tableName, Closure $callback)

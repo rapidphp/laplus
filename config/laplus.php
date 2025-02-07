@@ -19,6 +19,7 @@ return [
         'main' => [
             'type' => 'default',
             'migrations' => base_path('database/migrations/deploy'),
+            'dev_migrations' => base_path('database/migrations/dev_generated'),
             'models' => base_path('app/Models'),
             'merge_to_config' => true,
         ],
@@ -28,23 +29,10 @@ return [
         //     'modules' => base_path('Modules'),
         //     'models' => 'app/Models',
         //     'migrations' => 'database/migrations/deploy',
+        //     'dev_migrations' => 'database/migrations/dev_generated',
         //     'merge_to_config' => true,
         // ],
 
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Dev Path
-    |--------------------------------------------------------------------------
-    |
-    | Dev path is a path with git ignore to test the application in the local
-    | environment.
-    |
-    */
-    'dev' => [
-        'migrations' => base_path('database/migrations/dev_generated'),
-        'git_ignore' => true,
     ],
 
     /*

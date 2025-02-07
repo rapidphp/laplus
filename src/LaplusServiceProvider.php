@@ -18,6 +18,7 @@ class LaplusServiceProvider extends ServiceProvider
         Commands\LaplusSnapshotCommand::class,
         Commands\LaplusGuideCommand::class,
         Commands\Dev\DevMigrationCommand::class,
+        Commands\Deploy\DeployMigrationCommand::class,
     ];
 
     public function register()
@@ -40,8 +41,8 @@ class LaplusServiceProvider extends ServiceProvider
         $this->callAfterResolving('migrator', function ($migrator) {
             foreach (config()->get('laplus.resources', []) as $name => $config) {
                 if (@$config['merge_to_config']) {
-                    foreach (Laplus::getResource($name)->resolve() as $modelPath => $migrationPath) {
-                        $migrator->path($migrationPath);
+                    foreach (Laplus::getResource($name)->resolve() as $resource) {
+                        $migrator->path($resource->migrationsPath);
                     }
                 }
             }

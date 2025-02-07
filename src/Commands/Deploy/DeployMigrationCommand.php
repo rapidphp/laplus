@@ -1,6 +1,6 @@
 <?php
 
-namespace Rapid\Laplus\Commands\Dev;
+namespace Rapid\Laplus\Commands\Deploy;
 
 use Illuminate\Console\Command;
 use Rapid\Laplus\Editors\GitIgnoreEditor;
@@ -8,19 +8,18 @@ use Rapid\Laplus\Laplus;
 use Rapid\Laplus\Present\Generate\Generate;
 use Rapid\Laplus\Resources\MigrationResource;
 
-class DevMigrationCommand extends Command
+class DeployMigrationCommand extends Command
 {
 
-    protected $signature = 'dev:migration';
+    protected $signature = 'deploy:migration';
 
-    protected $description = 'Generate migration file in dev mode';
+    protected $description = 'Generate migration file for deploy';
 
     public function handle()
     {
         Generate::make()
             ->resolve(Laplus::getResources())
-            ->dev()
-            ->addDevGitIgnores()
+            ->deleteDevMigrations()
             ->export();
 
         $this->components->info('Migration created successfully!');

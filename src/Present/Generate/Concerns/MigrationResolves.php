@@ -29,6 +29,7 @@ trait MigrationResolves
      */
     public function resolveTableFromMigration(Closure $callback): void
     {
+        $this->resolvedState ??= new DatabaseState();
         $defaultSchema = app()->get('db.schema');
 
         try {
@@ -36,14 +37,12 @@ trait MigrationResolves
 
             /** @var SchemaTracker $schema */
             $schema = app('db.schema');
-            $schema->reset();
+            $schema->reset($this->resolvedState);
 
             $callback();
         } finally {
             app()->singleton('db.schema', fn() => $defaultSchema);
         }
-
-        $this->resolvedState = $schema->state;
     }
 
     /**

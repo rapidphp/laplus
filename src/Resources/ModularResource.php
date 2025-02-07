@@ -11,17 +11,18 @@ readonly class ModularResource extends Resource
         public string $modules,
         public string $models,
         public string $migrations,
+        public string $devMigrations,
     )
     {
     }
 
     public static function fromConfig(string $name, array $config): Resource
     {
-        if (!Arr::has($config, ['modules', 'models', 'migrations'])) {
-            throw new \InvalidArgumentException("Laplus config [$name] should contains [modules], [models] and [migrations] values");
+        if (!Arr::has($config, ['modules', 'models', 'migrations', 'dev_migrations'])) {
+            throw new \InvalidArgumentException("Laplus config [$name] should contains [modules], [models], [migrations] and [dev_migrations] values");
         }
 
-        return new static($config['modules'], $config['models'], $config['migrations']);
+        return new static($config['modules'], $config['models'], $config['migrations'], $config['dev_migrations']);
     }
 
     public function resolve(): array
@@ -29,7 +30,13 @@ readonly class ModularResource extends Resource
         $all = [];
 
         foreach (glob($this->modules . '/*') as $module) {
-            $all[$module . '/' . $this->models] = $module . '/' . $this->migrations;
+            if (is_dir($module)) {
+                $all[] = new ResourceObject(
+                    modelsPath: "{$module}/{$this->models}",
+                    migrationsPath: "{$module}/{$this->migrations}",
+                    devPath: "{$module}/{$this->devMigrations}",
+                );
+            }
         }
 
         return $all;
