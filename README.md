@@ -15,6 +15,7 @@ public function present()
 
 - Commands changed
 - New Dev & Deploy options
+- Removed slug and file columns
 
 
 ## Features
