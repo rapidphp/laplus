@@ -25,7 +25,7 @@ class GitIgnoreEditor
             }
         }
 
-        $this->lines = file($this->path);
+        $this->lines = array_map('trim', file($this->path, FILE_SKIP_EMPTY_LINES));
     }
 
     public static function tryMake(string $path): ?static
@@ -69,6 +69,8 @@ class GitIgnoreEditor
 
     public function save(): void
     {
-        file_put_contents($this->path, implode("\n", $this->lines));
+        if ($this->isChanged) {
+            file_put_contents($this->path, implode("\n", $this->lines));
+        }
     }
 }

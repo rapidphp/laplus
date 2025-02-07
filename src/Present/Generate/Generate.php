@@ -9,6 +9,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
+use Rapid\Laplus\Editors\GitIgnoreEditor;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Resources\Resource;
 

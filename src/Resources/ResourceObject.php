@@ -40,12 +40,18 @@ final readonly class ResourceObject
                 ...iterator_to_array($this->discoverMigrationsIn($this->migrationsPath)),
                 ...iterator_to_array($this->discoverMigrationsIn($this->devPath)),
             ];
-            asort($migrations);
-        } else {
-            $migrations = iterator_to_array($this->discoverMigrationsIn($this->migrationsPath));
+            $migrationsKey = array_keys($migrations);
+            sort($migrationsKey);
+
+            $newMigrations = [];
+            foreach ($migrationsKey as $migration) {
+                $newMigrations[$migration] = $migrations[$migration];
+            }
+
+            return $newMigrations;
         }
 
-        return $migrations;
+        return iterator_to_array($this->discoverMigrationsIn($this->migrationsPath));
     }
 
     /**
@@ -98,7 +104,7 @@ final readonly class ResourceObject
         foreach ($this->discoverMigrationsPathIn($path) as $subPath) {
             $value = include $subPath;
             if ($value instanceof Migration) {
-                yield pathinfo($path, PATHINFO_BASENAME) => $value;
+                yield pathinfo($subPath, PATHINFO_BASENAME) => $value;
             }
         }
     }
