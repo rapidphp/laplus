@@ -6,26 +6,26 @@ use Rapid\Laplus\Present\Generate\SchemaTracker;
 
 class TravelDispatcher
 {
-    public function dispatchUp(string $relativePath): void
+    public static function dispatchUp(string $relativePath): void
     {
         if (($schema = app('db.schema')) instanceof SchemaTracker) {
             $schema->dispatchTravel($relativePath);
             return;
         }
 
-        $this->requireFile(base_path($relativePath))->up();
+        self::requireFile(base_path($relativePath))->up();
     }
 
-    public function dispatchDown(string $relativePath): void
+    public static function dispatchDown(string $relativePath): void
     {
         if (app('db.schema') instanceof SchemaTracker) {
             return;
         }
 
-        $this->requireFile(base_path($relativePath))->down();
+        self::requireFile(base_path($relativePath))->down();
     }
 
-    protected function requireFile(string $__path): Travel
+    protected static function requireFile(string $__path): Travel
     {
         return require $__path;
     }

@@ -78,29 +78,34 @@ trait MigrationGenerates
     protected function generateChanges(): void
     {
         foreach ($this->blueprints as $tableName => $blueprint) {
-            $migration = new MigrationState(
-                fileName: '',
-                table: $tableName,
-                command: MigrationState::COMMAND_TABLE,
-                before: $this->currentState->get($tableName),
-            );
-
-            // Check new columns
-            $this->generateNewColumns($blueprint, $migration);
-
-            // Check new commands
-            $this->generateNewCommands($blueprint, $migration);
-
-            // Choosing name
-            if (!$this->currentState->get($tableName)) {
-                $migration->forceName($this->nameOfCreateTable($tableName));
-            } else {
-                $migration->fileName = $this->nameOfModifyTable($tableName);
-            }
-
-            // Add to $newState
-            $this->newMigrations->add($migration);
+            $this->generateTable($tableName, $blueprint);
         }
+    }
+
+    protected function generateTable(string $tableName, Blueprint $blueprint): void
+    {
+        $migration = new MigrationState(
+            fileName: '',
+            table: $tableName,
+            command: MigrationState::COMMAND_TABLE,
+            before: $this->currentState->get($tableName),
+        );
+
+        // Check new columns
+        $this->generateNewColumns($blueprint, $migration);
+
+        // Check new commands
+        $this->generateNewCommands($blueprint, $migration);
+
+        // Choosing name
+        if (!$this->currentState->get($tableName)) {
+            $migration->forceName($this->nameOfCreateTable($tableName));
+        } else {
+            $migration->fileName = $this->nameOfModifyTable($tableName);
+        }
+
+        // Add to $newState
+        $this->newMigrations->add($migration);
     }
 
     protected function generateNewColumns(Blueprint $blueprint, MigrationState $migration): void
@@ -292,21 +297,30 @@ trait MigrationGenerates
                 continue;
             }
 
-            $tables = $travel->getTables();
-
             if (!$travel->anywayBefore && !$travel->anywayFinally) {
+                $tables = $travel->getTables();
+
                 if (!$tables) {
                     continue;
                 }
 
                 /** @var MigrationState[] $prepares */
-                $prepares = Arr::mapWithKeys($tables, function ($table) {
-                    return [$table => new MigrationState(
+                $prepares = Arr::mapWithKeys($tables, fn($table) => [
+                    $table => new MigrationState(
                         fileName: $this->nameOfTravelPrepare($table),
                         table: $table,
                         command: MigrationState::COMMAND_TABLE,
-                    )];
-                });
+                    ),
+                ]);
+
+                foreach ($tables as $table) {
+                    if (
+                        !$this->currentState->get($table) &&
+                        $newState = $this->getBlueprintOrNull($table)
+                    ) {
+                        $this->generateTable($table, $newState);
+                    }
+                }
 
                 foreach ($this->getTravelColumns((array)$travel->whenRemoving, reset($tables)) as [$table, $column]) {
                     if (in_array("$table.$column", $softRemoved)) {
@@ -413,7 +427,7 @@ trait MigrationGenerates
             $this->newMigrations->add(
                 new MigrationState(
                     fileName: $this->nameOfTravel($relativePath),
-                    table: $tables ? reset($tables) : '',
+                    table: '',
                     command: MigrationState::COMMAND_TRAVEL,
                     isLazy: $travel->anywayFinally,
                     travel: $relativePath,
