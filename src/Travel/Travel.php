@@ -12,7 +12,9 @@ abstract class Travel
     public bool $anywayBefore = false;
     public bool $anywayFinally = false;
 
-    abstract public function fly(): void;
+    abstract public function up(): void;
+    
+    abstract public function down(): void;
 
     public function getTables(): array
     {

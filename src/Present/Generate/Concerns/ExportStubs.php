@@ -33,16 +33,12 @@ trait ExportStubs
 
         foreach ($migration->columns->removed as $column) {
             $up[] = "\$table->dropColumn({$this->writeObject($column)});";
-            if ($migration->before) {
-                $down[] = $this->writeColumn($migration->before->columns[$column]);
-            }
+            $down[] = $this->writeColumn($migration->before->columns[$column]);
         }
 
         foreach ($migration->columns->renamed as $from => $to) {
             $up[] = "\$table->renameColumn({$this->writeObject($from)}, {$this->writeObject($to)});";
-            if ($migration->before) {
-                $down[] = "\$table->renameColumn({$this->writeObject($to)}, {$this->writeObject($from)});";
-            }
+            $down[] = "\$table->renameColumn({$this->writeObject($to)}, {$this->writeObject($from)});";
         }
 
         foreach ($migration->columns->added as $name => $column) {
@@ -203,9 +199,11 @@ trait ExportStubs
     {
         return new MigrationFileState(
             up: [
-                sprintf("\%s:dispatch(%s)", TravelDispatcher::class, $this->writeObject($migration->travel)),
+                sprintf("\%s::dispatchUp(%s);", TravelDispatcher::class, $this->writeObject($migration->travel)),
             ],
-            down: [],
+            down: [
+                sprintf("\%s::dispatchDown(%s);", TravelDispatcher::class, $this->writeObject($migration->travel)),
+            ],
         );
     }
 

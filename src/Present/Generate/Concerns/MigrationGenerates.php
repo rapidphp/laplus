@@ -92,7 +92,7 @@ trait MigrationGenerates
             $this->generateNewCommands($blueprint, $migration);
 
             // Choosing name
-            if (!$this->previousState->get($tableName)) {
+            if (!$this->currentState->get($tableName)) {
                 $migration->forceName($this->nameOfCreateTable($tableName));
             } else {
                 $migration->fileName = $this->nameOfModifyTable($tableName);
@@ -120,8 +120,8 @@ trait MigrationGenerates
             }
 
             // Exists column -> Changed or nothing
-            if (isset($this->previousState->get($migration->table)?->columns[$oldName])) {
-                if ($changes = $this->findColumnChanges($column, $this->previousState->get($migration->table)->columns[$oldName])) {
+            if (isset($this->currentState->get($migration->table)?->columns[$oldName])) {
+                if ($changes = $this->findColumnChanges($column, $this->currentState->get($migration->table)->columns[$oldName])) {
                     $this->generateChangeColumn($migration, $column, $changes);
                 }
             } // New column
@@ -164,8 +164,8 @@ trait MigrationGenerates
             /** @var string $index */
             if ($index = $command->get('index')) {
                 // Exists index -> Changed or nothing
-                if (isset($this->previousState->get($migration->table)->indexes[$index])) {
-                    if ($changes = $this->findColumnChanges($command, $this->previousState->get($migration->table)->indexes[$index])) {
+                if (isset($this->currentState->get($migration->table)->indexes[$index])) {
+                    if ($changes = $this->findColumnChanges($command, $this->currentState->get($migration->table)->indexes[$index])) {
                         $this->generateChangeIndex($migration, $index, $command, $changes);
                     }
                 } // New index
@@ -200,7 +200,7 @@ trait MigrationGenerates
 
     protected function generateRemoves(): void
     {
-        foreach ($this->previousState->tables as $name => $table) {
+        foreach ($this->currentState->tables as $name => $table) {
             $removedColumns = [];
             $removedIndexes = [];
             foreach ($table->columns as $columnName => $column) {
@@ -299,6 +299,15 @@ trait MigrationGenerates
                     continue;
                 }
 
+                /** @var MigrationState[] $prepares */
+                $prepares = Arr::mapWithKeys($tables, function ($table) {
+                    return [$table => new MigrationState(
+                        fileName: 'prepare',
+                        table: $table,
+                        command: MigrationState::COMMAND_TABLE,
+                    )];
+                });
+
                 foreach ($this->getTravelColumns((array)$travel->whenRemoving, reset($tables)) as [$table, $column]) {
                     if (in_array("$table.$column", $softRemoved)) {
                         continue;
@@ -308,7 +317,7 @@ trait MigrationGenerates
 
                     if (
                         !($newState = $this->getBlueprintOrNull($table)) ||
-                        !($previousState = $this->previousState->get($table))
+                        !($previousState = $this->currentState->get($table))
                     ) {
                         throw new \Exception("Travel [$relativePath] depended on [$table] table that not exists!");
                     }
@@ -317,26 +326,19 @@ trait MigrationGenerates
                         throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is removing, but it doesn't exists!");
                     }
 
-                    if (isset($newState->getColumns()[$column])) {
+                    if (collect($newState->getColumns())->contains('name', $column)) {
                         throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is removing, but it's already exists!");
                     }
 
-                    if (isset($newState->getColumns()[$trashedColumn]) || isset($previousState->columns[$trashedColumn])) {
+                    if (collect($newState->getColumns())->contains('name', $trashedColumn) || isset($previousState->columns[$trashedColumn])) {
                         throw new \Exception("Travel [$relativePath] needs to save the removed column, but the [$trashedColumn] is reserved!");
                     }
 
-                    $this->newMigrations->add(
-                        new MigrationState(
-                            fileName: $this->nameOfSoftRemoveColumn($column, $table),
-                            table: $table,
-                            command: MigrationState::COMMAND_TABLE,
-                            columns: new ColumnListState(
-                                renamed: [$column => $trashedColumn],
-                            ),
-                        ),
-                    );
+                    $prepares[$table]->columns->renamed($column, $trashedColumn);
+                    $prepares[$table]->suggestName($column, $this->nameOfSoftRemoveColumn($column, $table));
 
                     $softRemoved[] = "$table.$column";
+                    unset($this->currentState->get($table)->columns[$column]);
                 }
 
                 foreach ($this->getTravelColumns((array)$travel->whenAdded, reset($tables)) as [$table, $column]) {
@@ -346,7 +348,7 @@ trait MigrationGenerates
 
                     if (
                         !($newState = $this->getBlueprintOrNull($table)) ||
-                        !($previousState = $this->previousState->get($table))
+                        !($previousState = $this->currentState->get($table))
                     ) {
                         throw new \Exception("Travel [$relativePath] depended on [$table] table that not exists!");
                     }
@@ -355,24 +357,17 @@ trait MigrationGenerates
                         throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is added, but it's already exists!");
                     }
 
-                    if (!isset($newState->getColumns()[$column])) {
+                    if (!collect($newState->getColumns())->contains('name', $column)) {
                         throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is added, but it doesn't exists!");
                     }
 
-                    $this->newMigrations->add(
-                        new MigrationState(
-                            fileName: $this->nameOfAddColumn($column, $table),
-                            table: $table,
-                            command: MigrationState::COMMAND_TABLE,
-                            columns: new ColumnListState(
-                                added: [
-                                    $column => $newState->getColumns()[$column],
-                                ],
-                            ),
-                        ),
-                    );
+                    $columnFluent = collect($newState->getColumns())->firstWhere('name', $column);
+
+                    $prepares[$table]->columns->added($column, $columnFluent);
+                    $prepares[$table]->suggestName($column, $this->nameOfAddColumn($column, $table));
 
                     $added[] = "$table.$column";
+                    $this->currentState->get($table)->columns[$column] = $columnFluent;
                 }
 
                 foreach ($this->getTravelRenameColumns((array)$travel->whenRenamed, reset($tables)) as [$table, $from, $to]) {
@@ -382,7 +377,7 @@ trait MigrationGenerates
 
                     if (
                         !($newState = $this->getBlueprintOrNull($table)) ||
-                        !($previousState = $this->previousState->get($table))
+                        !($previousState = $this->currentState->get($table))
                     ) {
                         throw new \Exception("Travel [$relativePath] depended on [$table] table that not exists!");
                     }
@@ -391,28 +386,29 @@ trait MigrationGenerates
                         throw new \Exception("Travel [$relativePath] needs to run when [$table.$from] is renamed, but it doesn't exists!");
                     }
 
-                    if (!isset($newState->getColumns()[$to])) {
+                    if (!collect($newState->getColumns())->contains('name', $to)) {
                         throw new \Exception("Travel [$relativePath] needs to run when [$table.$from] is renamed to [$table.$to], but it's already exists!");
                     }
 
-                    if ($this->findColumnOldName($table, $newState->getColumns()[$to]) === $from) {
+                    if ($this->findColumnOldName($table, collect($newState->getColumns())->firstWhere('name', $to)) === $from) {
                         throw new \Exception("Travel [$relativePath] needs to run when [$table.$from] is renamed to [$table.$to], but it doesn't renamed!");
                     }
 
-                    $this->newMigrations->add(
-                        new MigrationState(
-                            fileName: $this->nameOfRenameColumn($from, $to, $table),
-                            table: $table,
-                            command: MigrationState::COMMAND_TABLE,
-                            columns: new ColumnListState(
-                                renamed: [
-                                    $from => $to,
-                                ],
-                            ),
-                        ),
-                    );
+                    $prepares[$table]->columns->renamed($from, $to);
+                    $prepares[$table]->suggestName($from, $this->nameOfRenameColumn($from, $to, $table));
 
                     $renamed[] = "$table.$from.$to";
+
+                    $old = $this->currentState->get($table)->columns[$from];
+                    unset($this->currentState->get($table)->columns[$from]);
+                    $this->currentState->get($table)->columns[$to] = $to;
+                    $old->name = $to;
+                }
+
+                foreach ($prepares as $prepare) {
+                    if (!$prepare->isEmpty()) {
+                        $this->newMigrations->add($prepare);
+                    }
                 }
             }
 
@@ -420,7 +416,7 @@ trait MigrationGenerates
                 new MigrationState(
                     fileName: $this->nameOfTravel($relativePath),
                     table: $tables ? reset($tables) : '',
-                    command: MigrationState::COMMAND_TABLE,
+                    command: MigrationState::COMMAND_TRAVEL,
                     isLazy: $travel->anywayFinally,
                     travel: $relativePath,
                 ),
