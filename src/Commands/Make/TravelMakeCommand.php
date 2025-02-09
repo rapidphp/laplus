@@ -14,6 +14,7 @@ class TravelMakeCommand extends GeneratorCommand
     protected function getPath($name)
     {
         $time = date('Y_m_d_His');
+        $name = $this->getNameInput();
 
         return database_path("travels/{$time}_{$name}.php");
     }
