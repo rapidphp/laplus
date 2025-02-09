@@ -14,9 +14,12 @@ class SchemaTracker
 
     public DatabaseState $state;
 
+    public array $travels;
+
     public function reset(?DatabaseState $state = null)
     {
         $this->state = $state ?? new DatabaseState();
+        $this->travels = [];
     }
 
     public function create(string $tableName, Closure $callback)
@@ -107,6 +110,11 @@ class SchemaTracker
     public function drop(string $tableName)
     {
         unset($this->state->tables[$tableName]);
+    }
+
+    public function dispatchTravel(string $relativePath): void
+    {
+        $this->travels[] = $relativePath;
     }
 
 }

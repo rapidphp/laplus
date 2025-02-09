@@ -13,6 +13,7 @@ use Illuminate\Support\Traits\Conditionable;
 use Rapid\Laplus\Editors\GitIgnoreEditor;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Resources\Resource;
+use Rapid\Laplus\Resources\ResourceObject;
 
 class Generate
 {
@@ -73,29 +74,22 @@ class Generate
         return $this;
     }
 
-    public function forEachPath(Closure $callback): void
+    public function forEach(Closure $callback): void
     {
-        foreach ($this->getResourceMap() as $modelsPath => $migrationsPath) {
-            $callback($modelsPath, $migrationsPath);
+        foreach ($this->resources as $resource) {
+            foreach ($resource->resolve() as $resourceObject) {
+                $callback($resourceObject);
+            }
         }
     }
 
     public function forEachModels(Closure $callback): void
     {
-        foreach ($this->getResourceMap() as $modelsPath => $migrationsPath) {
-            foreach ($this->discoverModelsIn($modelsPath) as $model) {
+        $this->forEach(function (ResourceObject $resource) use ($callback) {
+            foreach ($resource->discoverModels() as $model) {
                 $callback($model);
             }
-        };
-    }
-
-    public function forEachMigrations(Closure $callback): void
-    {
-        foreach ($this->getResourceMap() as $modelsPath => $migrationsPath) {
-            foreach ($this->discoverMigrationsIn($migrationsPath) as $model) {
-                $callback($model);
-            }
-        };
+        });
     }
 
     public function export(): void
@@ -103,25 +97,25 @@ class Generate
         $generators = [];
 
         // Create generators
-        foreach ($this->resources as $resource) {
-            foreach ($resource->resolve() as $resourceObject) {
-                $generator = new MigrationGenerator();
-                $generator->resolveTableFromMigration(function () use ($resourceObject) {
-                    foreach ($resourceObject->discoverMigrations($this->dev) as $migration) {
-                        $migration->up();
-                    }
-                });
+        $this->forEach(function (ResourceObject $resource) use (&$generators) {
+            $generator = new MigrationGenerator();
 
-                // Pass models
-                $generator->pass($resourceObject->discoverModels());
+            $generator->resolveTableFromMigration(function () use ($resource) {
+                foreach ($resource->discoverMigrations($this->dev) as $migration) {
+                    $migration->up();
+                }
+            });
 
-                // Create folders
-                $output = $this->dev ? $resourceObject->devPath : $resourceObject->migrationsPath;
-                @mkdir($output, recursive: true);
+            $generator->discoverTravels($resource->discoverTravels());
 
-                $generators[$output] = $generator;
-            }
-        }
+            $generator->pass($resource->discoverModels());
+
+            // Create folders
+            $output = $this->dev ? $resource->devPath : $resource->migrationsPath;
+            @mkdir($output, recursive: true);
+
+            $generators[$output] = $generator;
+        });
 
         // Export migrations
         $exporter = new MigrationExporter();

@@ -7,7 +7,7 @@ use Illuminate\Support\Fluent;
 trait Finds
 {
 
-    public function findColumnChanges(Fluent $left, Fluent $right)
+    public function findColumnChanges(Fluent $left, Fluent $right): array
     {
         $leftAttributes = $left->getAttributes();
         $rightAttributes = $right->getAttributes();
@@ -47,10 +47,10 @@ trait Finds
         return $diff;
     }
 
-    protected function findColumnOldName(string $tableName, Fluent $column)
+    protected function findColumnOldName(string $tableName, Fluent $column): ?string
     {
         foreach ($column->get('oldNames', []) as $name) {
-            if (isset($this->definedState->get($tableName)->columns[$name])) {
+            if (isset($this->previousState->get($tableName)->columns[$name])) {
                 return $name;
             }
         }

@@ -8,6 +8,7 @@ use Rapid\Laplus\Present\Generate\MigrationGenerator;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
 use Rapid\Laplus\Tests\TestCase;
+use Rapid\Laplus\Travel\Travel;
 
 class BasicGenerateTest extends TestCase
 {

@@ -14,6 +14,7 @@ trait Generations
 
     public MigrationGenerator $generator;
     public string $generatingTable;
+    public bool $isGenerating = false;
 
     public function passGenerator(MigrationGenerator $generator): void
     {
@@ -26,7 +27,7 @@ trait Generations
 
     public function getGeneratingBlueprint(): Blueprint
     {
-        return $this->generator->getBlueprintForTable($this->generatingTable);
+        return $this->generator->getBlueprintOrCreate($this->generatingTable);
     }
 
     /**
@@ -39,25 +40,33 @@ trait Generations
     protected function table(string $table, Closure $callback): void
     {
         // Keep old data
-        $old_attributes = $this->attributes;
-        if (isset($this->generatingTable)) $old_table = $this->generatingTable;
-        $this->attributes = [];
-        $this->generatingTable = $table;
+        $oldAttributes = $this->attributes;
+        $oldTravels = $this->travels;
+        if (isset($this->generatingTable)) $oldTable = $this->generatingTable;
 
-        $callback();
+        try {
+            $this->attributes = [];
+            $this->travels = [];
+            $this->generatingTable = $table;
+            $this->isGenerating = true;
 
-        foreach ($this->attributes as $attribute) {
-            $attribute->generate($this);
+            $callback();
+
+            foreach ($this->attributes as $attribute) {
+                $attribute->generate($this);
+            }
+
+            foreach ($this->indexes as $index) {
+                $index->generate($this);
+            }
+        } finally {
+            // Revert old data
+            $this->attributes = $oldAttributes;
+            $this->travels = $oldTravels;
+            $this->isGenerating = false;
+            if (isset($oldTable)) $this->generatingTable = $oldTable;
+            else unset($this->generatingTable);
         }
-
-        foreach ($this->indexes as $index) {
-            $index->generate($this);
-        }
-
-        // Revert old data
-        $this->attributes = $old_attributes;
-        if (isset($old_table)) $this->generatingTable = $old_table;
-        else unset($this->generatingTable);
     }
 
 }

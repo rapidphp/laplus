@@ -10,6 +10,7 @@ class MigrationGenerator
 {
     use Concerns\MigrationResolves,
         Concerns\MigrationGenerates,
+        Concerns\TravelDiscovers,
         Concerns\SelectNames,
         Concerns\Finds;
 
@@ -33,9 +34,20 @@ class MigrationGenerator
      * @param string $name
      * @return Blueprint
      */
-    public function getBlueprintForTable(string $name): Blueprint
+    public function getBlueprintOrCreate(string $name): Blueprint
     {
         return $this->blueprints[$name] ??= new Blueprint($name);
+    }
+
+    /**
+     * Get a blueprint
+     *
+     * @param string $name
+     * @return ?Blueprint
+     */
+    public function getBlueprintOrNull(string $name): ?Blueprint
+    {
+        return @$this->blueprints[$name];
     }
 
     /**

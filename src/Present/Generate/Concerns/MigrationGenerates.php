@@ -3,7 +3,10 @@
 namespace Rapid\Laplus\Present\Generate\Concerns;
 
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\ColumnDefinition;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Fluent;
+use Rapid\Laplus\Present\Generate\Structure\ColumnListState;
 use Rapid\Laplus\Present\Generate\Structure\DatabaseState;
 use Rapid\Laplus\Present\Generate\Structure\IndexListState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationListState;
@@ -17,7 +20,7 @@ trait MigrationGenerates
      *
      * @var DatabaseState
      */
-    protected DatabaseState $definedState;
+    protected DatabaseState $previousState;
 
     /**
      * The current migration state.
@@ -32,7 +35,7 @@ trait MigrationGenerates
      *
      * @var MigrationListState
      */
-    protected MigrationListState $newState;
+    protected MigrationListState $newMigrations;
 
     /**
      * Tables and columns that marked as exists
@@ -49,10 +52,13 @@ trait MigrationGenerates
     public function generate(): MigrationListState
     {
         // Initialize variables
-        $this->definedState = $this->resolvedState ?? new DatabaseState();
-        $this->currentState = clone $this->definedState;
-        $this->newState = new MigrationListState();
+        $this->previousState = $this->resolvedState ?? new DatabaseState();
+        $this->currentState = clone $this->previousState;
+        $this->newMigrations = new MigrationListState();
         $this->marked = [];
+
+        // Add travels
+        $this->generateTravels();
 
         // Add new/changed structures
         $this->generateChanges();
@@ -64,9 +70,9 @@ trait MigrationGenerates
         $this->generateDependedIndexes();
 
         // Delete empty migrations
-        $this->newState->forgetEmpty();
+        $this->newMigrations->forgetEmpty();
 
-        return $this->newState;
+        return $this->newMigrations;
     }
 
     protected function generateChanges(): void
@@ -75,7 +81,7 @@ trait MigrationGenerates
             $migration = new MigrationState(
                 fileName: '',
                 table: $tableName,
-                command: 'table',
+                command: MigrationState::COMMAND_TABLE,
                 before: $this->currentState->get($tableName),
             );
 
@@ -86,14 +92,14 @@ trait MigrationGenerates
             $this->generateNewCommands($blueprint, $migration);
 
             // Choosing name
-            if (!$this->definedState->get($tableName)) {
+            if (!$this->previousState->get($tableName)) {
                 $migration->forceName($this->nameOfCreateTable($tableName));
             } else {
                 $migration->fileName = $this->nameOfModifyTable($tableName);
             }
 
             // Add to $newState
-            $this->newState->add($migration);
+            $this->newMigrations->add($migration);
         }
     }
 
@@ -114,8 +120,8 @@ trait MigrationGenerates
             }
 
             // Exists column -> Changed or nothing
-            if (isset($this->definedState->get($migration->table)?->columns[$oldName])) {
-                if ($changes = $this->findColumnChanges($column, $this->definedState->get($migration->table)->columns[$oldName])) {
+            if (isset($this->previousState->get($migration->table)?->columns[$oldName])) {
+                if ($changes = $this->findColumnChanges($column, $this->previousState->get($migration->table)->columns[$oldName])) {
                     $this->generateChangeColumn($migration, $column, $changes);
                 }
             } // New column
@@ -158,8 +164,8 @@ trait MigrationGenerates
             /** @var string $index */
             if ($index = $command->get('index')) {
                 // Exists index -> Changed or nothing
-                if (isset($this->definedState->get($migration->table)->indexes[$index])) {
-                    if ($changes = $this->findColumnChanges($command, $this->definedState->get($migration->table)->indexes[$index])) {
+                if (isset($this->previousState->get($migration->table)->indexes[$index])) {
+                    if ($changes = $this->findColumnChanges($command, $this->previousState->get($migration->table)->indexes[$index])) {
                         $this->generateChangeIndex($migration, $index, $command, $changes);
                     }
                 } // New index
@@ -194,7 +200,7 @@ trait MigrationGenerates
 
     protected function generateRemoves(): void
     {
-        foreach ($this->definedState->tables as $name => $table) {
+        foreach ($this->previousState->tables as $name => $table) {
             $removedColumns = [];
             $removedIndexes = [];
             foreach ($table->columns as $columnName => $column) {
@@ -211,17 +217,17 @@ trait MigrationGenerates
             // Table is not exists -> Drop table
             if (!isset($this->blueprints[$name])) {
                 if ($this->includeDropTables && !in_array($name, ['password_reset_tokens', 'sessions', 'cache', 'cache_locks', 'jobs', 'job_batches', 'failed_jobs'])) {
-                    $this->newState->add(
+                    $this->newMigrations->add(
                         new MigrationState(
                             fileName: $this->nameOfDropTable($name),
                             table: $name,
-                            command: 'drop',
+                            command: MigrationState::COMMAND_DROP,
                         ),
                     );
                 }
             } // Drop columns & indexes
             else if ($removedColumns || $removedIndexes) {
-                foreach (array_reverse($this->newState->all) as $migration) {
+                foreach (array_reverse($this->newMigrations->all) as $migration) {
                     if ($migration->table == $name) {
                         array_push($migration->columns->removed, ...$removedColumns);
                         array_push($migration->indexes->removed, ...$removedIndexes);
@@ -241,37 +247,216 @@ trait MigrationGenerates
     {
         $insert = new MigrationListState();
 
-        foreach ($this->newState->all as $migration) {
-            if ($migration->command == 'table' && $migration->indexes->depended) {
+        foreach ($this->newMigrations->all as $migration) {
+            if ($migration->command == MigrationState::COMMAND_TABLE && $migration->indexes->depended) {
                 $migration->indexes->depended = false;
-                $this->newState->add(
-                    (new MigrationState(
+                $this->newMigrations->add(
+                    new MigrationState(
                         fileName: $this->nameOfAddIndexes($migration->table),
                         table: $migration->table,
-                        command: 'table',
-
+                        command: MigrationState::COMMAND_TABLE,
                         indexes: new IndexListState(
                             added: $migration->indexes->added,
                             changed: $migration->indexes->changed,
                         ),
-                    ))->lazy(),
+                        isLazy: true,
+                    ),
                 );
                 $insert->add(
-                    (new MigrationState(
+                    new MigrationState(
                         fileName: $this->nameOfRemoveIndexes($migration->table),
                         table: $migration->table,
-                        command: 'table',
+                        command: MigrationState::COMMAND_TABLE,
                         indexes: new IndexListState(
                             removed: $migration->indexes->removed,
                         ),
-                    ))->lazy(),
+                        isLazy: true,
+                    ),
                 );
 
                 $migration->indexes = new IndexListState();
             }
         }
 
-        $this->newState = new MigrationListState([...$insert->all, ...$this->newState->all]);
+        $this->newMigrations = new MigrationListState([...$insert->all, ...$this->newMigrations->all]);
+    }
+
+    protected function generateTravels(): void
+    {
+        $softRemoved = [];
+        $added = [];
+        $renamed = [];
+
+        foreach ($this->discoveredTravels as $relativePath => $travel) {
+            if (isset($this->resolvedTravels) && in_array($relativePath, $this->resolvedTravels)) {
+                continue;
+            }
+
+            $tables = $travel->getTables();
+
+            if (!$travel->anywayBefore && !$travel->anywayFinally) {
+                if (!$tables) {
+                    continue;
+                }
+
+                foreach ($this->getTravelColumns((array)$travel->whenRemoving, reset($tables)) as [$table, $column]) {
+                    if (in_array("$table.$column", $softRemoved)) {
+                        continue;
+                    }
+
+                    $trashedColumn = $travel->trashed($column);
+
+                    if (
+                        !($newState = $this->getBlueprintOrNull($table)) ||
+                        !($previousState = $this->previousState->get($table))
+                    ) {
+                        throw new \Exception("Travel [$relativePath] depended on [$table] table that not exists!");
+                    }
+
+                    if (!isset($previousState->columns[$column])) {
+                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is removing, but it doesn't exists!");
+                    }
+
+                    if (isset($newState->getColumns()[$column])) {
+                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is removing, but it's already exists!");
+                    }
+
+                    if (isset($newState->getColumns()[$trashedColumn]) || isset($previousState->columns[$trashedColumn])) {
+                        throw new \Exception("Travel [$relativePath] needs to save the removed column, but the [$trashedColumn] is reserved!");
+                    }
+
+                    $this->newMigrations->add(
+                        new MigrationState(
+                            fileName: $this->nameOfSoftRemoveColumn($column, $table),
+                            table: $table,
+                            command: MigrationState::COMMAND_TABLE,
+                            columns: new ColumnListState(
+                                renamed: [$column => $trashedColumn],
+                            ),
+                        ),
+                    );
+
+                    $softRemoved[] = "$table.$column";
+                }
+
+                foreach ($this->getTravelColumns((array)$travel->whenAdded, reset($tables)) as [$table, $column]) {
+                    if (in_array("$table.$column", $added)) {
+                        continue;
+                    }
+
+                    if (
+                        !($newState = $this->getBlueprintOrNull($table)) ||
+                        !($previousState = $this->previousState->get($table))
+                    ) {
+                        throw new \Exception("Travel [$relativePath] depended on [$table] table that not exists!");
+                    }
+
+                    if (isset($previousState->columns[$column])) {
+                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is added, but it's already exists!");
+                    }
+
+                    if (!isset($newState->getColumns()[$column])) {
+                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is added, but it doesn't exists!");
+                    }
+
+                    $this->newMigrations->add(
+                        new MigrationState(
+                            fileName: $this->nameOfAddColumn($column, $table),
+                            table: $table,
+                            command: MigrationState::COMMAND_TABLE,
+                            columns: new ColumnListState(
+                                added: [
+                                    $column => $newState->getColumns()[$column],
+                                ],
+                            ),
+                        ),
+                    );
+
+                    $added[] = "$table.$column";
+                }
+
+                foreach ($this->getTravelRenameColumns((array)$travel->whenRenamed, reset($tables)) as [$table, $from, $to]) {
+                    if (in_array("$table.$from.$to", $renamed)) {
+                        continue;
+                    }
+
+                    if (
+                        !($newState = $this->getBlueprintOrNull($table)) ||
+                        !($previousState = $this->previousState->get($table))
+                    ) {
+                        throw new \Exception("Travel [$relativePath] depended on [$table] table that not exists!");
+                    }
+
+                    if (!isset($previousState->columns[$from])) {
+                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$from] is renamed, but it doesn't exists!");
+                    }
+
+                    if (!isset($newState->getColumns()[$to])) {
+                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$from] is renamed to [$table.$to], but it's already exists!");
+                    }
+
+                    if ($this->findColumnOldName($table, $newState->getColumns()[$to]) === $from) {
+                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$from] is renamed to [$table.$to], but it doesn't renamed!");
+                    }
+
+                    $this->newMigrations->add(
+                        new MigrationState(
+                            fileName: $this->nameOfRenameColumn($from, $to, $table),
+                            table: $table,
+                            command: MigrationState::COMMAND_TABLE,
+                            columns: new ColumnListState(
+                                renamed: [
+                                    $from => $to,
+                                ],
+                            ),
+                        ),
+                    );
+
+                    $renamed[] = "$table.$from.$to";
+                }
+            }
+
+            $this->newMigrations->add(
+                new MigrationState(
+                    fileName: $this->nameOfTravel($relativePath),
+                    table: $tables ? reset($tables) : '',
+                    command: MigrationState::COMMAND_TABLE,
+                    isLazy: $travel->anywayFinally,
+                    travel: $relativePath,
+                ),
+            );
+        }
+    }
+
+    protected function getTravelColumns(array $columns, string $defaultTable): array
+    {
+        return Arr::map($columns, function ($column) use ($defaultTable) {
+            return $this->getTravelColumnName($column, $defaultTable);
+        });
+    }
+
+    protected function getTravelRenameColumns(array $columns, string $defaultTable): array
+    {
+        return Arr::map($columns, function ($value, $key) use ($defaultTable) {
+            [$fromTable, $fromColumn] = $this->getTravelColumnName($key, null);
+            [$toTable, $toColumn] = $this->getTravelColumnName($key, null);
+
+            return [$toTable ?? $fromTable ?? $defaultTable, $fromColumn, $toColumn];
+        });
+    }
+
+    protected function getTravelColumnName(string $column, string $defaultTable): array
+    {
+        if (str_contains($column, '.')) {
+            [$table, $column] = explode('.', $column, 2);
+            if (str_contains($table, '\\')) {
+                $table = app($table)->getTable();
+            }
+
+            return [$table, $column];
+        } else {
+            return [$defaultTable, $column];
+        }
     }
 
 }

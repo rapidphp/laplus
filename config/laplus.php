@@ -18,18 +18,20 @@ return [
 
         'main' => [
             'type' => 'default',
+            'models' => base_path('app/Models'),
             'migrations' => base_path('database/migrations/deploy'),
             'dev_migrations' => base_path('database/migrations/dev_generated'),
-            'models' => base_path('app/Models'),
+            'travels' => base_path('database/travels'),
             'merge_to_config' => true,
         ],
 
         // 'modules' => [
         //     'type' => 'modular',
-        //     'modules' => base_path('Modules'),
         //     'models' => 'app/Models',
+        //     'modules' => base_path('Modules'),
         //     'migrations' => 'database/migrations/deploy',
         //     'dev_migrations' => 'database/migrations/dev_generated',
+        //     'travels' => 'database/travels',
         //     'merge_to_config' => true,
         // ],
 

@@ -12,17 +12,20 @@ readonly class ModularResource extends Resource
         public string $models,
         public string $migrations,
         public string $devMigrations,
+        public string $travels,
     )
     {
     }
 
     public static function fromConfig(string $name, array $config): Resource
     {
-        if (!Arr::has($config, ['modules', 'models', 'migrations', 'dev_migrations'])) {
-            throw new \InvalidArgumentException("Laplus config [$name] should contains [modules], [models], [migrations] and [dev_migrations] values");
+        if (!Arr::has($config, ['modules', 'models', 'migrations', 'dev_migrations', 'travels'])) {
+            throw new \InvalidArgumentException(
+                "Laplus config [$name] should contains [modules], [models], [migrations], [dev_migrations] and [travels] values"
+            );
         }
 
-        return new static($config['modules'], $config['models'], $config['migrations'], $config['dev_migrations']);
+        return new static($config['modules'], $config['models'], $config['migrations'], $config['dev_migrations'], $config['travels']);
     }
 
     public function resolve(): array
@@ -35,6 +38,7 @@ readonly class ModularResource extends Resource
                     modelsPath: "{$module}/{$this->models}",
                     migrationsPath: "{$module}/{$this->migrations}",
                     devPath: "{$module}/{$this->devMigrations}",
+                    travelsPath: "{$module}/{$this->travels}",
                 );
             }
         }

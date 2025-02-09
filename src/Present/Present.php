@@ -31,14 +31,14 @@ abstract class Present
     /**
      * List of attributes
      *
-     * @var array<Attribute>
+     * @var Attribute[]
      */
     protected array $attributes = [];
 
     /**
      * List of indexes
      *
-     * @var array<Index>
+     * @var Index[]
      */
     protected array $indexes = [];
 
@@ -61,6 +61,7 @@ abstract class Present
         $this->casts = [];
         $this->getters = [];
         $this->setters = [];
+        $this->travels = [];
 
         $this->isYielded = false;
         $this->present();
@@ -315,7 +316,7 @@ abstract class Present
      *
      * @return void
      */
-    protected function presentTable()
+    protected function presentTable(): void
     {
         $this->isYielded = false;
         $this->present();
@@ -327,7 +328,7 @@ abstract class Present
      *
      * @return void
      */
-    protected function generate()
+    protected function generate(): void
     {
         $this->table($this->getTable(), $this->presentTable(...));
     }
@@ -337,7 +338,7 @@ abstract class Present
      *
      * @return string|null
      */
-    public function getTable()
+    public function getTable(): ?string
     {
         return $this->instance->getTable();
     }

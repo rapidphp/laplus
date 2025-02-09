@@ -5,11 +5,12 @@ namespace Rapid\Laplus\Present\Generate\Concerns;
 use Illuminate\Support\Fluent;
 use Rapid\Laplus\Present\Generate\Structure\MigrationFileState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationState;
+use Rapid\Laplus\Travel\TravelDispatcher;
 
 trait ExportStubs
 {
 
-    protected function makeMigrationCreate(MigrationState $migration)
+    protected function makeMigrationCreate(MigrationState $migration): MigrationFileState
     {
         $inner = $this->makeMigrationTableInner($migration);
 
@@ -25,7 +26,7 @@ trait ExportStubs
         );
     }
 
-    protected function makeMigrationTableInner(MigrationState $migration)
+    protected function makeMigrationTableInner(MigrationState $migration): MigrationFileState
     {
         $up = [];
         $down = [];
@@ -83,7 +84,7 @@ trait ExportStubs
         );
     }
 
-    protected function writeObject($value)
+    protected function writeObject($value): string
     {
         switch (gettype($value)) {
             case 'boolean':
@@ -118,7 +119,7 @@ trait ExportStubs
         }
     }
 
-    protected function writeColumn(Fluent $fluent, bool $change = false)
+    protected function writeColumn(Fluent $fluent, bool $change = false): string
     {
         $code = match ($fluent->type) {
             'enum'  => "\$table->enum({$this->writeObject($fluent->name)}, {$this->writeObject($fluent->allowed)})",
@@ -150,7 +151,7 @@ trait ExportStubs
         return $code . ';';
     }
 
-    protected function writeCommand(Fluent $fluent)
+    protected function writeCommand(Fluent $fluent): string
     {
         $code = "\$table->{$fluent->name}({$this->writeObject(count($fluent->columns) == 1 ? $fluent->columns[0] : $fluent->columns)}, {$this->writeObject($fluent->index)})";
 
@@ -170,7 +171,7 @@ trait ExportStubs
         return $code . ';';
     }
 
-    protected function makeMigrationTable(MigrationState $migration)
+    protected function makeMigrationTable(MigrationState $migration): MigrationFileState
     {
         $inner = $this->makeMigrationTableInner($migration);
 
@@ -188,11 +189,21 @@ trait ExportStubs
         );
     }
 
-    protected function makeMigrationDrop(MigrationState $migration)
+    protected function makeMigrationDrop(MigrationState $migration): MigrationFileState
     {
         return new MigrationFileState(
             up: [
                 "Schema::drop({$this->writeObject($migration->table)});",
+            ],
+            down: [],
+        );
+    }
+
+    protected function makeTravel(MigrationState $migration): MigrationFileState
+    {
+        return new MigrationFileState(
+            up: [
+                sprintf("\%s:dispatch(%s)", TravelDispatcher::class, $this->writeObject($migration->travel)),
             ],
             down: [],
         );

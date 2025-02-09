@@ -4,15 +4,18 @@ namespace Rapid\Laplus\Resources;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\File;
 use Rapid\Laplus\Present\HasPresent;
 use Generator;
+use Rapid\Laplus\Travel\Travel;
 
 final readonly class ResourceObject
 {
     public function __construct(
-        public string  $modelsPath,
-        public string  $migrationsPath,
-        public ?string $devPath = null,
+        public string $modelsPath,
+        public string $migrationsPath,
+        public string $devPath,
+        public string $travelsPath,
     )
     {
     }
@@ -62,6 +65,38 @@ final readonly class ResourceObject
     public function discoverDevMigrationsPath(): array
     {
         return iterator_to_array($this->discoverMigrationsPathIn($this->devPath));
+    }
+
+    /**
+     * Discover list of travels
+     *
+     * @return Travel[]
+     */
+    public function discoverTravels(): array
+    {
+        if (!is_dir($this->travelsPath)) {
+            return [];
+        }
+
+        $travelsPath = str_replace('\\', '/', $this->travelsPath);
+        $basePath = str_replace('\\', '/', base_path());
+
+        if (!str_starts_with($travelsPath, $basePath)) {
+            throw new \Exception("Travel path [$travelsPath] must be in the root directory");
+        }
+
+        $relativePath = ltrim(substr($travelsPath, strlen($basePath)), '/');
+
+        $all = [];
+        foreach (scandir($this->travelsPath) as $subPath) {
+            if (!str_ends_with($subPath, '.php')) {
+                continue;
+            }
+
+            $all["$relativePath/$subPath"] = $this->requireTravelFile("{$this->travelsPath}/$subPath");
+        }
+
+        return $all;
     }
 
     protected function discoverModelsIn(string $path): Generator
@@ -134,4 +169,8 @@ final readonly class ResourceObject
         }
     }
 
+    protected function requireTravelFile(string $__path): Travel
+    {
+        return require $__path;
+    }
 }

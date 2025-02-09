@@ -4,6 +4,7 @@ namespace Rapid\Laplus\Present\Generate;
 
 use Rapid\Laplus\Present\Generate\Structure\MigrationFileListState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationListState;
+use Rapid\Laplus\Present\Generate\Structure\MigrationState;
 
 class MigrationExporter
 {
@@ -48,29 +49,14 @@ class MigrationExporter
             foreach ($migrations->all as $migration) {
                 if ($migration->isLazy) continue;
 
-                $name = date('Y_m_d_His', $dateIndex++) . '_' . $migration->getBestFileName();
-
-                switch ($migration->command) {
-                    case 'table':
-                        $tableName = $migration->table;
-                        $isCreating = !in_array($tableName, $createdTables) && !in_array($tableName, $createdLocallyTables);
-                        if ($isCreating)
-                            $createdLocallyTables[] = $tableName;
-
-                        $files->files[$name] = $isCreating ?
-                            $this->makeMigrationCreate($migration) :
-                            $this->makeMigrationTable($migration);
-                        $files->files[$name]->tag = $tag;
-                        break;
-
-                    case 'drop':
-                        $files->files[$name] = $this->makeMigrationDrop($migration);
-                        $files->files[$name]->tag = $tag;
-                        break;
-
-                    default:
-                        // die("Error"); // TODO : Should change
-                }
+                $this->exportMigrationPart(
+                    tag: $tag,
+                    migration: $migration,
+                    files: $files,
+                    dateIndex: $dateIndex,
+                    createdTables: $createdTables,
+                    createdLocallyTables: $createdLocallyTables,
+                );
             }
         }
 
@@ -86,33 +72,57 @@ class MigrationExporter
             foreach ($migrations->all as $migration) {
                 if (!$migration->isLazy) continue;
 
-                $name = date('Y_m_d_His', $dateIndex++) . '_' . $migration->getBestFileName();
-
-                switch ($migration->command) {
-                    case 'table':
-                        $tableName = $migration->table;
-                        $isCreating = !in_array($tableName, $createdTables) && !in_array($tableName, $createdLocallyTables);
-                        if ($isCreating)
-                            $createdLocallyTables[] = $tableName;
-
-                        $files->files[$name] = $isCreating ?
-                            $this->makeMigrationCreate($migration) :
-                            $this->makeMigrationTable($migration);
-                        $files->files[$name]->tag = $tag;
-                        break;
-
-                    case 'drop':
-                        $files->files[$name] = $this->makeMigrationDrop($migration);
-                        $files->files[$name]->tag = $tag;
-                        break;
-
-                    default:
-                        // die("Error"); // TODO : Should change
-                }
+                $this->exportMigrationPart(
+                    tag: $tag,
+                    migration: $migration,
+                    files: $files,
+                    dateIndex: $dateIndex,
+                    createdTables: $createdTables,
+                    createdLocallyTables: $createdLocallyTables,
+                );
             }
         }
 
         return $files;
+    }
+
+    protected function exportMigrationPart(
+        string                 $tag,
+        MigrationState         $migration,
+        MigrationFileListState $files,
+        int                    &$dateIndex,
+        array                  $createdTables,
+        array                  &$createdLocallyTables,
+    ): void
+    {
+        $name = date('Y_m_d_His', $dateIndex++) . '_' . $migration->getBestFileName();
+
+        switch ($migration->command) {
+            case MigrationState::COMMAND_TABLE:
+                $tableName = $migration->table;
+                $isCreating = !in_array($tableName, $createdTables) && !in_array($tableName, $createdLocallyTables);
+                if ($isCreating) {
+                    $createdLocallyTables[] = $tableName;
+                }
+
+                $files->files[$name] = $isCreating ?
+                    $this->makeMigrationCreate($migration) :
+                    $this->makeMigrationTable($migration);
+                $files->files[$name]->tag = $tag;
+                break;
+
+            case MigrationState::COMMAND_DROP:
+                $files->files[$name] = $this->makeMigrationDrop($migration);
+                $files->files[$name]->tag = $tag;
+                break;
+
+            case MigrationState::COMMAND_TRAVEL:
+                $files->files[$name] = $this->makeTravel($migration);
+                $files->files[$name]->tag = $tag;
+
+            default:
+                // die("Error"); // TODO : Should change
+        }
     }
 
     /**

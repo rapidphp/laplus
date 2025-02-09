@@ -22,6 +22,13 @@ trait MigrationResolves
     public DatabaseState $resolvedState;
 
     /**
+     * The resolved travel names
+     *
+     * @var string[]
+     */
+    public array $resolvedTravels;
+
+    /**
      * Resolve current table status from migrations
      *
      * @param Closure $callback
@@ -40,6 +47,8 @@ trait MigrationResolves
             $schema->reset($this->resolvedState);
 
             $callback();
+
+            $this->resolvedTravels = $schema->travels;
         } finally {
             app()->singleton('db.schema', fn() => $defaultSchema);
         }
