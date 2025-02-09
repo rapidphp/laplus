@@ -13,6 +13,7 @@ class LaplusServiceProvider extends ServiceProvider
         Commands\Make\PresentMakeCommand::class,
         Commands\Make\UserPresentMakeCommand::class,
         Commands\Make\LabelTranslatorMakeCommand::class,
+        Commands\Make\TravelMakeCommand::class,
         Commands\Dev\DevGuideCommand::class,
         Commands\Dev\DevMigrationCommand::class,
         Commands\Dev\DevMigrateCommand::class,

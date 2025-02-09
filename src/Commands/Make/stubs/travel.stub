@@ -1,0 +1,23 @@
+<?php
+
+use Illuminate\Support\Facades\DB;
+use Rapid\Laplus\Travel\Travel;
+
+return new class extends Travel
+{
+    // public string|array $on = '';
+
+    /**
+     * Run the travel.
+     */
+    public function up(): void
+    {
+    }
+
+    /**
+     * Reverse the travel.
+     */
+    public function down(): void
+    {
+    }
+};
