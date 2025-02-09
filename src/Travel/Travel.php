@@ -8,12 +8,11 @@ abstract class Travel
     public string|array $whenAdded = [];
     public string|array $whenRemoving = [];
     public array $whenRenamed = [];
-    public bool $whenCreated = false;
     public bool $anywayBefore = false;
     public bool $anywayFinally = false;
 
     abstract public function up(): void;
-    
+
     abstract public function down(): void;
 
     public function getTables(): array

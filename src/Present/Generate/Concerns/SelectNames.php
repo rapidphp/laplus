@@ -68,4 +68,9 @@ trait SelectNames
         return preg_replace('/^[0-9_\-]+/', '', pathinfo($relativePath, PATHINFO_FILENAME));
     }
 
+    public function nameOfTravelPrepare(string $table): string
+    {
+        return "prepare_{$table}_to_travel";
+    }
+
 }

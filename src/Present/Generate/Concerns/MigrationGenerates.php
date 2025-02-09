@@ -302,7 +302,7 @@ trait MigrationGenerates
                 /** @var MigrationState[] $prepares */
                 $prepares = Arr::mapWithKeys($tables, function ($table) {
                     return [$table => new MigrationState(
-                        fileName: 'prepare',
+                        fileName: $this->nameOfTravel($table),
                         table: $table,
                         command: MigrationState::COMMAND_TABLE,
                     )];
