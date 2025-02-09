@@ -50,7 +50,7 @@ trait Finds
     protected function findColumnOldName(string $tableName, Fluent $column): ?string
     {
         foreach ($column->get('oldNames', []) as $name) {
-            if (isset($this->previousState->get($tableName)->columns[$name])) {
+            if (isset($this->currentState->get($tableName)->columns[$name])) {
                 return $name;
             }
         }

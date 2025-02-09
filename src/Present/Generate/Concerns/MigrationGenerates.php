@@ -302,7 +302,7 @@ trait MigrationGenerates
                 /** @var MigrationState[] $prepares */
                 $prepares = Arr::mapWithKeys($tables, function ($table) {
                     return [$table => new MigrationState(
-                        fileName: $this->nameOfTravel($table),
+                        fileName: $this->nameOfTravelPrepare($table),
                         table: $table,
                         command: MigrationState::COMMAND_TABLE,
                     )];
@@ -390,7 +390,7 @@ trait MigrationGenerates
                         throw new \Exception("Travel [$relativePath] needs to run when [$table.$from] is renamed to [$table.$to], but it's already exists!");
                     }
 
-                    if ($this->findColumnOldName($table, collect($newState->getColumns())->firstWhere('name', $to)) === $from) {
+                    if ($this->findColumnOldName($table, collect($newState->getColumns())->firstWhere('name', $to)) !== $from) {
                         throw new \Exception("Travel [$relativePath] needs to run when [$table.$from] is renamed to [$table.$to], but it doesn't renamed!");
                     }
 
@@ -399,10 +399,8 @@ trait MigrationGenerates
 
                     $renamed[] = "$table.$from.$to";
 
-                    $old = $this->currentState->get($table)->columns[$from];
                     unset($this->currentState->get($table)->columns[$from]);
-                    $this->currentState->get($table)->columns[$to] = $to;
-                    $old->name = $to;
+                    $this->currentState->get($table)->columns[$to] = collect($newState->getColumns())->firstWhere('name', $to);
                 }
 
                 foreach ($prepares as $prepare) {
@@ -435,13 +433,13 @@ trait MigrationGenerates
     {
         return Arr::map($columns, function ($value, $key) use ($defaultTable) {
             [$fromTable, $fromColumn] = $this->getTravelColumnName($key, null);
-            [$toTable, $toColumn] = $this->getTravelColumnName($key, null);
+            [$toTable, $toColumn] = $this->getTravelColumnName($value, null);
 
             return [$toTable ?? $fromTable ?? $defaultTable, $fromColumn, $toColumn];
         });
     }
 
-    protected function getTravelColumnName(string $column, string $defaultTable): array
+    protected function getTravelColumnName(string $column, ?string $defaultTable): array
     {
         if (str_contains($column, '.')) {
             [$table, $column] = explode('.', $column, 2);
