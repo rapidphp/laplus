@@ -419,6 +419,8 @@ trait MigrationGenerates
                     }
                 }
 
+                $prepareNullable = $this->getTravelColumns((array)$travel->prepareNullable, reset($tables));
+
                 foreach ($this->getTravelColumns((array)$travel->whenRemoving, reset($tables)) as [$table, $column]) {
                     if (in_array("$table.$column", $softRemoved)) {
                         continue;
@@ -473,6 +475,11 @@ trait MigrationGenerates
                     }
 
                     $columnFluent = $newState->columns[$column];
+
+                    if (in_array([$table, $column], $prepareNullable)) {
+                        $columnFluent = clone $columnFluent;
+                        $columnFluent['nullable'] = true;
+                    }
 
                     $prepares[$table]->columns->added($column, $columnFluent);
                     $prepares[$table]->suggestion->addAdd($column, $this->nameOfAddColumn($column, $table));

@@ -222,4 +222,36 @@ class GenerateWithTravelsTest extends TestCase
                 ]],
             ]);
     }
+
+    public function test_travel_when_added_with_prepare_nullable_column()
+    {
+        MigrationGenerator::test()
+            ->previousTable('blogs', function (Blueprint $table) {
+                $table->string('title');
+            })
+            ->newModel('blogs', function (Present $present) {
+                $present->string('title');
+                $present->unsignedBigInteger('likes');
+            })
+            ->withTravel('foo_travel', new class extends AnonymousTestingTravel {
+                public string|array $on = 'blogs';
+                public string|array $whenAdded = 'likes';
+                public string|array $prepareNullable = 'likes';
+            })
+            ->export()
+            ->assertFileNames(['add_likes_to_blogs_table', 'foo_travel', 'change_likes_nullable_in_blogs_table'])
+            ->assertModifyTable('blogs')
+            ->assertFiles([
+                ['up.table' => [
+                    '$table->bigInteger(\'likes\')->unsigned()->nullable();',
+                ]],
+                ['up' => [
+                    sprintf('\%s::dispatchUp(\'foo_travel\');', TravelDispatcher::class),
+                ]],
+                ['up.table' => [
+                    '$table->bigInteger(\'likes\')->unsigned()->change();',
+                ]],
+            ]);
+    }
+
 }

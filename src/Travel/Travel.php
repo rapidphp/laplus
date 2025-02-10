@@ -10,6 +10,7 @@ abstract class Travel
     public array $whenRenamed = [];
     public bool $anywayBefore = false;
     public bool $anywayFinally = false;
+    public string|array $prepareNullable = [];
 
     abstract public function up(): void;
 

@@ -70,7 +70,6 @@ class ExportedTesting
 
     public function assertFileNames(array $names)
     {
-//        dd($this->files);
         $this->assertFileCount(count($names));
         Assert::assertTrue(
             !collect($this->files->files)->keys()->contains(function (string $key, int $index) use ($names) {
