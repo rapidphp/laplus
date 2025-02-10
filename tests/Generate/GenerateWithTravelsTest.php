@@ -176,4 +176,50 @@ class GenerateWithTravelsTest extends TestCase
                 ]],
             ]);
     }
+
+    public function test_travel_depended_on_multiple_tables()
+    {
+        MigrationGenerator::test()
+            ->previousTable('blogs', function (Blueprint $table) {
+                $table->integer('foo');
+            })
+            ->previousTable('users', function (Blueprint $table) {
+                $table->integer('bar');
+            })
+            ->newModel('blogs', function (Present $present) {
+                $present->string('title');
+            })
+            ->newModel('users', function (Present $present) {
+                $present->string('name');
+                $present->integer('foo');
+                $present->integer('bar');
+            })
+            ->withTravel('foo_travel', new class extends AnonymousTestingTravel {
+                public string|array $on = ['blogs', 'users'];
+                public string|array $whenAdded = ['blogs.title', 'users.name'];
+                public string|array $whenRemoving = 'blogs.foo';
+            })
+            ->export()
+            ->assertFileNames(['prepare_blogs_to_travel', 'add_name_to_users_table', 'foo_travel', 'remove_foo_trashed_from_blogs_table', 'add_foo_to_users_table'])
+            ->assertModifyTable('blogs')
+            ->assertModifyTable('users')
+            ->assertFiles([
+                ['up.table' => [
+                    '$table->renameColumn(\'foo\', \'foo_trashed\');',
+                    '$table->string(\'title\')->length(255);',
+                ]],
+                ['up.table' => [
+                    '$table->string(\'name\')->length(255);',
+                ]],
+                ['up' => [
+                    sprintf('\%s::dispatchUp(\'foo_travel\');', TravelDispatcher::class),
+                ]],
+                ['up.table' => [
+                    '$table->dropColumn(\'foo_trashed\');',
+                ]],
+                ['up.table' => [
+                    '$table->integer(\'foo\');',
+                ]],
+            ]);
+    }
 }
