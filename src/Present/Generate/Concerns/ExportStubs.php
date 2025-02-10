@@ -31,9 +31,9 @@ trait ExportStubs
         $up = [];
         $down = [];
 
-        foreach ($migration->columns->removed as $column) {
+        foreach ($migration->columns->removed as [$column, $from]) {
             $up[] = "\$table->dropColumn({$this->writeObject($column)});";
-            $down[] = $this->writeColumn($migration->before->columns[$column]);
+            $down[] = $this->writeColumn($from);
         }
 
         foreach ($migration->columns->renamed as $from => $to) {
@@ -46,27 +46,21 @@ trait ExportStubs
             $down[] = "\$table->dropColumn({$this->writeObject($name)});";
         }
 
-        foreach ($migration->columns->changed as $name => $column) {
+        foreach ($migration->columns->changed as $name => [$from, $column]) {
             $up[] = $this->writeColumn($column, true);
-            if ($migration->before) {
-                $down[] = $this->writeColumn($migration->before->columns[$name], true);
-            }
+            $down[] = $this->writeColumn($from, true);
         }
 
         // Index
 
-        foreach ($migration->indexes->removed as $index) {
+        foreach ($migration->indexes->removed as [$index, $from]) {
             $up[] = "\$table->dropIndex({$this->writeObject($index)});";
-            if ($migration->before) {
-                $down[] = $this->writeCommand($migration->before->indexes[$index]);
-            }
+            $down[] = $this->writeCommand($from);
         }
 
         foreach ($migration->indexes->renamed as $from => $to) {
             $up[] = "\$table->renameIndex({$this->writeObject($from)}, {$this->writeObject($to)});";
-            if ($migration->before) {
-                $down[] = "\$table->renameIndex({$this->writeObject($to)}, {$this->writeObject($from)});";
-            }
+            $down[] = "\$table->renameIndex({$this->writeObject($to)}, {$this->writeObject($from)});";
         }
 
         foreach ($migration->indexes->added as $name => $index) {

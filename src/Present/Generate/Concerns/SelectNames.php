@@ -38,6 +38,11 @@ trait SelectNames
         return "modify_{$table}_table";
     }
 
+    public function nameOfRenameColumns(string $table): string
+    {
+        return "rename_columns_in_{$table}_table";
+    }
+
     public function nameOfDropTable(string $table): string
     {
         return "drop_{$table}_table";

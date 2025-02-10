@@ -4,10 +4,12 @@ namespace Rapid\Laplus\Present\Generate\Concerns;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Fluent;
+use Rapid\Laplus\Present\Generate\Structure\ColumnListState;
 use Rapid\Laplus\Present\Generate\Structure\DatabaseState;
 use Rapid\Laplus\Present\Generate\Structure\IndexListState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationListState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationState;
+use Rapid\Laplus\Present\Generate\Structure\NameSuggestion;
 use Rapid\Laplus\Present\Generate\Structure\TableState;
 
 trait MigrationGenerates
@@ -132,7 +134,6 @@ trait MigrationGenerates
             fileName: '',
             table: $tableName,
             command: MigrationState::COMMAND_TABLE,
-            before: $this->currentState->get($tableName),
         );
 
         $exists = (bool)$this->currentState->get($tableName);
@@ -142,7 +143,10 @@ trait MigrationGenerates
         }
 
         // Check new columns
-        $this->generateNewColumns($table, $migration);
+        $separatedRenames = $this->generateRenamesIfRequiredToSeparate($table, $migration);
+
+        // Check new columns
+        $this->generateNewColumns($table, $migration, $separatedRenames);
 
         // Check new commands
         $this->generateNewCommands($table, $migration);
@@ -157,7 +161,48 @@ trait MigrationGenerates
         $this->newMigrations->add($migration);
     }
 
-    protected function generateNewColumns(TableState $table, MigrationState $migration): void
+    protected function generateRenamesIfRequiredToSeparate(TableState $table, MigrationState $migration): bool
+    {
+        $shouldSeparateRenamed = false;
+
+        foreach ($table->columns as $columnName => $column) {
+            // Find old name
+            $oldName = $this->findColumnOldName($migration->table, $column);
+
+            if (isset($oldName) && $this->findColumnChanges($column, $this->currentState->get($migration->table)->columns[$oldName])) {
+                $shouldSeparateRenamed = true;
+                break;
+            }
+        }
+
+        if (!$shouldSeparateRenamed) {
+            return false;
+        }
+
+        $renameMigration = new MigrationState(
+            fileName: $this->nameOfRenameColumns($migration->table),
+            table: $migration->table,
+            command: MigrationState::COMMAND_TABLE,
+        );
+
+        foreach ($table->columns as $columnName => $column) {
+            // Find old name
+            $oldName = $this->findColumnOldName($migration->table, $column);
+            $hasOldName = isset($oldName);
+
+            // Rename column
+            if ($hasOldName) {
+                $this->generateRenameColumn($renameMigration, $oldName, $columnName);
+            }
+
+            @$this->marked[$migration->table]['columns'][$oldName] = true;
+        }
+
+        $this->newMigrations->add($renameMigration);
+        return true;
+    }
+
+    protected function generateNewColumns(TableState $table, MigrationState $migration, bool $separatedRenames): void
     {
         foreach ($table->columns as $columnName => $column) {
             // Find old name
@@ -167,14 +212,14 @@ trait MigrationGenerates
             unset($column->oldNames);
 
             // Rename column
-            if ($hasOldName) {
+            if (!$separatedRenames && $hasOldName) {
                 $this->generateRenameColumn($migration, $oldName, $columnName);
-            }
+            } // Exists column -> Changed or nothing
+            elseif (isset($this->currentState->get($migration->table)?->columns[$oldName])) {
+                $oldColumn = $this->currentState->get($migration->table)?->columns[$oldName];
 
-            // Exists column -> Changed or nothing
-            if (isset($this->currentState->get($migration->table)?->columns[$oldName])) {
-                if ($changes = $this->findColumnChanges($column, $this->currentState->get($migration->table)->columns[$oldName])) {
-                    $this->generateChangeColumn($migration, $column, $changes);
+                if ($changes = $this->findColumnChanges($column, $oldColumn)) {
+                    $this->generateChangeColumn($migration, $column, $oldColumn, $changes);
                 }
             } // New column
             elseif (!$hasOldName) {
@@ -188,17 +233,20 @@ trait MigrationGenerates
     protected function generateRenameColumn(MigrationState $migration, string $old, string $new): void
     {
         $migration->columns->renamed($old, $new);
-        $migration->suggestName($new, $this->nameOfRenameColumn($old, $new, $migration->table));
+        $migration->suggestion->addRename($new, $this->nameOfRenameColumn($old, $new, $migration->table));
 
         $this->currentState->get($migration->table)->renameColumn($old, $new);
         $this->marked[$migration->table]['columns'][$old] = true;
         $this->marked[$migration->table]['columns'][$new] = true;
     }
 
-    protected function generateChangeColumn(MigrationState $migration, Fluent $column, array $changes): void
+    protected function generateChangeColumn(MigrationState $migration, Fluent $column, Fluent $oldColumn, array $changes): void
     {
-        $migration->columns->changed($column->name, $column);
-        $migration->suggestName($column->name, $this->nameOfModifyColumn($column->name, $changes, $migration->table), false);
+        $migration->columns->changed($column->name, $oldColumn, $column);
+
+        if (!$migration->suggestion->has($column->name)) {
+            $migration->suggestion->addChange($column->name, $this->nameOfModifyColumn($column->name, $changes, $migration->table));
+        }
 
         $this->currentState->get($migration->table)->putColumn($column->name, $column);
     }
@@ -206,7 +254,7 @@ trait MigrationGenerates
     protected function generateAddColumn(MigrationState $migration, Fluent $column): void
     {
         $migration->columns->added($column->name, $column);
-        $migration->suggestName($column->name, $this->nameOfAddColumn($column->name, $migration->table));
+        $migration->suggestion->addAdd($column->name, $this->nameOfAddColumn($column->name, $migration->table));
 
         $this->currentState->get($migration->table)->putColumn($column->name, $column);
     }
@@ -216,8 +264,10 @@ trait MigrationGenerates
         foreach ($table->indexes as $index => $command) {
             // Exists index -> Changed or nothing
             if (isset($this->currentState->get($migration->table)->indexes[$index])) {
-                if ($changes = $this->findColumnChanges($command, $this->currentState->get($migration->table)->indexes[$index])) {
-                    $this->generateChangeIndex($migration, $index, $command, $changes);
+                $oldCommand = $this->currentState->get($migration->table)->indexes[$index];
+
+                if ($changes = $this->findColumnChanges($command, $oldCommand)) {
+                    $this->generateChangeIndex($migration, $index, $command, $oldCommand, $changes);
                 }
             } // New index
             else {
@@ -228,9 +278,9 @@ trait MigrationGenerates
         }
     }
 
-    protected function generateChangeIndex(MigrationState $migration, string $index, Fluent $command, array $changes): void
+    protected function generateChangeIndex(MigrationState $migration, string $index, Fluent $command, Fluent $oldCommand, array $changes): void
     {
-        $migration->indexes->changed($index, $command);
+        $migration->indexes->changed($index, $oldCommand, $command);
 
         if ($on = $command->get('on')) {
             $migration->indexes->depended = true;
@@ -257,12 +307,12 @@ trait MigrationGenerates
             $removedIndexes = [];
             foreach ($table->columns as $columnName => $column) {
                 if (!isset($this->marked[$name]['columns'][$columnName])) {
-                    $removedColumns[] = $columnName;
+                    $removedColumns[] = [$columnName, $column];
                 }
             }
             foreach ($table->indexes as $indexName => $index) {
                 if (!isset($this->marked[$name]['indexes'][$indexName])) {
-                    $removedIndexes[] = $indexName;
+                    $removedIndexes[] = [$indexName, $index];
                 }
             }
 
@@ -285,7 +335,7 @@ trait MigrationGenerates
                         array_push($migration->indexes->removed, ...$removedIndexes);
 
                         if (count($removedColumns) == 1) {
-                            $migration->suggestName($removedColumns[0], $this->nameOfRemoveColumn($removedColumns[0], $migration->table));
+                            $migration->suggestion->addRemove($removedColumns[0][0], $this->nameOfRemoveColumn($removedColumns[0][0], $migration->table));
                         }
 
                         break;
@@ -396,10 +446,10 @@ trait MigrationGenerates
                     }
 
                     $prepares[$table]->columns->renamed($column, $trashedColumn);
-                    $prepares[$table]->suggestName($column, $this->nameOfSoftRemoveColumn($column, $table));
+                    $prepares[$table]->suggestion->addSoftRemove($column, $this->nameOfSoftRemoveColumn($column, $table));
 
                     $softRemoved[] = "$table.$column";
-                    unset($this->currentState->get($table)->columns[$column]);
+                    $this->currentState->get($table)->renameColumn($column, $trashedColumn);
                 }
 
                 foreach ($this->getTravelColumns((array)$travel->whenAdded, reset($tables)) as [$table, $column]) {
@@ -425,10 +475,10 @@ trait MigrationGenerates
                     $columnFluent = collect($newState->getColumns())->firstWhere('name', $column);
 
                     $prepares[$table]->columns->added($column, $columnFluent);
-                    $prepares[$table]->suggestName($column, $this->nameOfAddColumn($column, $table));
+                    $prepares[$table]->suggestion->addAdd($column, $this->nameOfAddColumn($column, $table));
 
                     $added[] = "$table.$column";
-                    $this->currentState->get($table)->columns[$column] = $columnFluent;
+                    $this->currentState->get($table)->putColumn($column, $columnFluent);
                 }
 
                 foreach ($this->getTravelRenameColumns((array)$travel->whenRenamed, reset($tables)) as [$table, $from, $to]) {
@@ -456,12 +506,11 @@ trait MigrationGenerates
                     }
 
                     $prepares[$table]->columns->renamed($from, $to);
-                    $prepares[$table]->suggestName($from, $this->nameOfRenameColumn($from, $to, $table));
+                    $prepares[$table]->suggestion->addRename($from, $this->nameOfRenameColumn($from, $to, $table));
 
                     $renamed[] = "$table.$from.$to";
 
-                    unset($this->currentState->get($table)->columns[$from]);
-                    $this->currentState->get($table)->columns[$to] = collect($newState->getColumns())->firstWhere('name', $to);
+                    $this->currentState->get($table)->renameColumn($from, $to);
                 }
 
                 foreach ($prepares as $prepare) {

@@ -10,9 +10,9 @@ class ColumnListState
     public function __construct(
         /** @var Fluent[] */
         public array $added = [],
-        /** @var Fluent[] */
+        /** @var Fluent[][] */
         public array $changed = [],
-        /** @var string[] */
+        /** @var (string|Fluent)[][] */
         public array $removed = [],
         /** @var string[] */
         public array $renamed = [],
@@ -25,14 +25,14 @@ class ColumnListState
         $this->renamed[$from] = $to;
     }
 
-    public function changed(string $from, Fluent $to): void
+    public function changed(string $column, Fluent $from, Fluent $to): void
     {
-        $this->changed[$from] = $to;
+        $this->changed[$column] = [$from, $to];
     }
 
-    public function removed(string $name): void
+    public function removed(string $name, Fluent $column): void
     {
-        $this->removed[] = $name;
+        $this->removed[] = [$name, $column];
     }
 
     public function added(string $name, Fluent $column): void

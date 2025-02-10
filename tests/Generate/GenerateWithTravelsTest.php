@@ -54,7 +54,7 @@ class GenerateWithTravelsTest extends TestCase
                 public bool $anywayFinally = true;
             })
             ->export()
-            ->assertFileNames(['foo_travel', 'add_likes_to_blogs_table'])
+            ->assertFileNames(['add_likes_to_blogs_table', 'foo_travel'])
             ->assertModifyTable('blogs')
             ->assertFiles([
                 ['up.table' => [
@@ -127,13 +127,49 @@ class GenerateWithTravelsTest extends TestCase
             ->assertCreateTable('users')
             ->assertFiles([
                 ['up.table' => [
-                    '$table->bigInteger(\'likes\')->unsigned();',
+                    '$table->renameColumn(\'likes\', \'likes_trashed\');',
                 ]],
                 ['up' => [
                     sprintf('\%s::dispatchUp(\'foo_travel\');', TravelDispatcher::class),
                 ]],
                 ['up.table' => [
-                    '$table->text(\'content\');',
+                    '$table->dropColumn(\'likes_trashed\');',
+                ]],
+                ['up.table' => [
+                    '$table->string(\'name\')->length(255);',
+                ]],
+            ]);
+    }
+
+    public function test_travel_when_renamed_column()
+    {
+        MigrationGenerator::test()
+            ->previousTable('blogs', function (Blueprint $table) {
+                $table->string('title');
+            })
+            ->newModel('blogs', function (Present $present) {
+                $present->integer('bar')->old('title');
+            })
+            ->newModel('users', function (Present $present) {
+                $present->string('name');
+            })
+            ->withTravel('foo_travel', new class extends AnonymousTestingTravel {
+                public string|array $on = 'blogs';
+                public array $whenRenamed = ['title' => 'bar'];
+            })
+            ->export()
+            ->assertFileNames(['rename_title_to_bar_in_blogs_table', 'foo_travel', 'change_bar_type_in_blogs_table', 'create_users_table'])
+            ->assertModifyTable('blogs')
+            ->assertCreateTable('users')
+            ->assertFiles([
+                ['up.table' => [
+                    '$table->renameColumn(\'title\', \'bar\');',
+                ]],
+                ['up' => [
+                    sprintf('\%s::dispatchUp(\'foo_travel\');', TravelDispatcher::class),
+                ]],
+                ['up.table' => [
+                    '$table->integer(\'bar\')->change();',
                 ]],
                 ['up.table' => [
                     '$table->string(\'name\')->length(255);',

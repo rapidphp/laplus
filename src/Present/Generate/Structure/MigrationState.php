@@ -4,19 +4,20 @@ namespace Rapid\Laplus\Present\Generate\Structure;
 
 class MigrationState
 {
-    protected ?array $suggests = [];
+    public NameSuggestion $suggestion;
+    protected bool $forcedName = false;
 
     public function __construct(
         public string          $fileName,
         public string          $table,
         public string          $command,
-        public ?TableState     $before = null,
         public ColumnListState $columns = new ColumnListState(),
         public IndexListState  $indexes = new IndexListState(),
         public bool            $isLazy = false,
         public ?string         $travel = null,
     )
     {
+        $this->suggestion = new NameSuggestion();
     }
 
     public const COMMAND_TABLE = 'table';
@@ -30,24 +31,16 @@ class MigrationState
             $this->indexes->isEmpty();
     }
 
-    public function suggestName(string $id, string $name, bool $override = true): void
-    {
-        if (is_null($this->suggests) || (!$override && array_key_exists($id, $this->suggests)))
-            return;
-
-        $this->suggests[$id] = $name;
-    }
-
     public function forceName(string $name): void
     {
         $this->fileName = $name;
-        $this->suggests = null;
+        $this->forcedName = true;
     }
 
     public function getBestFileName(): string
     {
-        if (is_array($this->suggests) && count($this->suggests) == 1) {
-            return head($this->suggests);
+        if (!$this->forcedName && !is_null($suggest = $this->suggestion->get())) {
+            return $suggest;
         }
 
         return $this->fileName;

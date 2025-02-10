@@ -28,6 +28,7 @@ trait Finds
                 case 'change':
                 case 'after':
                 case 'first':
+                case 'name':
                     continue 2;
 
                 default:

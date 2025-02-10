@@ -23,7 +23,7 @@ class GenerateChangesTest extends TestCase
                 ['up.table' => [
                     '$table->string(\'title\')->length(255);',
                     '$table->bigInteger(\'likes\')->unsigned();',
-                ]]
+                ]],
             ]);
     }
 
@@ -67,7 +67,7 @@ class GenerateChangesTest extends TestCase
             ->assertFiles([
                 ['up.table' => [
                     '$table->bigInteger(\'likes\')->unsigned();',
-                ]]
+                ]],
             ]);
     }
 
@@ -87,7 +87,7 @@ class GenerateChangesTest extends TestCase
             ->assertFiles([
                 ['up.table' => [
                     '$table->dropColumn(\'likes\');',
-                ]]
+                ]],
             ]);
     }
 
@@ -106,7 +106,7 @@ class GenerateChangesTest extends TestCase
             ->assertFiles([
                 ['up.table' => [
                     '$table->bigInteger(\'likes\')->unsigned()->change();',
-                ]]
+                ]],
             ]);
     }
 
@@ -125,7 +125,59 @@ class GenerateChangesTest extends TestCase
             ->assertFiles([
                 ['up.table' => [
                     '$table->renameColumn(\'name\', \'title\');',
-                ]]
+                ]],
+            ]);
+    }
+
+    public function test_change_and_rename_column_in_tables()
+    {
+        MigrationGenerator::test()
+            ->previousTable('blogs', function (Blueprint $table) {
+                $table->string('dollar');
+            })
+            ->newModel('blogs', function (Present $present) {
+                $present->integer('balance')->old('dollar');
+            })
+            ->export()
+            ->assertFileNames(['rename_dollar_to_balance_in_blogs_table', 'change_balance_type_in_blogs_table'])
+            ->assertModifyTable('blogs')
+            ->assertFiles([
+                ['up.table' => [
+                    '$table->renameColumn(\'dollar\', \'balance\');',
+                ]],
+                ['up.table' => [
+                    '$table->integer(\'balance\')->change();',
+                ]],
+            ]);
+    }
+
+    public function test_multiple_changes_in_tables()
+    {
+        MigrationGenerator::test()
+            ->previousTable('blogs', function (Blueprint $table) {
+                $table->string('title');
+                $table->string('dollar');
+                $table->string('rial');
+            })
+            ->newModel('blogs', function (Present $present) {
+                $present->integer('balance')->old('dollar');
+                $present->integer('balance2')->old('rial');
+                $present->string('content');
+            })
+            ->export()
+            ->assertFileNames(['rename_columns_in_blogs_table', 'modify_blogs_table'])
+            ->assertModifyTable('blogs')
+            ->assertFiles([
+                ['up.table' => [
+                    '$table->renameColumn(\'dollar\', \'balance\');',
+                    '$table->renameColumn(\'rial\', \'balance2\');',
+                ]],
+                ['up.table' => [
+                    '$table->dropColumn(\'title\');',
+                    '$table->string(\'content\')->length(255);',
+                    '$table->integer(\'balance\')->change();',
+                    '$table->integer(\'balance2\')->change();',
+                ]],
             ]);
     }
 }
