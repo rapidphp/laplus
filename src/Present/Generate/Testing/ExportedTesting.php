@@ -108,6 +108,13 @@ class ExportedTesting
 
                 Assert::assertSame($expected['up.table'], array_map('trim', array_slice($file->up, 1, -1)), "Migration up command on `$key` is not correct.");
             }
+
+            if (isset($expected['down.table'])) {
+                Assert::assertStringStartsWith("Schema::table(", $file->down[0] ?? '');
+                Assert::assertSame("});", end($file->down) ?: '');
+
+                Assert::assertSame($expected['down.table'], array_map('trim', array_slice($file->down, 1, -1)), "Migration down command on `$key` is not correct.");
+            }
         }
 
         return $this;

@@ -33,7 +33,10 @@ class TableState
 
     public function renameColumn(string $from, string $to): void
     {
-        $this->columns[$to] = $this->columns[$from];
+        $previous = clone $this->columns[$from];
+        $previous['name'] = $to;
+        $this->columns[$to] = $previous;
+
         $this->dropColumn($from);
     }
 

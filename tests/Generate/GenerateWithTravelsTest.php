@@ -134,6 +134,8 @@ class GenerateWithTravelsTest extends TestCase
                 ]],
                 ['up.table' => [
                     '$table->dropColumn(\'likes_trashed\');',
+                ], 'down.table' => [
+                    '$table->bigInteger(\'likes_trashed\')->unsigned();',
                 ]],
                 ['up.table' => [
                     '$table->string(\'name\')->length(255);',
