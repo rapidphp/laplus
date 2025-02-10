@@ -2,11 +2,8 @@
 
 namespace Rapid\Laplus\Present\Generate\Concerns;
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\ColumnDefinition;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Fluent;
-use Rapid\Laplus\Present\Generate\Structure\ColumnListState;
 use Rapid\Laplus\Present\Generate\Structure\DatabaseState;
 use Rapid\Laplus\Present\Generate\Structure\IndexListState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationListState;
@@ -53,18 +50,30 @@ trait MigrationGenerates
     protected array $marked;
 
     /**
+     * The generator has been already generated
+     *
+     * @var bool
+     */
+    protected bool $alreadyGenerated = false;
+
+    /**
      * Generate migration structures
      *
      * @return MigrationListState
      */
     public function generate(): MigrationListState
     {
+        if ($this->alreadyGenerated) {
+            throw new \RuntimeException('Migrations already generated.');
+        }
+
+        $this->alreadyGenerated = true;
+
         // Initialize variables
         $this->previousState = $this->resolvedState ?? new DatabaseState();
         $this->currentState = clone $this->previousState;
         $this->newMigrations = new MigrationListState();
         $this->marked = [];
-
         $this->defineOutlook();
 
         // Add travels
@@ -146,7 +155,6 @@ trait MigrationGenerates
         }
 
         $this->newMigrations->add($migration);
-        $this->currentState->put($tableName, $table);
     }
 
     protected function generateNewColumns(TableState $table, MigrationState $migration): void
@@ -161,19 +169,16 @@ trait MigrationGenerates
             // Rename column
             if ($hasOldName) {
                 $this->generateRenameColumn($migration, $oldName, $columnName);
-                $this->currentState->get($migration->table)->renameColumn($oldName, $columnName);
             }
 
             // Exists column -> Changed or nothing
             if (isset($this->currentState->get($migration->table)?->columns[$oldName])) {
                 if ($changes = $this->findColumnChanges($column, $this->currentState->get($migration->table)->columns[$oldName])) {
                     $this->generateChangeColumn($migration, $column, $changes);
-                    $this->currentState->get($migration->table)->putColumn($oldName, $column);
                 }
             } // New column
             elseif (!$hasOldName) {
                 $this->generateAddColumn($migration, $column);
-                $this->currentState->get($migration->table)->putColumn($oldName, $column);
             }
 
             @$this->marked[$migration->table]['columns'][$oldName] = true;
@@ -186,6 +191,8 @@ trait MigrationGenerates
         $migration->suggestName($new, $this->nameOfRenameColumn($old, $new, $migration->table));
 
         $this->currentState->get($migration->table)->renameColumn($old, $new);
+        $this->marked[$migration->table]['columns'][$old] = true;
+        $this->marked[$migration->table]['columns'][$new] = true;
     }
 
     protected function generateChangeColumn(MigrationState $migration, Fluent $column, array $changes): void
@@ -260,7 +267,7 @@ trait MigrationGenerates
             }
 
             // Table is not exists -> Drop table
-            if (!$this->previousState->get($name)) {
+            if (!$this->outlookState->get($name)) {
                 if ($this->includeDropTables && !in_array($name, ['password_reset_tokens', 'sessions', 'cache', 'cache_locks', 'jobs', 'job_batches', 'failed_jobs'])) {
                     $this->newMigrations->add(
                         new MigrationState(

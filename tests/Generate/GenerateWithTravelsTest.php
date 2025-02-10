@@ -1,0 +1,143 @@
+<?php
+
+namespace Rapid\Laplus\Tests\Generate;
+
+use Illuminate\Database\Schema\Blueprint;
+use Rapid\Laplus\Present\Generate\MigrationGenerator;
+use Rapid\Laplus\Present\Generate\Testing\AnonymousTestingTravel;
+use Rapid\Laplus\Present\Present;
+use Rapid\Laplus\Tests\TestCase;
+use Rapid\Laplus\Travel\Travel;
+use Rapid\Laplus\Travel\TravelDispatcher;
+
+class GenerateWithTravelsTest extends TestCase
+{
+    public function test_travel_in_the_beginning()
+    {
+        MigrationGenerator::test()
+            ->previousTable('blogs', function (Blueprint $table) {
+                $table->string('title');
+            })
+            ->newModel('blogs', function (Present $present) {
+                $present->string('title');
+                $present->unsignedBigInteger('likes');
+            })
+            ->withTravel('foo_travel', new class extends AnonymousTestingTravel {
+                public string|array $on = 'blogs';
+                public bool $anywayBefore = true;
+            })
+            ->export()
+            ->assertFileNames(['foo_travel', 'add_likes_to_blogs_table'])
+            ->assertModifyTable('blogs')
+            ->assertFiles([
+                ['up' => [
+                    sprintf('\%s::dispatchUp(\'foo_travel\');', TravelDispatcher::class),
+                ]],
+                ['up.table' => [
+                    '$table->bigInteger(\'likes\')->unsigned();',
+                ]],
+            ]);
+    }
+
+    public function test_travel_in_the_finally()
+    {
+        MigrationGenerator::test()
+            ->previousTable('blogs', function (Blueprint $table) {
+                $table->string('title');
+            })
+            ->newModel('blogs', function (Present $present) {
+                $present->string('title');
+                $present->unsignedBigInteger('likes');
+            })
+            ->withTravel('foo_travel', new class extends AnonymousTestingTravel {
+                public string|array $on = 'blogs';
+                public bool $anywayFinally = true;
+            })
+            ->export()
+            ->assertFileNames(['foo_travel', 'add_likes_to_blogs_table'])
+            ->assertModifyTable('blogs')
+            ->assertFiles([
+                ['up.table' => [
+                    '$table->bigInteger(\'likes\')->unsigned();',
+                ]],
+                ['up' => [
+                    sprintf('\%s::dispatchUp(\'foo_travel\');', TravelDispatcher::class),
+                ]],
+            ]);
+    }
+
+    public function test_travel_when_added_column()
+    {
+        MigrationGenerator::test()
+            ->previousTable('blogs', function (Blueprint $table) {
+                $table->string('title');
+            })
+            ->newModel('blogs', function (Present $present) {
+                $present->string('title');
+                $present->unsignedBigInteger('likes');
+                $present->text('content');
+            })
+            ->newModel('users', function (Present $present) {
+                $present->string('name');
+            })
+            ->withTravel('foo_travel', new class extends AnonymousTestingTravel {
+                public string|array $on = 'blogs';
+                public string|array $whenAdded = 'likes';
+            })
+            ->export()
+            ->assertFileNames(['add_likes_to_blogs_table', 'foo_travel', 'add_content_to_blogs_table', 'create_users_table'])
+            ->assertModifyTable('blogs')
+            ->assertCreateTable('users')
+            ->assertFiles([
+                ['up.table' => [
+                    '$table->bigInteger(\'likes\')->unsigned();',
+                ]],
+                ['up' => [
+                    sprintf('\%s::dispatchUp(\'foo_travel\');', TravelDispatcher::class),
+                ]],
+                ['up.table' => [
+                    '$table->text(\'content\');',
+                ]],
+                ['up.table' => [
+                    '$table->string(\'name\')->length(255);',
+                ]],
+            ]);
+    }
+
+    public function test_travel_when_removing_column()
+    {
+        MigrationGenerator::test()
+            ->previousTable('blogs', function (Blueprint $table) {
+                $table->string('title');
+                $table->unsignedBigInteger('likes');
+            })
+            ->newModel('blogs', function (Present $present) {
+                $present->string('title');
+            })
+            ->newModel('users', function (Present $present) {
+                $present->string('name');
+            })
+            ->withTravel('foo_travel', new class extends AnonymousTestingTravel {
+                public string|array $on = 'blogs';
+                public string|array $whenRemoving = 'likes';
+            })
+            ->export()
+            ->assertFileNames(['soft_remove_likes_from_blogs_table', 'foo_travel', 'remove_likes_trashed_from_blogs_table', 'create_users_table'])
+            ->assertModifyTable('blogs')
+            ->assertCreateTable('users')
+            ->assertFiles([
+                ['up.table' => [
+                    '$table->bigInteger(\'likes\')->unsigned();',
+                ]],
+                ['up' => [
+                    sprintf('\%s::dispatchUp(\'foo_travel\');', TravelDispatcher::class),
+                ]],
+                ['up.table' => [
+                    '$table->text(\'content\');',
+                ]],
+                ['up.table' => [
+                    '$table->string(\'name\')->length(255);',
+                ]],
+            ]);
+    }
+}

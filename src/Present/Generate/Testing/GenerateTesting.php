@@ -3,9 +3,11 @@
 namespace Rapid\Laplus\Present\Generate\Testing;
 
 use Closure;
+use Illuminate\Support\Facades\Schema;
 use Rapid\Laplus\Present\Generate\MigrationExporter;
 use Rapid\Laplus\Present\Generate\MigrationGenerator;
 use Rapid\Laplus\Present\Generate\SchemaTracker;
+use Rapid\Laplus\Travel\Travel;
 
 class GenerateTesting
 {
@@ -21,6 +23,13 @@ class GenerateTesting
         $this->generator->resolveTableFromMigration($callback);
 
         return $this;
+    }
+
+    public function previousTable(string $table, Closure $callback)
+    {
+        return $this->previous(function () use ($table, $callback) {
+            Schema::create($table, $callback);
+        });
     }
 
     public function new(Closure|array $callback)
@@ -43,9 +52,17 @@ class GenerateTesting
         ]);
     }
 
+    public function withTravel(string $name, Travel $travel)
+    {
+        $this->generator->discoverTravels([
+            $name => $travel,
+        ]);
+
+        return $this;
+    }
+
     public function export(): ExportedTesting
     {
-        $this->generator->generate();
         $files = $this->exporter->exportMigrationFiles([$this->generator]);
 
         return new ExportedTesting(
