@@ -4,6 +4,7 @@ namespace Rapid\Laplus\Present\Generate;
 
 use Illuminate\Database\Schema\Blueprint;
 use Rapid\Laplus\Present\Generate\Structure\DatabaseState;
+use Rapid\Laplus\Present\Generate\Testing\GenerateTesting;
 use Rapid\Laplus\Present\Present;
 
 class MigrationGenerator
@@ -59,11 +60,23 @@ class MigrationGenerator
     public function pass(array $models): void
     {
         foreach ($models as $model) {
-            /** @var Present $present */
-            $present = $model::getStaticPresentInstance();
+            if (is_string($model)) {
+                $present = $model::getStaticPresentInstance();
+            } else {
+                $present = $model->getPresent();
+            }
 
+            /** @var Present $present */
             $present->passGenerator($this);
         }
+    }
+
+    public static function test(): GenerateTesting
+    {
+        return new GenerateTesting(
+            new MigrationGenerator(),
+            new MigrationExporter(),
+        );
     }
 
 }

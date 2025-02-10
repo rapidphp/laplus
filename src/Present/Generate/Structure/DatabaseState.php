@@ -22,7 +22,7 @@ class DatabaseState
         return $this->tables[$name] ?? $default;
     }
 
-    public function put(string $name, TableState $table)
+    public function put(string $name, TableState $table): void
     {
         $this->tables[$name] = $table;
     }

@@ -37,21 +37,10 @@ trait MigrationResolves
     public function resolveTableFromMigration(Closure $callback): void
     {
         $this->resolvedState ??= new DatabaseState();
-        $defaultSchema = app()->get('db.schema');
 
-        try {
-            app()->singleton('db.schema', SchemaTracker::class);
+        $schema = SchemaTracker::track($callback, $this->resolvedState);
 
-            /** @var SchemaTracker $schema */
-            $schema = app('db.schema');
-            $schema->reset($this->resolvedState);
-
-            $callback();
-
-            $this->resolvedTravels = $schema->travels;
-        } finally {
-            app()->singleton('db.schema', fn() => $defaultSchema);
-        }
+        $this->resolvedTravels = $schema->travels;
     }
 
     /**

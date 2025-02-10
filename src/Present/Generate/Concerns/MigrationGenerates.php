@@ -11,6 +11,7 @@ use Rapid\Laplus\Present\Generate\Structure\DatabaseState;
 use Rapid\Laplus\Present\Generate\Structure\IndexListState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationListState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationState;
+use Rapid\Laplus\Present\Generate\Structure\TableState;
 
 trait MigrationGenerates
 {
@@ -29,6 +30,13 @@ trait MigrationGenerates
      * @var DatabaseState
      */
     protected DatabaseState $currentState;
+
+    /**
+     * The state that should migrate to it.
+     *
+     * @var DatabaseState
+     */
+    protected DatabaseState $outlookState;
 
     /**
      * New migrations
@@ -57,6 +65,8 @@ trait MigrationGenerates
         $this->newMigrations = new MigrationListState();
         $this->marked = [];
 
+        $this->defineOutlook();
+
         // Add travels
         $this->generateTravels();
 
@@ -75,14 +85,39 @@ trait MigrationGenerates
         return $this->newMigrations;
     }
 
-    protected function generateChanges(): void
+    protected function defineOutlook(): void
     {
+        if (isset($this->outlookState)) {
+            return;
+        }
+
+        $this->outlookState = new DatabaseState();
+
         foreach ($this->blueprints as $tableName => $blueprint) {
-            $this->generateTable($tableName, $blueprint);
+            $table = new TableState();
+
+            foreach ($blueprint->getColumns() as $column) {
+                $table->columns[$column->name] = $column;
+            }
+
+            foreach ($blueprint->getCommands() as $command) {
+                if ($command->index) {
+                    $table->indexes[$command->index] = $command;
+                }
+            }
+
+            $this->outlookState->put($tableName, $table);
         }
     }
 
-    protected function generateTable(string $tableName, Blueprint $blueprint): void
+    protected function generateChanges(): void
+    {
+        foreach ($this->outlookState->tables as $tableName => $table) {
+            $this->generateTable($tableName, $table);
+        }
+    }
+
+    protected function generateTable(string $tableName, TableState $table): void
     {
         $migration = new MigrationState(
             fileName: '',
@@ -91,28 +126,32 @@ trait MigrationGenerates
             before: $this->currentState->get($tableName),
         );
 
+        $exists = (bool)$this->currentState->get($tableName);
+
+        if (!$exists) {
+            $this->currentState->put($tableName, new TableState());
+        }
+
         // Check new columns
-        $this->generateNewColumns($blueprint, $migration);
+        $this->generateNewColumns($table, $migration);
 
         // Check new commands
-        $this->generateNewCommands($blueprint, $migration);
+        $this->generateNewCommands($table, $migration);
 
         // Choosing name
-        if (!$this->currentState->get($tableName)) {
+        if (!$exists) {
             $migration->forceName($this->nameOfCreateTable($tableName));
         } else {
             $migration->fileName = $this->nameOfModifyTable($tableName);
         }
 
-        // Add to $newState
         $this->newMigrations->add($migration);
+        $this->currentState->put($tableName, $table);
     }
 
-    protected function generateNewColumns(Blueprint $blueprint, MigrationState $migration): void
+    protected function generateNewColumns(TableState $table, MigrationState $migration): void
     {
-        foreach ($blueprint->getColumns() as $column) {
-            $columnName = $column->name;
-
+        foreach ($table->columns as $columnName => $column) {
             // Find old name
             $oldName = $this->findColumnOldName($migration->table, $column);
             $hasOldName = isset($oldName);
@@ -122,16 +161,19 @@ trait MigrationGenerates
             // Rename column
             if ($hasOldName) {
                 $this->generateRenameColumn($migration, $oldName, $columnName);
+                $this->currentState->get($migration->table)->renameColumn($oldName, $columnName);
             }
 
             // Exists column -> Changed or nothing
             if (isset($this->currentState->get($migration->table)?->columns[$oldName])) {
                 if ($changes = $this->findColumnChanges($column, $this->currentState->get($migration->table)->columns[$oldName])) {
                     $this->generateChangeColumn($migration, $column, $changes);
+                    $this->currentState->get($migration->table)->putColumn($oldName, $column);
                 }
             } // New column
             elseif (!$hasOldName) {
                 $this->generateAddColumn($migration, $column);
+                $this->currentState->get($migration->table)->putColumn($oldName, $column);
             }
 
             @$this->marked[$migration->table]['columns'][$oldName] = true;
@@ -141,66 +183,64 @@ trait MigrationGenerates
     protected function generateRenameColumn(MigrationState $migration, string $old, string $new): void
     {
         $migration->columns->renamed($old, $new);
-        $this->currentState->getOrCreate($migration->table)->columns[$new] = $this->currentState->get($migration->table)->columns[$old];
-        unset($this->currentState->get($migration->table)->columns[$old]);
-
         $migration->suggestName($new, $this->nameOfRenameColumn($old, $new, $migration->table));
+
+        $this->currentState->get($migration->table)->renameColumn($old, $new);
     }
 
     protected function generateChangeColumn(MigrationState $migration, Fluent $column, array $changes): void
     {
         $migration->columns->changed($column->name, $column);
-        $this->currentState->getOrCreate($migration->table)->columns[$column->name] = $column;
-
         $migration->suggestName($column->name, $this->nameOfModifyColumn($column->name, $changes, $migration->table), false);
+
+        $this->currentState->get($migration->table)->putColumn($column->name, $column);
     }
 
     protected function generateAddColumn(MigrationState $migration, Fluent $column): void
     {
         $migration->columns->added($column->name, $column);
-        $this->currentState->getOrCreate($migration->table)->columns[$column->name] = $column;
-
         $migration->suggestName($column->name, $this->nameOfAddColumn($column->name, $migration->table));
+
+        $this->currentState->get($migration->table)->putColumn($column->name, $column);
     }
 
-    protected function generateNewCommands(Blueprint $blueprint, MigrationState $migration): void
+    protected function generateNewCommands(TableState $table, MigrationState $migration): void
     {
-        foreach ($blueprint->getCommands() as $command) {
-            /** @var string $index */
-            if ($index = $command->get('index')) {
-                // Exists index -> Changed or nothing
-                if (isset($this->currentState->get($migration->table)->indexes[$index])) {
-                    if ($changes = $this->findColumnChanges($command, $this->currentState->get($migration->table)->indexes[$index])) {
-                        $this->generateChangeIndex($migration, $index, $command, $changes);
-                    }
-                } // New index
-                else {
-                    $this->generateNewIndex($migration, $index, $command);
+        foreach ($table->indexes as $index => $command) {
+            // Exists index -> Changed or nothing
+            if (isset($this->currentState->get($migration->table)->indexes[$index])) {
+                if ($changes = $this->findColumnChanges($command, $this->currentState->get($migration->table)->indexes[$index])) {
+                    $this->generateChangeIndex($migration, $index, $command, $changes);
                 }
-
-                @$this->marked[$migration->table]['indexes'][$index] = true;
+            } // New index
+            else {
+                $this->generateNewIndex($migration, $index, $command);
             }
+
+            @$this->marked[$migration->table]['indexes'][$index] = true;
         }
     }
 
     protected function generateChangeIndex(MigrationState $migration, string $index, Fluent $command, array $changes): void
     {
         $migration->indexes->changed($index, $command);
-        $this->currentState->getOrCreate($migration->table)->indexes[$index] = $command;
 
         if ($on = $command->get('on')) {
             $migration->indexes->depended = true;
         }
+
+        $this->currentState->get($migration->table)->putIndex($index, $command);
     }
 
     protected function generateNewIndex(MigrationState $migration, string $index, Fluent $command): void
     {
         $migration->indexes->added($index, $command);
-        $this->currentState->getOrCreate($migration->table)->indexes[$index] = $command;
 
         if ($on = $command->get('on')) {
             $migration->indexes->depended = true;
         }
+
+        $this->currentState->get($migration->table)->putIndex($index, $command);
     }
 
     protected function generateRemoves(): void
@@ -220,7 +260,7 @@ trait MigrationGenerates
             }
 
             // Table is not exists -> Drop table
-            if (!isset($this->blueprints[$name])) {
+            if (!$this->previousState->get($name)) {
                 if ($this->includeDropTables && !in_array($name, ['password_reset_tokens', 'sessions', 'cache', 'cache_locks', 'jobs', 'job_batches', 'failed_jobs'])) {
                     $this->newMigrations->add(
                         new MigrationState(
@@ -465,6 +505,12 @@ trait MigrationGenerates
         } else {
             return [$defaultTable, $column];
         }
+    }
+
+
+    public function setOutlookState(DatabaseState $state): void
+    {
+        $this->outlookState = $state;
     }
 
 }
