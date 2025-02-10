@@ -385,8 +385,8 @@ trait MigrationGenerates
 
     protected function generateTravels(): void
     {
-        $softRemoved = [];
         $added = [];
+        $changed = [];
         $renamed = [];
 
         foreach ($this->discoveredTravels as $relativePath => $travel) {
@@ -410,6 +410,15 @@ trait MigrationGenerates
                     ),
                 ]);
 
+                /** @var MigrationState[] $prepares2 */
+                $prepares2 = Arr::mapWithKeys($tables, fn($table) => [
+                    $table => new MigrationState(
+                        fileName: $this->nameOfTravelPrepare($table),
+                        table: $table,
+                        command: MigrationState::COMMAND_TABLE,
+                    ),
+                ]);
+
                 foreach ($tables as $table) {
                     if (
                         !$this->currentState->get($table) &&
@@ -420,39 +429,6 @@ trait MigrationGenerates
                 }
 
                 $prepareNullable = $this->getTravelColumns((array)$travel->prepareNullable, reset($tables));
-
-                foreach ($this->getTravelColumns((array)$travel->whenRemoving, reset($tables)) as [$table, $column]) {
-                    if (in_array("$table.$column", $softRemoved)) {
-                        continue;
-                    }
-
-                    $trashedColumn = $travel->trashed($column);
-
-                    if (
-                        !($newState = $this->outlookState->get($table)) ||
-                        !($previousState = $this->currentState->get($table))
-                    ) {
-                        throw new \Exception("Travel [$relativePath] depended on [$table] table that not exists!");
-                    }
-
-                    if (!$previousState->hasColumn($column)) {
-                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is removing, but it doesn't exists!");
-                    }
-
-                    if ($newState->hasColumn($column)) {
-                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is removing, but it's already exists!");
-                    }
-
-                    if ($newState->hasColumn($trashedColumn) || $previousState->hasColumn($trashedColumn)) {
-                        throw new \Exception("Travel [$relativePath] needs to save the removed column, but the [$trashedColumn] is reserved!");
-                    }
-
-                    $prepares[$table]->columns->renamed($column, $trashedColumn);
-                    $prepares[$table]->suggestion->addSoftRemove($column, $this->nameOfSoftRemoveColumn($column, $table));
-
-                    $softRemoved[] = "$table.$column";
-                    $this->currentState->get($table)->renameColumn($column, $trashedColumn);
-                }
 
                 foreach ($this->getTravelColumns((array)$travel->whenAdded, reset($tables)) as [$table, $column]) {
                     if (in_array("$table.$column", $added)) {
@@ -520,7 +496,51 @@ trait MigrationGenerates
                     $this->currentState->get($table)->renameColumn($from, $to);
                 }
 
+                foreach ($this->getTravelColumns((array)$travel->whenChanged, reset($tables)) as [$table, $column]) {
+                    if (in_array("$table.$column", $changed)) {
+                        continue;
+                    }
+
+                    if (
+                        !($newState = $this->outlookState->get($table)) ||
+                        !($previousState = $this->currentState->get($table))
+                    ) {
+                        throw new \Exception("Travel [$relativePath] depended on [$table] table that not exists!");
+                    }
+
+                    if (!$previousState->hasColumn($column)) {
+                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is changed, but it doesn't exists!");
+                    }
+
+                    if (!$newState->hasColumn($column)) {
+                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is changed, but it doesn't exists!");
+                    }
+
+                    $columnFluent = $newState->columns[$column];
+                    $beforeFluent = $previousState->columns[$column];
+
+                    if (in_array([$table, $column], $prepareNullable)) {
+                        $columnFluent = clone $columnFluent;
+                        $columnFluent['nullable'] = true;
+                    }
+
+                    if ($changes = $this->findColumnChanges($beforeFluent, $columnFluent)) {
+                        $prepares2[$table]->columns->changed($column, $beforeFluent, $columnFluent);
+                        $prepares2[$table]->suggestion->addChange($column, $this->nameOfModifyColumn($column, $changes, $table));
+
+                        $this->currentState->get($table)->putColumn($column, $columnFluent);
+                    }
+
+                    $changed[] = "$table.$column";
+                }
+
                 foreach ($prepares as $prepare) {
+                    if (!$prepare->isEmpty()) {
+                        $this->newMigrations->add($prepare);
+                    }
+                }
+
+                foreach ($prepares2 as $prepare) {
                     if (!$prepare->isEmpty()) {
                         $this->newMigrations->add($prepare);
                     }

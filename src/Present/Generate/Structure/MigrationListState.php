@@ -14,12 +14,7 @@ class MigrationListState
 
     public function add(MigrationState $migration): void
     {
-        $this->all[$migration->fileName] = $migration;
-    }
-
-    public function remove(string|MigrationState $fileName): void
-    {
-        unset($this->all[is_string($fileName) ? $fileName : $fileName->fileName]);
+        $this->all[] = $migration;
     }
 
     public function forgetEmpty(): void
@@ -29,6 +24,8 @@ class MigrationListState
                 unset($this->all[$index]);
             }
         }
+
+        $this->all = array_values($this->all);
     }
 
 }

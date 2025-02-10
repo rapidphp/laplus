@@ -63,11 +63,6 @@ trait SelectNames
         return "remove_{$column}_from_{$table}_table";
     }
 
-    public function nameOfSoftRemoveColumn(string $column, string $table): string
-    {
-        return "soft_remove_{$column}_from_{$table}_table";
-    }
-
     public function nameOfTravel(string $relativePath): string
     {
         return preg_replace('/^[0-9_\-]+/', '', pathinfo($relativePath, PATHINFO_FILENAME));

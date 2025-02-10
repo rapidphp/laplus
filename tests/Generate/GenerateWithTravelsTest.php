@@ -119,23 +119,19 @@ class GenerateWithTravelsTest extends TestCase
             })
             ->withTravel('foo_travel', new class extends AnonymousTestingTravel {
                 public string|array $on = 'blogs';
-                public string|array $whenRemoving = 'likes';
             })
             ->export()
-            ->assertFileNames(['soft_remove_likes_from_blogs_table', 'foo_travel', 'remove_likes_trashed_from_blogs_table', 'create_users_table'])
+            ->assertFileNames(['foo_travel', 'remove_likes_from_blogs_table', 'create_users_table'])
             ->assertModifyTable('blogs')
             ->assertCreateTable('users')
             ->assertFiles([
-                ['up.table' => [
-                    '$table->renameColumn(\'likes\', \'likes_trashed\');',
-                ]],
                 ['up' => [
                     sprintf('\%s::dispatchUp(\'foo_travel\');', TravelDispatcher::class),
                 ]],
                 ['up.table' => [
-                    '$table->dropColumn(\'likes_trashed\');',
+                    '$table->dropColumn(\'likes\');',
                 ], 'down.table' => [
-                    '$table->bigInteger(\'likes_trashed\')->unsigned();',
+                    '$table->bigInteger(\'likes\')->unsigned();',
                 ]],
                 ['up.table' => [
                     '$table->string(\'name\')->length(255);',
@@ -179,6 +175,76 @@ class GenerateWithTravelsTest extends TestCase
             ]);
     }
 
+    public function test_travel_when_changed_column()
+    {
+        MigrationGenerator::test()
+            ->previousTable('blogs', function (Blueprint $table) {
+                $table->string('title');
+            })
+            ->newModel('blogs', function (Present $present) {
+                $present->integer('title');
+            })
+            ->newModel('users', function (Present $present) {
+                $present->string('name');
+            })
+            ->withTravel('foo_travel', new class extends AnonymousTestingTravel {
+                public string|array $on = 'blogs';
+                public string|array $whenChanged = 'title';
+            })
+            ->export()
+            ->assertFileNames(['change_title_type_in_blogs_table', 'foo_travel', 'create_users_table'])
+            ->assertModifyTable('blogs')
+            ->assertCreateTable('users')
+            ->assertFiles([
+                ['up.table' => [
+                    '$table->integer(\'title\')->change();',
+                ]],
+                ['up' => [
+                    sprintf('\%s::dispatchUp(\'foo_travel\');', TravelDispatcher::class),
+                ]],
+                ['up.table' => [
+                    '$table->string(\'name\')->length(255);',
+                ]],
+            ]);
+    }
+
+    public function test_travel_when_renamed_and_changed_column()
+    {
+        MigrationGenerator::test()
+            ->previousTable('blogs', function (Blueprint $table) {
+                $table->string('title');
+            })
+            ->newModel('blogs', function (Present $present) {
+                $present->integer('foo')->old('title');
+            })
+            ->newModel('users', function (Present $present) {
+                $present->string('name');
+            })
+            ->withTravel('foo_travel', new class extends AnonymousTestingTravel {
+                public string|array $on = 'blogs';
+                public array $whenRenamed = ['title' => 'foo'];
+                public string|array $whenChanged = 'foo';
+            })
+            ->export()
+            ->assertFileNames(['rename_title_to_foo_in_blogs_table', 'change_foo_type_in_blogs_table', 'foo_travel', 'create_users_table'])
+            ->assertModifyTable('blogs')
+            ->assertCreateTable('users')
+            ->assertFiles([
+                ['up.table' => [
+                    '$table->renameColumn(\'title\', \'foo\');',
+                ]],
+                ['up.table' => [
+                    '$table->integer(\'foo\')->change();',
+                ]],
+                ['up' => [
+                    sprintf('\%s::dispatchUp(\'foo_travel\');', TravelDispatcher::class),
+                ]],
+                ['up.table' => [
+                    '$table->string(\'name\')->length(255);',
+                ]],
+            ]);
+    }
+
     public function test_travel_depended_on_multiple_tables()
     {
         MigrationGenerator::test()
@@ -199,15 +265,13 @@ class GenerateWithTravelsTest extends TestCase
             ->withTravel('foo_travel', new class extends AnonymousTestingTravel {
                 public string|array $on = ['blogs', 'users'];
                 public string|array $whenAdded = ['blogs.title', 'users.name'];
-                public string|array $whenRemoving = 'blogs.foo';
             })
             ->export()
-            ->assertFileNames(['prepare_blogs_to_travel', 'add_name_to_users_table', 'foo_travel', 'remove_foo_trashed_from_blogs_table', 'add_foo_to_users_table'])
+            ->assertFileNames(['add_title_to_blogs_table', 'add_name_to_users_table', 'foo_travel', 'remove_foo_from_blogs_table', 'add_foo_to_users_table'])
             ->assertModifyTable('blogs')
             ->assertModifyTable('users')
             ->assertFiles([
                 ['up.table' => [
-                    '$table->renameColumn(\'foo\', \'foo_trashed\');',
                     '$table->string(\'title\')->length(255);',
                 ]],
                 ['up.table' => [
@@ -217,7 +281,7 @@ class GenerateWithTravelsTest extends TestCase
                     sprintf('\%s::dispatchUp(\'foo_travel\');', TravelDispatcher::class),
                 ]],
                 ['up.table' => [
-                    '$table->dropColumn(\'foo_trashed\');',
+                    '$table->dropColumn(\'foo\');',
                 ]],
                 ['up.table' => [
                     '$table->integer(\'foo\');',

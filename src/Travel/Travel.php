@@ -6,7 +6,7 @@ abstract class Travel
 {
     public string|array $on;
     public string|array $whenAdded = [];
-    public string|array $whenRemoving = [];
+    public string|array $whenChanged = [];
     public array $whenRenamed = [];
     public bool $anywayBefore = false;
     public bool $anywayFinally = false;
@@ -27,10 +27,5 @@ abstract class Travel
                 }
             }, (array)$this->on),
         );
-    }
-
-    final public function trashed(string $column): string
-    {
-        return "{$column}_trashed";
     }
 }
