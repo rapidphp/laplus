@@ -1,4 +1,4 @@
-# Laplus
+# Laplus ➕
 Laravel plus+ add presentation for your models
 
 ```php
@@ -16,26 +16,45 @@ public function present()
 - Commands changed
 - New Dev & Deploy options
 - Removed slug and file columns
+- Supports renames and changes a column at the same time
+- Added travels
 
 
 ## Features
 
-### 1. Auto Migrations
+### 1. Migration Generating
 
-Write your presents in long time:
+Define the structure of your model: columns, indexes, data types, enums, relationships,
+or even extensibility with traits.
 
-![Write presents in long time, laplus will create your migrations](doc/how_works_1.png)
+```php
+class Blog extends Model
+{
+    use HasPresent;
+    use HasSlug; // Will extend the 'slug' column
 
-Laplus will generate your migrations:
+    public function present(Present $present)
+    {
+        $present->id();
+        $present->string('title');
+        $present->belongsTo(Category::class);
+        $present->enum('status', Status::class);
+        $present->yield();
+        $present->timestamps();
+    }
+}
+```
 
-![Laplus will create your migrations](doc/how_works_2.png)
+Don't get involved in migrations! Because Laplus has taken responsibility for all migrations,
+and it builds all migrations by reading your presentations 😎
 
 [Read more...](doc/migration.md)
 
 
 ### 2. Auto Fills
 
-You don't need to define \$fillable, \$cast and $hidden!
+No need to redefine \$fillable, \$cast and $hidden!
+Defining it in the present specifies everything. So Laplus will autofill these variables. 😉
 
 ```php
 // These values will automatically fills:
@@ -49,8 +68,11 @@ You don't need to define \$fillable, \$cast and $hidden!
 
 ### 3. IDE Friendly
 
-Laplus automatically generate the model docblock to better
-understanding codes for IDE:
+When all the columns, their types, and their relationships are known,
+why shouldn't the IDE show them to us?
+
+Laplus introduces all of this to the IDE by
+generating a neat (and out-of-model) document. 📝
 
 ```php
 /**
@@ -65,6 +87,37 @@ understanding codes for IDE:
 [Read more...](doc/guide.md)
 
 
+### 4. Travels
+
+Once a version of the project has been deployed, it is almost impossible to change the database.
+
+Travels allow you to make changes to the table records as well as change the table structure. ✈️
+
+```php
+return new class extends Travel
+{
+    public string|array $on = User::class;
+    public string|array $whenAdded = 'full_name';
+
+    public function up(): void
+    {
+        User::all()->each(function (User $user) {
+            $user->update([
+                'full_name' => $user->first_name . ' ' . $user->last_name,
+            ]);
+        });
+    }
+};
+```
+
+In the above example, we are going to remove `first_name` and `last_name` from the users table
+and replace them with `full_name`.
+
+The above class is responsible for generating the `full_name` value using the previous
+data before deleting `first_name` and `last_name`.
+
+[Read more...](doc/travel.md)
+
 
 ## Requirements
 * Php 8.2 or higher
@@ -77,7 +130,9 @@ understanding codes for IDE:
 - [Present](doc/present.md)
 - [Migration](doc/migration.md)
 - [Label](doc/label.md)
-- [Guide Generator](doc/guide.md)
+- [Guide](doc/guide.md)
+- [Dev Utils](doc/dev.md)
+- [Deploy](doc/deploy.md)
 
 
 ## Installation
@@ -86,13 +141,13 @@ understanding codes for IDE:
 composer require rapid/laplus
 ```
 
-### 2- Publish configs
+### 2- Publish configs (Optional)
 Run this command to publish configs to `config/laplus.php`
 ```shell
 php artisan vendor:publish --tag=laplus
 ```
 
-### 3- Convert default User model to presentable model (optional):
+### 3- Convert default User model to presentable model (Optional):
 + Add `HasPresent` trait:
 ```php
 class User extends Model
@@ -132,11 +187,18 @@ protected function present(Present $present)
 Find `database/migrations/0001_01_01_000000_create_users_table.php` file and move it
     into `database/migrations/auto_generated` folder (create it if doesn't exists)
 
+## Development Utils
+
+[Read more...](doc/dev.md)
+
+## Deployment
+
+[Read more...](doc/deploy.md)
 
 ## Make model & present
 You can use this command to create a model and a present:
 ```shell
-php artisan make:model+ Name
+php artisan make:model-laplus Name
 ```
 
 This command will create `app/Models/Name.php` model and `app/Presents/NamePresent.php` present.
@@ -147,7 +209,7 @@ This command will create `app/Models/Name.php` model and `app/Presents/NamePrese
 ## Make model with inline present
 You can use this command to create a model with inline present:
 ```shell
-php artisan make:model+ Name --inline
+php artisan make:model-laplus --inline Name
 ```
 
 This command will create `app/Models/Name.php` model.

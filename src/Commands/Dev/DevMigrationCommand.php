@@ -9,11 +9,20 @@ use Rapid\Laplus\Present\Generate\Generate;
 class DevMigrationCommand extends Command
 {
 
-    protected $signature = 'dev:migration {--fresh : Fresh the previous migrations}';
+    protected $signature = 'dev:migration {--fresh : Fresh the previous migrations} {--clear : Clear the previous migrations}';
     protected $description = 'Generate migration file in dev mode';
 
     public function handle()
     {
+        if ($this->option('clear')) {
+            Generate::make()
+                ->resolve(Laplus::getResources())
+                ->deleteDevMigrations();
+
+            $this->components->info('Dev migrations successfully cleared!');
+            return;
+        }
+
         Generate::make()
             ->resolve(Laplus::getResources())
             ->dev()

@@ -5,13 +5,13 @@
 composer require rapid/laplus
 ```
 
-## 2- Publish configs
+### 2- Publish configs (Optional)
 Run this command to publish configs to `config/laplus.php`
 ```shell
 php artisan vendor:publish --tag=laplus
 ```
 
-## 3- Convert default User model to presentable model (optional):
+### 3- Convert default User model to presentable model (Optional):
 + Add `HasPresent` trait:
 ```php
 class User extends Model
