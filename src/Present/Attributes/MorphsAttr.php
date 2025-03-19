@@ -4,10 +4,11 @@ namespace Rapid\Laplus\Present\Attributes;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Rapid\Laplus\Contracts\RelationAttr;
 use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Present;
 
-class MorphsAttr extends Attribute
+class MorphsAttr extends Attribute implements RelationAttr
 {
 
     protected string $type = '';

@@ -5,10 +5,11 @@ namespace Rapid\Laplus\Present\Attributes;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Rapid\Laplus\Contracts\RelationAttr;
 use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Present;
 
-class MorphOneAttr extends Attribute
+class MorphOneAttr extends Attribute implements RelationAttr
 {
 
     protected $withDefault = false;

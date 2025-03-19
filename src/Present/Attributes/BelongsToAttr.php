@@ -5,10 +5,11 @@ namespace Rapid\Laplus\Present\Attributes;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Rapid\Laplus\Contracts\RelationAttr;
 use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Present;
 
-class BelongsToAttr extends Column
+class BelongsToAttr extends Column implements RelationAttr
 {
     protected $withDefault = false;
     protected ?string $onDelete = null;

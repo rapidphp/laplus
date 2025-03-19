@@ -5,10 +5,11 @@ namespace Rapid\Laplus\Present\Attributes;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Rapid\Laplus\Contracts\RelationAttr;
 use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Present;
 
-class MorphToManyAttr extends Attribute
+class MorphToManyAttr extends Attribute implements RelationAttr
 {
 
     protected array $using = [];

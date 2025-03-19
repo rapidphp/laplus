@@ -80,7 +80,7 @@ final class LaplusKit
                         continue;
                     }
 
-                    $discovered[] = new DiscoveredRelation($model, $attribute->relationName);
+                    $discovered[] = new DiscoveredRelation($model, $attribute->relationName, $attribute);
                 }
             }
         }
@@ -101,7 +101,7 @@ final class LaplusKit
 
             foreach ($present->getAttributes() as $attribute) {
                 if ($attribute instanceof MorphsAttr) {
-                    $discovered[] = new DiscoveredRelation($model, $attribute->relation);
+                    $discovered[] = new DiscoveredRelation($model, $attribute->relation, $attribute);
                 }
             }
         }
@@ -120,10 +120,10 @@ final class LaplusKit
         $attachedIds = [];
 
         foreach (self::discoverBelongsToRelations($model) as $relation) {
-            $morphTo = (new ($relation->model))->getRelation($relation->relation);
+            $belongsTo = $relation->attribute->getRelation(new ($relation->model));
 
-            if ($morphTo instanceof BelongsTo) {
-                $key = $morphTo->getForeignKeyName();
+            if ($belongsTo instanceof BelongsTo) {
+                $key = $belongsTo->getForeignKeyName();
                 $attachedIds = array_merge(
                     $attachedIds,
                     $relation->model::query()
@@ -138,7 +138,7 @@ final class LaplusKit
         $morphClass = (new $model)->getMorphClass();
 
         foreach (self::discoverMorphsToRelations() as $relation) {
-            $morphTo = (new ($relation->model))->getRelation($relation->relation);
+            $morphTo = $relation->attribute->getRelation(new ($relation->model));
 
             if ($morphTo instanceof MorphTo) {
                 $attachedIds = array_merge(
