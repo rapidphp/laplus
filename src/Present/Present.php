@@ -278,6 +278,16 @@ abstract class Present
     }
 
     /**
+     * Get all the attributes
+     *
+     * @return Attribute[]
+     */
+    public function getAttributes(): array
+    {
+        return $this->attributes;
+    }
+
+    /**
      * Create new attribute
      *
      * @template T
