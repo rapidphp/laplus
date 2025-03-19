@@ -6,7 +6,5 @@ use Rapid\Laplus\Guide\GuideScope;
 
 interface DocblockAttributeContract
 {
-
     public function docblock(GuideScope $scope, $reflection): array;
-
 }

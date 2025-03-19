@@ -8,6 +8,8 @@ use Rapid\Laplus\Label\HasLabels;
 use Rapid\Laplus\Label\LabelTranslator;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
+use ReflectionMethod;
+use ReflectionParameter;
 
 /**
  * @internal
@@ -46,36 +48,25 @@ class ModelAuthor extends GuideAuthor
         $docblock = [];
 
         foreach ($label->extractLabelNames() as $name) {
-            $ref = new \ReflectionMethod($label, Str::camel($name));
+            $method = new ReflectionMethod($label, Str::camel($name));
 
-            $info = $scope->summary($ref->getDocComment());
+            $info = $scope->summary($method->getDocComment());
 
-            $canUseAsProperty = true;
-            $methodIn = [];
-            foreach ($ref->getParameters() as $parameter) {
-                $in = '';
+            $canUseAsProperty = !collect($method->getParameters())
+                ->contains(function (ReflectionParameter $parameter) {
+                    return !$parameter->isDefaultValueAvailable();
+                });
 
-                if ($parameter->getType()) {
-                    $in .= (string)$parameter->getType() . ' ';
-                }
-
-                $in .= '$' . $parameter->getName();
-
-                if ($parameter->isDefaultValueAvailable()) {
-                    $in .= ' = ' . Document::object($parameter->getDefaultValue());
-                } else {
-                    $canUseAsProperty = false;
-                }
-
-                $methodIn[] = $in;
+            if ($canUseAsProperty) {
+                $docblock[] = rtrim(sprintf("@property-read string \$%s_label %s", $method->name, $info));
             }
 
-            $methodIn = implode(', ', $methodIn);
-
-            if ($canUseAsProperty)
-                $docblock[] = "@property-read string \${$name}_label" . ($info ? ' ' . $info : '');
-
-            $docblock[] = "@method string {$name}_label($methodIn)" . ($info ? ' ' . $info : '');
+            $docblock[] = rtrim(sprintf(
+                "@method string %s_label(%s) %s",
+                $method->name,
+                Document::reflectionMethodArgs($scope, $method),
+                $info,
+            ));
         }
 
         return $docblock;
@@ -87,17 +78,19 @@ class ModelAuthor extends GuideAuthor
         $docblock = [];
 
         foreach ((new \ReflectionClass($this->class))->getMethods() as $method) {
-            if (preg_match('/^(get|set)([A-Z][a-zA-Z0-9_]*)Attribute$/', $method->name, $matches)) {
-                if (!in_array($matches[2], ['ClassCastable', 'EnumCastable'])) {
-                    $name = Str::snake($matches[2]);
+            if (str_starts_with($method->getDeclaringClass()->getNamespaceName(), 'Illuminate\Database\Eloquent')) {
+                continue;
+            }
 
-                    if ($matches[1] == 'get') {
-                        @$attributes[$name]['get'] = (string)($method->getReturnType() ?? 'mixed');
-                        @$attributes[$name]['summary'] = $scope->summary($method->getDocComment());
-                    } else {
-                        @$attributes[$name]['set'] = (string)(@$method->getParameters()[0]?->getType() ?? 'mixed');
-                        @$attributes[$name]['summary'] ??= $scope->summary($method->getDocComment());
-                    }
+            if (preg_match('/^(get|set)([A-Z][a-zA-Z0-9_]*)Attribute$/', $method->name, $matches)) {
+                $name = Str::snake($matches[2]);
+
+                if ($matches[1] == 'get') {
+                    @$attributes[$name]['get'] = (string)($method->getReturnType() ?? 'mixed');
+                    @$attributes[$name]['summary'] = $scope->summary($method->getDocComment());
+                } else {
+                    @$attributes[$name]['set'] = (string)(@$method->getParameters()[0]?->getType() ?? 'mixed');
+                    @$attributes[$name]['summary'] ??= $scope->summary($method->getDocComment());
                 }
             }
         }

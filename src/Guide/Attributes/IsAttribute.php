@@ -3,15 +3,20 @@
 namespace Rapid\Laplus\Guide\Attributes;
 
 use Attribute;
+use Closure;
 use Illuminate\Database\Eloquent\Casts\Attribute as LaravelAttribute;
 use Illuminate\Support\Str;
+use Laravel\SerializableClosure\Support\ReflectionClosure;
+use Rapid\Laplus\Guide\Document;
 use Rapid\Laplus\Guide\GuideScope;
+use ReflectionFunction;
 
 #[Attribute(Attribute::TARGET_METHOD)]
 class IsAttribute implements DocblockAttributeContract
 {
     public function __construct(
-        public string|array $type = 'mixed',
+        public string|array|null $getType = null,
+        public string|array|null $setType = null,
     )
     {
     }
@@ -25,18 +30,53 @@ class IsAttribute implements DocblockAttributeContract
             throw new \TypeError(sprintf("Method [%s] is not an attribute on [%s]", $reflection->name, $reflection->getDeclaringClass()->name));
         }
 
-        $accessSuffix = match (true) {
-            isset($attribute->get) && !isset($attribute->set) => '-read',
-            isset($attribute->set) && !isset($attribute->get) => '-write',
-            default                                           => null,
-        };
+        $getType = $setType = 'mixed';
 
-        $typeHint = implode('|', array_map($scope->typeHint(...), (array)$this->type));
+        if (isset($this->getType)) {
+            $getType = implode('|', array_map($scope->typeHint(...), (array)$this->getType));
+        } elseif (isset($attribute->get)) {
+            if ($returnType = (new ReflectionClosure(Closure::fromCallable($attribute->get)))->getReturnType()) {
+                $getType = Document::reflectionType($scope, $returnType);
+            }
+        }
+
+        if (isset($this->setType)) {
+            $setType = implode('|', array_map($scope->typeHint(...), (array)$this->setType));
+        } elseif (isset($attribute->get)) {
+            if ($paramType = @(new ReflectionClosure(Closure::fromCallable($attribute->set)))->getParameters()[0]?->getType()) {
+                $setType = Document::reflectionType($scope, $paramType);
+            }
+        }
+
         $summary = $scope->summary($reflection->getDocComment());
+        $summary = $summary ? ' ' . $summary : '';
 
-        return array_unique([
-            sprintf("@property%s %s \$%s", $accessSuffix, $typeHint, $reflection->name) . ($summary ? ' ' . $summary : ''),
-            sprintf("@property%s %s \$%s", $accessSuffix, $typeHint, Str::snake($reflection->name)) . ($summary ? ' ' . $summary : ''),
-        ]);
+        if (isset($attribute->set) && isset($attribute->get)) {
+            if ($getType == $setType) {
+                return array_unique([
+                    sprintf("@property %s \$%s%s", $setType, $reflection->name, $summary),
+                    sprintf("@property %s \$%s%s", $setType, Str::snake($reflection->name), $summary),
+                ]);
+            }
+
+            return array_unique([
+                sprintf("@property-read %s \$%s%s", $getType, $reflection->name, $summary),
+                sprintf("@property-read %s \$%s%s", $getType, Str::snake($reflection->name), $summary),
+                sprintf("@property-write %s \$%s%s", $setType, $reflection->name, $summary),
+                sprintf("@property-write %s \$%s%s", $setType, Str::snake($reflection->name), $summary),
+            ]);
+        }
+
+        if (isset($attribute->set)) {
+            return array_unique([
+                sprintf("@property-write %s \$%s%s", $setType, $reflection->name, $summary),
+                sprintf("@property-write %s \$%s%s", $setType, Str::snake($reflection->name), $summary),
+            ]);
+        } else {
+            return array_unique([
+                sprintf("@property-read %s \$%s%s", $getType, $reflection->name, $summary),
+                sprintf("@property-read %s \$%s%s", $getType, Str::snake($reflection->name), $summary),
+            ]);
+        }
     }
 }
