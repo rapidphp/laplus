@@ -9,6 +9,7 @@ use Illuminate\Support\Traits\Macroable;
 use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Attributes\Attribute;
 use Rapid\Laplus\Present\Attributes\Index;
+use Rapid\Laplus\Travel\Travel;
 
 abstract class Present
 {
@@ -41,6 +42,13 @@ abstract class Present
      * @var Index[]
      */
     protected array $indexes = [];
+
+    /**
+     * List of travels
+     *
+     * @var Travel[]
+     */
+    protected array $travels = [];
 
     public function __construct(
         public Model $instance,
