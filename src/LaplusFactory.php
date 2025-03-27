@@ -2,8 +2,10 @@
 
 namespace Rapid\Laplus;
 
+use Illuminate\Database\Migrations\Migrator;
 use Rapid\Laplus\Resources\FixedResource;
 use Rapid\Laplus\Resources\ModularResource;
+use Rapid\Laplus\Resources\PackageResource;
 use Rapid\Laplus\Resources\Resource;
 
 class LaplusFactory
@@ -20,7 +22,7 @@ class LaplusFactory
      * @param Resource[] $resources
      * @return void
      */
-    public function mergeResources(array $resources)
+    public function mergeResources(array $resources): void
     {
         foreach ($resources as $name => $resource) {
             $this->addResource($name, $resource);
@@ -34,9 +36,34 @@ class LaplusFactory
      * @param Resource $resource
      * @return void
      */
-    public function addResource(string $name, Resource $resource)
+    public function addResource(string $name, Resource $resource): void
     {
         $this->resources[$name] = $resource;
+    }
+
+    /**
+     * Register a package resource
+     *
+     * @param PackageResource $resource
+     * @return void
+     */
+    public function registerPackageResource(PackageResource $resource): void
+    {
+        $this->addResource('vendor/' . $resource->packageName, $resource);
+
+        $callback = function (Migrator $migrator) use ($resource) {
+            foreach ($resource->resolve() as $res) {
+                $migrator->path($res->migrationsPath);
+                $migrator->path($res->devPath);
+            }
+        };
+
+        $app = app();
+        $app->afterResolving('migrator', $callback);
+
+        if ($app->resolved('migrator')) {
+            $callback($app->make('migrator'));
+        }
     }
 
     /**

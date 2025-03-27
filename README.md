@@ -133,6 +133,7 @@ data before deleting `first_name` and `last_name`.
 - [Guide](doc/guide.md)
 - [Dev Utils](doc/dev.md)
 - [Deploy](doc/deploy.md)
+- [Package Development](doc/package-development.md)
 
 
 ## Installation

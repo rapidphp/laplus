@@ -76,4 +76,16 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Packages Settings
+    |--------------------------------------------------------------------------
+    |
+    | Settings for vendor packages that contains models
+    |
+    */
+    'vendor' => [
+        'migrations' => base_path('database/migrations/vendor'),
+    ],
+
 ];
