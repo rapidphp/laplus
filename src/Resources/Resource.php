@@ -21,4 +21,24 @@ abstract readonly class Resource
      */
     abstract public function resolve(): array;
 
+    /**
+     * Determines the resource should be generated
+     *
+     * @return bool
+     */
+    public function shouldGenerate(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Determines the resource should add the git ignore file for dev generated files
+     *
+     * @return bool
+     */
+    public function shouldAddGitIgnoreForDev(): bool
+    {
+        return true;
+    }
+
 }

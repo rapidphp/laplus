@@ -37,7 +37,7 @@ readonly class ModularResource extends Resource
                 $all[] = new ResourceObject(
                     modelsPath: "{$module}/{$this->models}",
                     migrationsPath: "{$module}/{$this->migrations}",
-                    devPath: "{$module}/{$this->devMigrations}",
+                    devMigrationsPath: "{$module}/{$this->devMigrations}",
                     travelsPath: "{$module}/{$this->travels}",
                 );
             }

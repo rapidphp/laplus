@@ -6,17 +6,35 @@ readonly class PackageResource extends FixedResource
 {
     public function __construct(
         public string $packageName,
-        string $models,
-        string $travelsPath,
+        string        $models,
+        string        $migrations,
+        string        $devMigrations,
+        string        $travelsPath,
     )
     {
-        $basePath = config('laplus.vendor.migrations') ?? database_path('migrations/vendor');
+        parent::__construct($models, $migrations, $devMigrations, $travelsPath);
+    }
 
-        parent::__construct(
-            models: $models,
-            migrations: "$basePath/$packageName",
-            devPath: "$basePath/$packageName/dev_generated",
-            travelsPath: $travelsPath,
-        );
+    public function shouldGenerate(): bool
+    {
+        $path = str_replace('\\', '/', $this->migrations);
+
+        if (str_contains($path, '/vendor/')) {
+            $exploded = explode('/vendor/', $path);
+            $path = array_shift($exploded);
+
+            do {
+                if (file_exists("$path/composer.json")) {
+                    return false;
+                }
+            } while ($exploded && $path .= '/vendor/' . array_shift($exploded));
+        }
+
+        return parent::shouldGenerate();
+    }
+
+    public function shouldAddGitIgnoreForDev(): bool
+    {
+        return false;
     }
 }

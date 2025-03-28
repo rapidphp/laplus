@@ -17,7 +17,7 @@ class ResourcesTest extends TestCase
         $this->assertCount(1, $resolved);
         $this->assertSame('Foo', $resolved[0]->modelsPath);
         $this->assertSame('Bar', $resolved[0]->migrationsPath);
-        $this->assertSame('Dev', $resolved[0]->devPath);
+        $this->assertSame('Dev', $resolved[0]->devMigrationsPath);
         $this->assertSame('Travels', $resolved[0]->travelsPath);
     }
 
@@ -29,11 +29,11 @@ class ResourcesTest extends TestCase
         $this->assertCount(2, $resolved);
         $this->assertSame(__DIR__ . '/Modules/Bar/Models', $resolved[0]->modelsPath);
         $this->assertSame(__DIR__ . '/Modules/Bar/Migrations', $resolved[0]->migrationsPath);
-        $this->assertSame(__DIR__ . '/Modules/Bar/Dev', $resolved[0]->devPath);
+        $this->assertSame(__DIR__ . '/Modules/Bar/Dev', $resolved[0]->devMigrationsPath);
         $this->assertSame(__DIR__ . '/Modules/Bar/Travels', $resolved[0]->travelsPath);
         $this->assertSame(__DIR__ . '/Modules/Foo/Models', $resolved[1]->modelsPath);
         $this->assertSame(__DIR__ . '/Modules/Foo/Migrations', $resolved[1]->migrationsPath);
-        $this->assertSame(__DIR__ . '/Modules/Foo/Dev', $resolved[1]->devPath);
+        $this->assertSame(__DIR__ . '/Modules/Foo/Dev', $resolved[1]->devMigrationsPath);
         $this->assertSame(__DIR__ . '/Modules/Foo/Travels', $resolved[1]->travelsPath);
     }
 

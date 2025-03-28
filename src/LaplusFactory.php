@@ -2,10 +2,12 @@
 
 namespace Rapid\Laplus;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Migrations\Migrator;
+use Rapid\Laplus\Resources\PackageResource;
 use Rapid\Laplus\Resources\FixedResource;
 use Rapid\Laplus\Resources\ModularResource;
-use Rapid\Laplus\Resources\PackageResource;
+use Rapid\Laplus\Resources\SharedPackageResource;
 use Rapid\Laplus\Resources\Resource;
 
 class LaplusFactory
@@ -44,17 +46,19 @@ class LaplusFactory
     /**
      * Register a package resource
      *
-     * @param PackageResource $resource
+     * @param SharedPackageResource|PackageResource $resource
      * @return void
      */
-    public function registerPackageResource(PackageResource $resource): void
+    public function registerPackageResource(SharedPackageResource|PackageResource $resource): void
     {
         $this->addResource('vendor/' . $resource->packageName, $resource);
 
         $callback = function (Migrator $migrator) use ($resource) {
             foreach ($resource->resolve() as $res) {
                 $migrator->path($res->migrationsPath);
-                $migrator->path($res->devPath);
+                if ($resource instanceof SharedPackageResource) {
+                    $migrator->path($res->devMigrationsPath);
+                }
             }
         };
 

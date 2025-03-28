@@ -52,7 +52,7 @@ class LaplusServiceProvider extends ServiceProvider
                 if (@$config['merge_to_config']) {
                     foreach (Laplus::getResource($name)->resolve() as $resource) {
                         $migrator->path($resource->migrationsPath);
-                        $migrator->path($resource->devPath);
+                        $migrator->path($resource->devMigrationsPath);
                     }
                 }
             }

@@ -14,7 +14,7 @@ final readonly class ResourceObject
     public function __construct(
         public string $modelsPath,
         public string $migrationsPath,
-        public string $devPath,
+        public string $devMigrationsPath,
         public string $travelsPath,
     )
     {
@@ -41,7 +41,7 @@ final readonly class ResourceObject
         if ($dev) {
             $migrations = [
                 ...iterator_to_array($this->discoverMigrationsIn($this->migrationsPath)),
-                ...iterator_to_array($this->discoverMigrationsIn($this->devPath)),
+                ...iterator_to_array($this->discoverMigrationsIn($this->devMigrationsPath)),
             ];
             $migrationsKey = array_keys($migrations);
             sort($migrationsKey);
@@ -64,7 +64,7 @@ final readonly class ResourceObject
      */
     public function discoverDevMigrationsPath(): array
     {
-        return iterator_to_array($this->discoverMigrationsPathIn($this->devPath));
+        return iterator_to_array($this->discoverMigrationsPathIn($this->devMigrationsPath));
     }
 
     /**

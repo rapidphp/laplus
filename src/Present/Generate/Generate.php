@@ -37,6 +37,10 @@ class Generate
     {
         $this->resources = array_merge($this->resources, is_array($resources) ? $resources : [$resources]);
 
+        $this->resources = array_filter($this->resources, static function (Resource $resource) {
+            return $resource->shouldGenerate();
+        });
+
         return $this;
     }
 
@@ -51,7 +55,11 @@ class Generate
     {
         foreach ($this->resources as $resource) {
             foreach ($resource->resolve() as $resourceObject) {
-                GitIgnoreEditor::make($resourceObject->devPath)
+                if (!$resource->shouldAddGitIgnoreForDev()) {
+                    continue;
+                }
+
+                GitIgnoreEditor::make($resourceObject->devMigrationsPath)
                     ->add('*')
                     ->add('!.gitignore')
                     ->save();
@@ -111,7 +119,7 @@ class Generate
             $generator->pass($resource->discoverModels());
 
             // Create folders
-            $output = $this->dev ? $resource->devPath : $resource->migrationsPath;
+            $output = $this->dev ? $resource->devMigrationsPath : $resource->migrationsPath;
             @mkdir($output, recursive: true);
 
             $generators[$output] = $generator;

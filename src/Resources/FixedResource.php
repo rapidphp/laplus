@@ -10,8 +10,8 @@ readonly class FixedResource extends Resource
     public function __construct(
         public string $models,
         public string $migrations,
-        public string $devPath,
-        public string $travelsPath,
+        public string $devMigrations,
+        public string $travelsMigrations,
     )
     {
     }
@@ -30,7 +30,7 @@ readonly class FixedResource extends Resource
     public function resolve(): array
     {
         return [
-            new ResourceObject($this->models, $this->migrations, $this->devPath, $this->travelsPath),
+            new ResourceObject($this->models, $this->migrations, $this->devMigrations, $this->travelsMigrations),
         ];
     }
 
