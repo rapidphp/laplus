@@ -2,11 +2,10 @@
 
 namespace Rapid\Laplus\Resources;
 
+use Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\File;
 use Rapid\Laplus\Present\HasPresent;
-use Generator;
 use Rapid\Laplus\Travel\Travel;
 
 final readonly class ResourceObject
@@ -117,21 +116,24 @@ final readonly class ResourceObject
                         $contents = @file_get_contents($subPath);
                         if (
                             preg_match('/namespace\s+(.*?)\s*;/', $contents, $namespaceMatch) &&
-                            preg_match('/class\s+(.*?)[\s\n\r{]/', $contents, $classMatch)
+                            preg_match('/class\s+(.*?)[\s\n\r{]/', $contents, $classMatch) &&
+                            !$this->shouldIgnoreModel($class = $namespaceMatch[1] . "\\" . $classMatch[1])
                         ) {
-                            $class = $namespaceMatch[1] . "\\" . $classMatch[1];
-                            if (
-                                class_exists($class) &&
-                                is_a($class, Model::class, true) &&
-                                in_array(HasPresent::class, class_uses_recursive($class))
-                            ) {
-                                yield $class;
-                            }
+                            yield $class;
                         }
                     }
                 }
             }
         }
+    }
+
+    protected function shouldIgnoreModel(string $class): bool
+    {
+        return !class_exists($class) ||
+            !is_a($class, Model::class, true) ||
+            !in_array(HasPresent::class, class_uses_recursive($class)) ||
+            (new \ReflectionClass($class))->isAbstract() ||
+            (new $class)->shouldIgnore();
     }
 
     protected function discoverMigrationsIn(string $path): Generator

@@ -114,4 +114,9 @@ trait HasPresent
         $this->makeHidden($present->hidden);
     }
 
+    public function shouldIgnore(): bool
+    {
+        return property_exists($this, 'shouldIgnore') ? $this->shouldIgnore : false;
+    }
+
 }
