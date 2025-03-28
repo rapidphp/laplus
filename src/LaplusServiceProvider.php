@@ -30,7 +30,7 @@ class LaplusServiceProvider extends ServiceProvider
     protected function registerConfig()
     {
         $config = __DIR__ . '/../config/laplus.php';
-        $this->publishes([$config => base_path('config/laplus.php')], ['laplus']);
+        $this->publishes([$config => config_path('laplus.php')], ['laplus']);
         $this->mergeConfigFrom($config, 'laplus');
 
         $this->registerResources();

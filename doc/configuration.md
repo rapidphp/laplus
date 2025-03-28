@@ -19,7 +19,7 @@ In the `config/laplus.php` we have:
 
     'main' => [
         'type' => 'default',
-        'migrations' => base_path('database/migrations/auto_generated'),
+        'migrations' => database_path('migrations/auto_generated'),
         'models' => base_path('app/Models'),
         'merge_to_config' => true,
     ],

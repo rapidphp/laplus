@@ -10,7 +10,7 @@ readonly class PackageResource extends FixedResource
         string $travelsPath,
     )
     {
-        $basePath = config('laplus.vendor.migrations') ?? base_path('database/migrations/vendor');
+        $basePath = config('laplus.vendor.migrations') ?? database_path('migrations/vendor');
 
         parent::__construct(
             models: $models,

@@ -19,9 +19,9 @@ return [
         'main' => [
             'type' => 'default',
             'models' => base_path('app/Models'),
-            'migrations' => base_path('database/migrations/deploy'),
-            'dev_migrations' => base_path('database/migrations/dev_generated'),
-            'travels' => base_path('database/travels'),
+            'migrations' => database_path('migrations/deploy'),
+            'dev_migrations' => database_path('migrations/dev_generated'),
+            'travels' => database_path('travels'),
             'merge_to_config' => true,
         ],
 
@@ -85,7 +85,7 @@ return [
     |
     */
     'vendor' => [
-        'migrations' => base_path('database/migrations/vendor'),
+        'migrations' => database_path('migrations/vendor'),
     ],
 
 ];
