@@ -26,7 +26,7 @@ trait HasLabels
      * @param array $args
      * @return string|null
      */
-    protected function getLabelUsingAttributeName(string $attribute, array $args = [])
+    protected function getLabelUsingAttributeName(string $attribute, array $args = []): ?string
     {
         if (str_ends_with($attribute, '_label')) {
             return $this->label(substr($attribute, 0, -6), ...$args);

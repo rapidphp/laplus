@@ -3,9 +3,20 @@
 namespace Rapid\Laplus\Label;
 
 use Carbon\Carbon;
+use Closure;
 
 class TranslateFactory
 {
+    protected ?string $undefinedLabel = null;
+    protected ?string $trueLabel = null;
+    protected ?string $falseLabel = null;
+    protected ?string $onLabel = null;
+    protected ?string $offLabel = null;
+    protected ?string $yesLabel = null;
+    protected ?string $noLabel = null;
+    protected ?Closure $dateLabel = null;
+    protected ?Closure $timeLabel = null;
+    protected ?Closure $dateTimeLabel = null;
 
     /**
      * Translate objects recursive.
@@ -47,55 +58,103 @@ class TranslateFactory
         return (string)$value;
     }
 
+    public function setUndefinedLabel(?string $label): void
+    {
+        $this->undefinedLabel = $label;
+    }
 
     public function getUndefinedLabel(): string
     {
-        return __("laplus::label.undefined");
+        return $this->undefinedLabel ?? __("laplus::label.undefined");
+    }
+
+    public function setTrueLabel(?string $label): void
+    {
+        $this->trueLabel = $label;
     }
 
     public function getTrueLabel(): string
     {
-        return __("laplus::label.true");
+        return $this->trueLabel ?? __("laplus::label.true");
+    }
+
+    public function setFalseLabel(?string $label): void
+    {
+        $this->falseLabel = $label;
     }
 
     public function getFalseLabel(): string
     {
-        return __("laplus::label.false");
+        return $this->falseLabel ?? __("laplus::label.false");
+    }
+
+    public function setOnLabel(?string $label): void
+    {
+        $this->onLabel = $label;
     }
 
     public function getOnLabel(): string
     {
-        return __("laplus::label.on");
+        return $this->onLabel ?? __("laplus::label.on");
+    }
+
+    public function setOffLabel(?string $label): void
+    {
+        $this->offLabel = $label;
     }
 
     public function getOffLabel(): string
     {
-        return __("laplus::label.off");
+        return $this->offLabel ?? __("laplus::label.off");
+    }
+
+    public function setYesLabel(?string $label): void
+    {
+        $this->yesLabel = $label;
     }
 
     public function getYesLabel(): string
     {
-        return __("laplus::label.yes");
+        return $this->yesLabel ?? __("laplus::label.yes");
+    }
+
+    public function setNoLabel(?string $label): void
+    {
+        $this->noLabel = $label;
     }
 
     public function getNoLabel(): string
     {
-        return __("laplus::label.no");
+        return $this->noLabel ?? __("laplus::label.no");
+    }
+
+    public function setDateLabel(?Closure $label): void
+    {
+        $this->dateLabel = $label;
     }
 
     public function getDateLabel(Carbon $carbon): string
     {
-        return $carbon->toDateString();
+        return value($this->dateLabel, $carbon) ?? $carbon->toDateString();
+    }
+
+    public function setTimeLabel(?Closure $label): void
+    {
+        $this->timeLabel = $label;
     }
 
     public function getTimeLabel(Carbon $carbon): string
     {
-        return $carbon->toTimeString();
+        return value($this->timeLabel, $carbon) ?? $carbon->toTimeString();
+    }
+
+    public function setDateTimeLabel(?Closure $label): void
+    {
+        $this->dateTimeLabel = $label;
     }
 
     public function getDateTimeLabel(Carbon $carbon): string
     {
-        return $carbon->toDateTimeString();
+        return value($this->dateTimeLabel, $carbon) ?? $carbon->toDateTimeString();
     }
-
 }
