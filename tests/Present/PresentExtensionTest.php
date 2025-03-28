@@ -45,7 +45,7 @@ class PresentExtensionTest extends TestCase
             protected static function booted()
             {
                 static::extendPresent(new class extends PresentExtension {
-                    public function extend(Present $present)
+                    public function extend(Present $present): void
                     {
                         $present->string('name');
                     }
@@ -79,4 +79,71 @@ class PresentExtensionTest extends TestCase
         $this->assertSame(['name', 'last'], $record->getFillable());
     }
 
+    public function test_extend_before_hook()
+    {
+        new class extends Model {
+            use HasPresent;
+
+            protected function present(Present $present)
+            {
+                $present->id();
+            }
+
+            protected static function booted()
+            {
+                static::extendPresent(new class extends PresentExtension {
+                    public function before(Present $present): void
+                    {
+                        TestCase::assertNull($present->getAttribute('id'));
+                    }
+                });
+            }
+        };
+    }
+
+    public function test_extend_after_hook()
+    {
+        new class extends Model {
+            use HasPresent;
+
+            protected function present(Present $present)
+            {
+                $present->string('slug');
+            }
+
+            protected static function booted()
+            {
+                static::extendPresent(new class extends PresentExtension {
+                    public function after(Present $present): void
+                    {
+                        TestCase::assertNotNull($present->getAttribute('slug'));
+                        TestCase::assertEmpty($present->fillable);
+                    }
+                });
+            }
+        };
+    }
+
+    public function test_extend_finally_hook()
+    {
+        new class extends Model {
+            use HasPresent;
+
+            protected function present(Present $present)
+            {
+                $present->string('slug');
+            }
+
+            protected static function booted()
+            {
+                static::extendPresent(new class extends PresentExtension {
+                    public function finally(Present $present): void
+                    {
+                        TestCase::assertNotNull($present->getAttribute('slug'));
+                        TestCase::assertSame(['slug'], $present->fillable);
+                    }
+                });
+            }
+        };
+    }
 }

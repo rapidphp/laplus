@@ -309,12 +309,10 @@ Create custom extensions like this:
 ```php
 class AvatarPresentExtension extends PresentExtension
 {
-    
-    public function extend(Present $present)
+    public function extend(Present $present): void
     {
         $present->belongsTo(Avatar::class);
     }
-
 }
 ```
 
@@ -323,14 +321,12 @@ Then use it anyway with `extend` method:
 ```php
 class UserPresent extends Present
 {
-    
     public function present()
     {
         $this->id();
         $this->extend(AvatarPresentExtension::class);
         $this->timestamps();
     }
-    
 }
 ```
 
@@ -371,8 +367,62 @@ class User
 }
 ```
 
+### Extension Hooks
 
-## Inheritance Present
+```php
+class AddIdExtension extends PresentExtension
+{
+    public function before(Present $present): void
+    {
+        $present->id();
+    }
+}
+```
+
+```php
+class AddTimestamps extends PresentExtension
+{
+    public function after(Present $present): void
+    {
+        $present->timestamps();
+    }
+}
+```
+
+```php
+class ShouldIdExists extends PresentExtension
+{
+    public function after(Present $present): void
+    {
+        if (!($present->getAttribute('id') instanceof Column)) {
+            throw new \RuntimeException("Column id is not presented");
+        }
+    }
+}
+```
+
+```php
+class SlugShouldBeFillable extends PresentExtension
+{
+    public function finally(Present $present): void
+    {
+        if (!isset($present->fillable['slug'])) {
+            throw new \RuntimeException("Column slug is not fillable");
+        }
+    }
+}
+```
+
+
+**List of available extensions:**
+
+```php
+static::extendPresent(FillableIds::class); // Make the `id` fillable
+static::extendPresent(IdAndTimestamps::class); // Add the `id` and `timestamps` columns
+```
+
+
+### Inheritance Present
 
 Use the `atYield` method to extend the child present at the
 `yield` section of parent:
@@ -392,8 +442,7 @@ class UserPresent extends PersonPresent
 {
     public function present()
     {
-        $this->atYield(parent::present(...), function ()
-        {
+        $this->atYield(parent::present(...), function () {
             $this->string('name');
             $this->yield();
         });
@@ -404,8 +453,7 @@ class AdminPresent extends PersonPresent
 {
     public function present()
     {
-        $this->atYield(parent::present(...), function ()
-        {
+        $this->atYield(parent::present(...), function () {
             $this->string('role');
         });
     }

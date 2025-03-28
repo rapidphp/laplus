@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Rapid\Laplus\Guide\Attributes\IsAttribute;
 use Rapid\Laplus\Guide\Attributes\IsRelation;
 use Rapid\Laplus\Guide\Guides\TestGuide;
+use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Guide\ModelAuthor;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
+use Rapid\Laplus\Present\PresentExtension;
 use Rapid\Laplus\Tests\Guide\Models\_TestModel1ForGuide;
 use Rapid\Laplus\Tests\TestCase;
 
@@ -281,6 +283,34 @@ class ModelGuideTest extends TestCase
 
         $guide->assertSame([
             '@property-read null|A|B $test',
+        ]);
+    }
+
+    public function test_generate_extension_docblock()
+    {
+        $class = new class extends Model {
+            use HasPresent;
+
+            protected function present(Present $present) {}
+
+            protected static function booted()
+            {
+                static::extendPresent(new class extends PresentExtension {
+                    public function docblock(Present $present, GuideScope $scope): array
+                    {
+                        return [
+                            '@property int $foo',
+                        ];
+                    }
+                });
+            }
+        };
+
+        $guide = new TestGuide;
+        $guide->run(new ModelAuthor($guide, get_class($class)));
+
+        $guide->assertSame([
+            '@property int $foo',
         ]);
     }
 

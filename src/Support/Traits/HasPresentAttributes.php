@@ -1,6 +1,6 @@
 <?php
 
-namespace Rapid\Laplus\Supports\Traits;
+namespace Rapid\Laplus\Support\Traits;
 
 trait HasPresentAttributes
 {

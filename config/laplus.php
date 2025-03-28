@@ -88,4 +88,21 @@ return [
         'migrations' => database_path('migrations/vendor'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Structure settings
+    |--------------------------------------------------------------------------
+    |
+    | Columns, Indexes and other structures that migrate the database, in
+    | global scope.
+    |
+    | map -> Map the column types in Present to blueprint method.
+    |
+    */
+    'structures' => [
+        'map' => [
+            // 'id' => 'uuid',
+        ],
+    ],
+
 ];

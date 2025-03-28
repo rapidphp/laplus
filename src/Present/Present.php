@@ -50,11 +50,25 @@ abstract class Present
      */
     protected array $travels = [];
 
+    /**
+     * List of callable extensions
+     *
+     * @var Closure[]
+     */
+    protected array $callableExtensions = [];
+
+    /**
+     * List of hook extensions
+     *
+     * @var PresentExtension[]
+     */
+    protected array $extensions = [];
+
     public function __construct(
         public Model $instance,
     )
     {
-        $this->collectPresent();
+        $this->mergeExtensions($this->extensions());
     }
 
     /**
@@ -72,8 +86,17 @@ abstract class Present
         $this->travels = [];
 
         $this->isYielded = false;
+
+        foreach ($this->extensions as $extension) {
+            $extension->before($this);
+        }
+
         $this->present();
         $this->yield();
+
+        foreach ($this->extensions as $extension) {
+            $extension->after($this);
+        }
 
         foreach ($this->attributes as $attribute) {
             if ($attribute->isFillable()) {
@@ -94,6 +117,43 @@ abstract class Present
 
             $attribute->boot($this);
         }
+
+        foreach ($this->extensions as $extension) {
+            $extension->finally($this);
+        }
+    }
+
+    public function mergeExtensions(array $extensions): void
+    {
+        foreach ($extensions as $extension) {
+            if (is_string($extension)) {
+                $this->extensions[] = new $extension;
+            } elseif ($extension instanceof Closure) {
+                $this->callableExtensions[] = $extension;
+            } else {
+                $this->extensions[] = $extension;
+            }
+        }
+    }
+
+    /**
+     * Get the extensions
+     *
+     * @return PresentExtension[]
+     */
+    public function getExtensions(): array
+    {
+        return $this->extensions;
+    }
+
+    /**
+     * Get default extensions
+     *
+     * @return array
+     */
+    protected function extensions(): array
+    {
+        return [];
     }
 
     /**
@@ -117,8 +177,12 @@ abstract class Present
 
             $this->isYielded = true;
 
-            foreach ($this->instance->getPresentExtensions() as $extension) {
+            foreach ($this->callableExtensions as $extension) {
                 $extension($this);
+            }
+
+            foreach ($this->extensions as $extension) {
+                $extension->extend($this);
             }
         }
     }
@@ -280,7 +344,7 @@ abstract class Present
      * @param string $name
      * @return ?Attribute
      */
-    public function getAttribute(string $name)
+    public function getAttribute(string $name): ?Attribute
     {
         return @$this->attributes[$name];
     }
@@ -326,19 +390,11 @@ abstract class Present
             array_push($doc, ...$attribute->docblock($scope));
         }
 
-        return $doc;
-    }
+        foreach ($this->extensions as $extension) {
+            array_push($doc, ...$extension->docblock($this, $scope));
+        }
 
-    /**
-     * Present the table structure to generate
-     *
-     * @return void
-     */
-    protected function presentTable(): void
-    {
-        $this->isYielded = false;
-        $this->present();
-        $this->yield();
+        return $doc;
     }
 
     /**
@@ -348,7 +404,7 @@ abstract class Present
      */
     protected function generate(): void
     {
-        $this->table($this->getTable(), $this->presentTable(...));
+        $this->table($this->getTable(), $this->collectPresent(...));
     }
 
     /**
@@ -360,5 +416,4 @@ abstract class Present
     {
         return $this->instance->getTable();
     }
-
 }

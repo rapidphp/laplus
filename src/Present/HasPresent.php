@@ -27,16 +27,6 @@ trait HasPresent
     protected static array $_presentExtends = [];
     protected static array $_presentInstances = [];
 
-    /**
-     * Get the list of present extensions
-     *
-     * @return array
-     */
-    public static function getPresentExtensions(): array
-    {
-        return static::$_presentExtends[static::class] ?? [];
-    }
-
     public static function getStaticPresentInstance(): Present
     {
         return static::getPresentableInstance()->getPresent();
@@ -51,7 +41,12 @@ trait HasPresent
     {
         if (!isset(static::$_presentObjects[static::class])) {
             static::$_presentInstances[static::class] ??= $this;
-            return static::$_presentObjects[static::class] = $this->makePresent();
+
+            $present = $this->makePresent();
+            $present->mergeExtensions(static::$_presentExtends[static::class] ?? []);
+            $present->collectPresent();
+
+            return static::$_presentObjects[static::class] = $present;
         }
 
         return static::$_presentObjects[static::class];
@@ -82,7 +77,7 @@ trait HasPresent
      */
     protected function getPresentClass(): ?string
     {
-        return null;
+        return property_exists($this, 'presentClass') ? $this->presentClass : null;
     }
 
     public static function getPresentableInstance(): static
@@ -98,10 +93,6 @@ trait HasPresent
      */
     protected static function extendPresent(string|PresentExtension|Closure $extension): void
     {
-        if (is_string($extension)) {
-            $extension = new $extension;
-        }
-
         @static::$_presentExtends[static::class][] = $extension;
     }
 

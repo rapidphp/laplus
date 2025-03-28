@@ -33,6 +33,10 @@ trait Columns
     public function column(string $column, string|Closure $method, ...$args)
     {
         if (is_string($method)) {
+            if ($replacement = @config('laplus.structures.map', [])[$column]) {
+                $column = $replacement;
+            }
+
             return $this->attribute(
                 new Column($column, $method, [$column, ...$args]),
             );

@@ -4,7 +4,9 @@ namespace Rapid\Laplus\Present;
 
 trait HasTestingPresent
 {
-    use HasPresent;
+    use HasPresent {
+        getPresent as __getPresent;
+    }
 
     public static function getPresentableInstance(): static
     {
@@ -13,7 +15,9 @@ trait HasTestingPresent
 
     public function getPresent(): Present
     {
-        return $this->makePresent();
+        unset(static::$_presentObjects[static::class]);
+
+        return $this->__getPresent();
     }
 
 }
