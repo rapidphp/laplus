@@ -12,7 +12,7 @@ class GitIgnoreEditor
         bool          $createIfNotExists = true,
     )
     {
-        if (!str_ends_with('.gitignore', $this->path)) {
+        if (!str_ends_with($this->path, '.gitignore')) {
             $this->path = $this->path . '/.gitignore';
         }
 
