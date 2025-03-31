@@ -74,7 +74,7 @@ trait Columns
 
     public function bigIncrements(string $column)
     {
-        return $this->column($column, 'bigIncrements')->cast('id');
+        return $this->column($column, 'bigIncrements')->cast('int');
     }
 
     public function char(string $column, $length = null)

@@ -3,8 +3,13 @@
 namespace Rapid\Laplus\Present\Attributes;
 
 use Carbon\Carbon;
+use Closure;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Present;
+use Rapid\Laplus\Validation\Rules\Unique;
 
 class Column extends Attribute
 {
@@ -14,6 +19,8 @@ class Column extends Attribute
         'nullable' => false,
     ];
     protected ?array $columnIndex = null;
+    protected ?Closure $rules = null;
+    protected ?Closure $dataTypeRules = null;
 
     public function __construct(
         string          $name,
@@ -408,14 +415,14 @@ class Column extends Attribute
 
         if (is_string($this->cast)) {
             return $prefix . match ($this->cast) {
-                    'json'                                 => 'array',
-                    'timestamp', 'int'                     => 'int',
+                    'json' => 'array',
+                    'timestamp', 'int' => 'int',
                     'date', 'dateTime', 'datetime', 'time' => '\\' . Carbon::class,
-                    'hashed'                               => 'string',
-                    default                                => match (true) {
-                        !class_exists($this->cast)                  => $this->cast,
+                    'hashed' => 'string',
+                    default => match (true) {
+                        !class_exists($this->cast) => $this->cast,
                         is_a($this->cast, \BackedEnum::class, true) => $this->cast,
-                        default                                     => $this->getDefaultDocblockTypeHint(),
+                        default => $this->getDefaultDocblockTypeHint(),
                     }
                 };
         }
@@ -426,12 +433,12 @@ class Column extends Attribute
 
         return $prefix . match (strtolower($this->columnData['type'] ?? '')) {
                 'string', 'varchar', 'char' => 'string',
-                'json', 'array'             => 'array',
-                default                     => match ($this->createUsingMethod) {
-                    'string', 'text'                     => 'string',
+                'json', 'array' => 'array',
+                default => match ($this->createUsingMethod) {
+                    'string', 'text' => 'string',
                     'int', 'integer', 'decimal', 'float' => 'int',
-                    'boolean'                            => 'bool',
-                    default                              => $this->getDefaultDocblockTypeHint(),
+                    'boolean' => 'bool',
+                    default => $this->getDefaultDocblockTypeHint(),
                 },
             };
     }
@@ -441,4 +448,141 @@ class Column extends Attribute
         return 'mixed';
     }
 
+    /**
+     * Set the column rules
+     *
+     * @param array|Closure $rules
+     * @return $this
+     */
+    public function rules(array|Closure $rules)
+    {
+        if (is_array($rules)) {
+            $rules = static fn() => $rules;
+        }
+
+        $this->rules = $rules;
+        return $this;
+    }
+
+    /**
+     * Set the column data type rules
+     *
+     * @param array|Closure $rules
+     * @return $this
+     */
+    public function dataTypeRules(array|Closure $rules)
+    {
+        if (is_array($rules)) {
+            $rules = static fn() => $rules;
+        }
+
+        $this->dataTypeRules = $rules;
+        return $this;
+    }
+
+    public function getRules(): ?array
+    {
+        if (!$this->fillable) {
+            return null;
+        }
+
+        if (isset($this->rules)) {
+            return app()->call($this->rules);
+        }
+
+        return [
+            ...$this->defaultRules(),
+            ...isset($this->dataTypeRules) ?
+                app()->call($this->dataTypeRules) :
+                $this->defaultDataTypeRules(),
+        ];
+    }
+
+    protected function defaultRules(): array
+    {
+        return array_filter([
+            $this->columnData['nullable'] ? 'nullable' : 'required',
+            @$this->columnIndex[0] == 'unique' ? Unique::class : null,
+        ]);
+    }
+
+    protected function defaultDataTypeRules(): array
+    {
+        switch ($this->createUsingMethod) {
+            case 'string':
+                $max = ($this->createUsingArgs[1] ?? 255);
+                break;
+
+            case 'integer':
+                $max = '2147483647';
+                $min = '-2147483648';
+                break;
+
+            case 'unsignedInteger':
+                $max = '4294967295';
+                $min = '0';
+                break;
+
+            case 'tinyInteger':
+                $max = 127;
+                $min = -128;
+                break;
+
+            case 'unsignedTinyInteger':
+                $max = 255;
+                $min = 0;
+                break;
+
+            case 'smallInteger':
+                $max = 32767;
+                $min = -32768;
+                break;
+
+            case 'unsignedSmallInteger':
+                $max = 65535;
+                $min = 0;
+                break;
+
+            case 'mediumInteger':
+                $max = -8388608;
+                $min = 8388607;
+                break;
+
+            case 'unsignedMediumInteger':
+                $max = 16777215;
+                $min = 0;
+                break;
+
+            case 'bigInteger':
+                $max = '9223372036854775807';
+                $min = '-9223372036854775808';
+                break;
+
+            case 'unsignedBigInteger':
+                $max = '18446744073709551615';
+                $min = 0;
+                break;
+        }
+
+        return array_filter([
+            ...match ($this->cast) {
+                'string', 'int', 'integer' => [$this->cast],
+                'double', 'float' => ['numeric'],
+                'boolean', 'bool' => ['boolean'],
+                'json', 'array' => ['array'],
+                'date' => ['date', 'date_format:Y-m-d'],
+                'datetime', 'timestamp' => ['date', 'date_format:Y-m-d H:i:s'],
+                default => ['string'],
+            },
+            ...$this->createUsingMethod == 'decimal' ? [
+                'digits:' . $this->createUsingArgs[1] - $this->createUsingArgs[2],
+                'decimal:' . $this->createUsingArgs[2],
+            ] : [],
+            is_string($this->cast) && is_a($this->cast, \BackedEnum::class, true) ?
+                Rule::in(Arr::pluck($this->cast::cases(), 'value')) :
+                null,
+            isset($min) ? 'min:' . $min : null,
+            isset($max) ? 'max:' . $max : null,
+        ]);
+    }
 }

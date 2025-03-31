@@ -5,6 +5,7 @@ namespace Rapid\Laplus\Present\Attributes;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Validation\Rule;
 use Rapid\Laplus\Contracts\RelationAttr;
 use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Present;
@@ -261,4 +262,11 @@ class BelongsToAttr extends Column implements RelationAttr
         return $doc;
     }
 
+    protected function defaultRules(): array
+    {
+        return [
+            ...parent::defaultRules(),
+            Rule::exists($this->related::class),
+        ];
+    }
 }

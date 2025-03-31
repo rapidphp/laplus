@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Attributes\Attribute;
+use Rapid\Laplus\Present\Attributes\Column;
 use Rapid\Laplus\Present\Attributes\Index;
 use Rapid\Laplus\Travel\Travel;
 
@@ -63,6 +64,13 @@ abstract class Present
      * @var PresentExtension[]
      */
     protected array $extensions = [];
+
+    /**
+     * Get rules using
+     *
+     * @var Closure
+     */
+    protected Closure $rules;
 
     public function __construct(
         public Model $instance,
@@ -415,5 +423,30 @@ abstract class Present
     public function getTable(): ?string
     {
         return $this->instance->getTable();
+    }
+
+    public function rules(array|Closure $rules): void
+    {
+        if (is_array($rules)) {
+            $rules = static fn() => app()->call($rules);
+        }
+
+        $this->rules = $rules;
+    }
+
+    public function getRules(): array
+    {
+        if (isset($this->rules)) {
+            return app()->call($this->rules);
+        }
+
+        $rules = [];
+        foreach ($this->getAttributes() as $attribute) {
+            if ($attribute instanceof Column && $rule = $attribute->getRules()) {
+                $rules[$attribute->name] = $rule;
+            }
+        }
+
+        return $rules;
     }
 }

@@ -18,6 +18,14 @@ public function present()
 - Removed slug and file columns
 - Supports renames and changes a column at the same time
 - Added travels
+- Package resources
+
+Todo:
+- Rules
+- Boot all the models in bootstrap
+- Auto delete for hasMany
+- BelongsTo detect data type
+- Optimizing
 
 
 ## Features
@@ -48,7 +56,7 @@ class Blog extends Model
 Don't get involved in migrations! Because Laplus has taken responsibility for all migrations,
 and it builds all migrations by reading your presentations 😎
 
-[Read more...](doc/migration.md)
+[Read more...](doc/dev.md)
 
 
 ### 2. Auto Fills
@@ -128,12 +136,12 @@ data before deleting `first_name` and `last_name`.
 - [Installation](doc/installation.md)
 - [Configuration](doc/configuration.md)
 - [Present](doc/present.md)
-- [Migration](doc/migration.md)
-- [Label](doc/label.md)
-- [Guide](doc/guide.md)
 - [Dev Utils](doc/dev.md)
 - [Deploy](doc/deploy.md)
+- [Label](doc/label.md)
+- [Guide](doc/guide.md)
 - [Package Development](doc/package-development.md)
+- [Validation Generator](doc/validation.md)
 
 
 ## Installation
@@ -186,7 +194,7 @@ protected function present(Present $present)
 + Move default migration to laplus path:
 
 Find `database/migrations/0001_01_01_000000_create_users_table.php` file and move it
-    into `database/migrations/auto_generated` folder (create it if doesn't exists)
+    into `database/migrations/deploy` folder (create it if doesn't exists)
 
 ## Development Utils
 
@@ -223,24 +231,15 @@ This command will create `app/Models/Name.php` model.
 ### Generate Migrations
 Run this command to automatically found the updates and generate migrations:
 ```shell
-php artisan generate+
+php artisan dev:migration
 ```
 
 [Read more...](doc/migration.md#generate)
 
-### Regenerate Migrations
-This command is same with `generate+`, but the difference is clearing the migration folder!
+### Update Database
+Following command, run `dev:migration` and `migrate` at once:
 ```shell
-php artisan regenerate+
-```
-> Warning: This command will remove all your migration files (exclude files starts with `0001_01_01` name)
-
-[Read more...](doc/migration.md#regenerate)
-
-### Generate And Migrate
-Following command, run `generate+` and `migrate` at once:
-```shell
-php artisan migrate+
+php artisan dev:migrate
 ```
 
 [Read more...](doc/migration.md#generate-and-migrate)

@@ -17,10 +17,8 @@ use Rapid\Laplus\Resources\SharedPackageResource;
  */
 class Laplus extends Facade
 {
-
     protected static function getFacadeAccessor()
     {
         return LaplusFactory::class;
     }
-
 }
