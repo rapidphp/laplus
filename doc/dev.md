@@ -46,3 +46,8 @@ php artisan dev:guide
 ```
 
 [Read More...](guide.md)
+
+
+## Deploy To Production
+
+[Read More...](deploy.md)

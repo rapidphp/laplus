@@ -8,16 +8,16 @@ Using following command:
 php artisan make:model+ Name
 ```
 
-This command will create `app/Models/Name.php` model and `app/Presents/NamePresent.php` present.
+This command will create `app/Models/Name.php` with inline present.
 
 
-### Inline Present
-Add `--inline` or `-i` in the command:
+### Separately Present
+Add `--present` or `-p` in the command:
 ```php
-php artisan make:model+ Name --inline
+php artisan make:model+ Name --present
 ```
 
-This command will create `app/Models/Name.php` model.
+This command will create `app/Models/Name.php` model and `app/Presents/NamePresent.php` present.
 
 
 ## Manually Create Present
@@ -78,7 +78,7 @@ If you want to set the target present using class name, you can override method 
 ```php
 class User extends Model
 {
-    public function getPresentClass()
+    protected function getPresentClass(): ?string
     {
         return MyCustomUserPresent::class;
     }
@@ -90,7 +90,7 @@ If you want to set the target present using object instance, you can override me
 ```php
 class User extends Model
 {
-    public function makePresent()
+    protected function makePresent(): Present
     {
         return new MyCustomUserPresent($this);
     }

@@ -11,22 +11,15 @@ public function present()
 }
 ```
 
-## Changelog
+## What's Changed In V4
 
-- Commands changed
-- New Dev & Deploy options
+- Command names changed
+- New development & production deploy tools
 - Removed slug and file columns
 - Supports renames and changes a column at the same time
-- Added travels
-- Package resources
-
-Todo:
-- Rules
-- Boot all the models in bootstrap
-- Auto delete for hasMany
-- BelongsTo detect data type
-- Optimizing
-
+- Supports package resources
+- Added travels ([read more...](doc/travel.md))
+- Added validation generators ([read more...](doc/validation.md))
 
 ## Features
 
@@ -140,6 +133,7 @@ data before deleting `first_name` and `last_name`.
 - [Deploy](doc/deploy.md)
 - [Label](doc/label.md)
 - [Guide](doc/guide.md)
+- [Travel](doc/travel.md)
 - [Package Development](doc/package-development.md)
 - [Validation Generator](doc/validation.md)
 
@@ -173,11 +167,7 @@ class User extends Model
 ```
 > Laplus will automatically add this values.
 
-+ Create `UserPresent` class with the following command:
-```shell
-php artisan make:user-present
-```
-Or add below code in User class:
+Add below code in User class:
 ```php
 protected function present(Present $present)
 {
