@@ -29,7 +29,7 @@ class ModelMakeCommand extends ConsoleModelMakeCommand
      */
     protected function createPresent()
     {
-        if (!$this->option('inline')) {
+        if ($this->option('present')) {
             $modelClass = Str::studly(class_basename($this->argument('name')));
 
             $modelName = $this->qualifyClass($this->getNameInput());
@@ -70,9 +70,9 @@ class ModelMakeCommand extends ConsoleModelMakeCommand
 
     protected function getStub()
     {
-        if ($this->option('inline') && $this->option('label')) {
+        if (!$this->option('present') && $this->option('label')) {
             return __DIR__ . '/stubs/model-inline-with-label.stub';
-        } elseif ($this->option('inline')) {
+        } elseif (!$this->option('present')) {
             return __DIR__ . '/stubs/model-inline.stub';
         } elseif ($this->option('label')) {
             return __DIR__ . '/stubs/model-with-label.stub';
@@ -85,7 +85,7 @@ class ModelMakeCommand extends ConsoleModelMakeCommand
     {
         return [
             ...parent::getOptions(),
-            ['inline', 'i', InputOption::VALUE_NONE, 'Make present inline'],
+            ['present', 'p', InputOption::VALUE_NONE, 'Include making present class'],
             ['label', 'l', InputOption::VALUE_NONE, 'Include making label translator'],
         ];
     }
