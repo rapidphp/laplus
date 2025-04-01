@@ -99,6 +99,7 @@ return new class extends Travel
 {
     public string|array $on = User::class;
     public string|array $whenAdded = 'full_name';
+    public string|array $prepareNullable = 'full_name';
 
     public function up(): void
     {
@@ -224,7 +225,7 @@ Run this command to automatically found the updates and generate migrations:
 php artisan dev:migration
 ```
 
-[Read more...](doc/migration.md#generate)
+[Read more...](doc/dev.md)
 
 ### Update Database
 Following command, run `dev:migration` and `migrate` at once:
@@ -232,7 +233,7 @@ Following command, run `dev:migration` and `migrate` at once:
 php artisan dev:migrate
 ```
 
-[Read more...](doc/migration.md#generate-and-migrate)
+[Read more...](doc/dev)
 
 
 ## Label Translator
