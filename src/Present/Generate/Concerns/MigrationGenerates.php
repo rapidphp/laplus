@@ -4,12 +4,10 @@ namespace Rapid\Laplus\Present\Generate\Concerns;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Fluent;
-use Rapid\Laplus\Present\Generate\Structure\ColumnListState;
 use Rapid\Laplus\Present\Generate\Structure\DatabaseState;
 use Rapid\Laplus\Present\Generate\Structure\IndexListState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationListState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationState;
-use Rapid\Laplus\Present\Generate\Structure\NameSuggestion;
 use Rapid\Laplus\Present\Generate\Structure\TableState;
 
 trait MigrationGenerates

@@ -5,7 +5,6 @@ namespace Rapid\Laplus\Present\Attributes;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Present;

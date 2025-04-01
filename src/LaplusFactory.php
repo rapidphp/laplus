@@ -2,13 +2,12 @@
 
 namespace Rapid\Laplus;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Migrations\Migrator;
-use Rapid\Laplus\Resources\PackageResource;
 use Rapid\Laplus\Resources\FixedResource;
 use Rapid\Laplus\Resources\ModularResource;
-use Rapid\Laplus\Resources\SharedPackageResource;
+use Rapid\Laplus\Resources\PackageResource;
 use Rapid\Laplus\Resources\Resource;
+use Rapid\Laplus\Resources\SharedPackageResource;
 
 class LaplusFactory
 {

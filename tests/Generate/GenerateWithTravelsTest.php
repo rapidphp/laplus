@@ -7,7 +7,6 @@ use Rapid\Laplus\Present\Generate\MigrationGenerator;
 use Rapid\Laplus\Present\Generate\Testing\AnonymousTestingTravel;
 use Rapid\Laplus\Present\Present;
 use Rapid\Laplus\Tests\TestCase;
-use Rapid\Laplus\Travel\Travel;
 use Rapid\Laplus\Travel\TravelDispatcher;
 
 class GenerateWithTravelsTest extends TestCase

@@ -3,15 +3,8 @@
 namespace Rapid\Laplus\Present\Generate;
 
 use Closure;
-use Generator;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Conditionable;
 use Rapid\Laplus\Editors\GitIgnoreEditor;
-use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Resources\Resource;
 use Rapid\Laplus\Resources\ResourceObject;
 

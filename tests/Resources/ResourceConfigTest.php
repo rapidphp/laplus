@@ -5,7 +5,6 @@ namespace Rapid\Laplus\Tests\Resources;
 use Rapid\Laplus\LaplusFactory;
 use Rapid\Laplus\Resources\FixedResource;
 use Rapid\Laplus\Resources\ModularResource;
-use Rapid\Laplus\Resources\ResourceObject;
 use Rapid\Laplus\Tests\TestCase;
 
 class ResourceConfigTest extends TestCase

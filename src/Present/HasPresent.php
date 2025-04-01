@@ -3,7 +3,6 @@
 namespace Rapid\Laplus\Present;
 
 use Closure;
-use Rapid\Laplus\Present\Attributes\Attribute;
 
 trait HasPresent
 {

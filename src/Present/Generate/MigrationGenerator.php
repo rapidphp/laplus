@@ -3,7 +3,6 @@
 namespace Rapid\Laplus\Present\Generate;
 
 use Illuminate\Database\Schema\Blueprint;
-use Rapid\Laplus\Present\Generate\Structure\DatabaseState;
 use Rapid\Laplus\Present\Generate\Testing\GenerateTesting;
 use Rapid\Laplus\Present\Present;
 
