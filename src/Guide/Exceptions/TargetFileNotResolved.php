@@ -2,6 +2,8 @@
 
 namespace Rapid\Laplus\Guide\Exceptions;
 
-class TargetFileNotResolved extends \Exception
+use Exception;
+
+class TargetFileNotResolved extends Exception
 {
 }

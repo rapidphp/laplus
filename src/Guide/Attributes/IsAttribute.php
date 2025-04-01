@@ -6,6 +6,8 @@ use Attribute;
 use Illuminate\Database\Eloquent\Casts\Attribute as LaravelAttribute;
 use Illuminate\Support\Str;
 use Rapid\Laplus\Guide\GuideScope;
+use ReflectionMethod;
+use TypeError;
 
 #[Attribute(Attribute::TARGET_METHOD)]
 class IsAttribute implements DocblockAttributeContract
@@ -18,11 +20,11 @@ class IsAttribute implements DocblockAttributeContract
 
     public function docblock(GuideScope $scope, $reflection): array
     {
-        /** @var \ReflectionMethod $reflection */
+        /** @var ReflectionMethod $reflection */
         $attribute = $reflection->invoke($reflection->getDeclaringClass()->newInstanceWithoutConstructor());
 
         if (!($attribute instanceof LaravelAttribute)) {
-            throw new \TypeError(sprintf("Method [%s] is not an attribute on [%s]", $reflection->name, $reflection->getDeclaringClass()->name));
+            throw new TypeError(sprintf("Method [%s] is not an attribute on [%s]", $reflection->name, $reflection->getDeclaringClass()->name));
         }
 
         $accessSuffix = match (true) {

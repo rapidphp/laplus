@@ -41,7 +41,7 @@ class MorphOneAttr extends Attribute implements RelationAttr
      * Get relation value
      *
      * @param Model $model
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     * @return MorphOne
      */
     public function getRelation(Model $model)
     {

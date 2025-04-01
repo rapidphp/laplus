@@ -2,8 +2,10 @@
 
 namespace Rapid\Laplus\Present\Attributes;
 
+use BackedEnum;
 use Carbon\Carbon;
 use Closure;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Rapid\Laplus\Guide\GuideScope;
@@ -199,7 +201,7 @@ class Column extends Attribute
     /**
      * Create a SQL compliant identity column (PostgreSQL)
      *
-     * @param string|\Illuminate\Database\Query\Expression|null $expression
+     * @param string|Expression|null $expression
      * @return $this
      */
     // public function generatedAs(string|\Illuminate\Database\Query\Expression $expression = null)
@@ -420,7 +422,7 @@ class Column extends Attribute
                     'hashed' => 'string',
                     default => match (true) {
                         !class_exists($this->cast) => $this->cast,
-                        is_a($this->cast, \BackedEnum::class, true) => $this->cast,
+                        is_a($this->cast, BackedEnum::class, true) => $this->cast,
                         default => $this->getDefaultDocblockTypeHint(),
                     }
                 };
@@ -577,7 +579,7 @@ class Column extends Attribute
                 'digits:' . $this->createUsingArgs[1] - $this->createUsingArgs[2],
                 'decimal:' . $this->createUsingArgs[2],
             ] : [],
-            is_string($this->cast) && is_a($this->cast, \BackedEnum::class, true) ?
+            is_string($this->cast) && is_a($this->cast, BackedEnum::class, true) ?
                 Rule::in(Arr::pluck($this->cast::cases(), 'value')) :
                 null,
             isset($min) ? 'min:' . $min : null,

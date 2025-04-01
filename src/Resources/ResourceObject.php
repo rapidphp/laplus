@@ -2,11 +2,13 @@
 
 namespace Rapid\Laplus\Resources;
 
+use Exception;
 use Generator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Migrations\Migration;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Travel\Travel;
+use ReflectionClass;
 
 final readonly class ResourceObject
 {
@@ -81,7 +83,7 @@ final readonly class ResourceObject
         $basePath = str_replace('\\', '/', base_path());
 
         if (!str_starts_with($travelsPath, $basePath)) {
-            throw new \Exception("Travel path [$travelsPath] must be in the root directory");
+            throw new Exception("Travel path [$travelsPath] must be in the root directory");
         }
 
         $relativePath = ltrim(substr($travelsPath, strlen($basePath)), '/');
@@ -132,7 +134,7 @@ final readonly class ResourceObject
         return !class_exists($class) ||
             !is_a($class, Model::class, true) ||
             !in_array(HasPresent::class, class_uses_recursive($class)) ||
-            (new \ReflectionClass($class))->isAbstract() ||
+            (new ReflectionClass($class))->isAbstract() ||
             (new $class)->shouldIgnore();
     }
 

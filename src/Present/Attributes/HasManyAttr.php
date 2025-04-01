@@ -41,7 +41,7 @@ class HasManyAttr extends Attribute implements RelationAttr
      * Get relation value
      *
      * @param Model $model
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function getRelation(Model $model)
     {

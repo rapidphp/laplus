@@ -4,6 +4,8 @@ namespace Rapid\Laplus\Guide;
 
 use Closure;
 use Illuminate\Support\Facades\File;
+use InvalidArgumentException;
+use ReflectionClass;
 
 abstract class Guide
 {
@@ -51,7 +53,7 @@ abstract class Guide
      */
     protected function guessFileName(string $class): string
     {
-        $fileName = (new \ReflectionClass($class))->getFileName();
+        $fileName = (new ReflectionClass($class))->getFileName();
 
         if ($fileName && file_exists($fileName)) {
             return $fileName;
@@ -169,7 +171,7 @@ abstract class Guide
     protected function extractContentsData(string $contents): array
     {
         if (!preg_match('/[\n\s]class\s+([a-zA-Z0-9_]+)/', $contents, $matches, PREG_OFFSET_CAPTURE)) {
-            throw new \InvalidArgumentException();
+            throw new InvalidArgumentException();
         }
 
         $contents = substr($contents, 0, $matches[0][1]);

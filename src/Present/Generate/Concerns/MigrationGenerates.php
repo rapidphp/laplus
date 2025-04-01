@@ -2,6 +2,7 @@
 
 namespace Rapid\Laplus\Present\Generate\Concerns;
 
+use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Fluent;
 use Rapid\Laplus\Present\Generate\Structure\DatabaseState;
@@ -9,6 +10,7 @@ use Rapid\Laplus\Present\Generate\Structure\IndexListState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationListState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationState;
 use Rapid\Laplus\Present\Generate\Structure\TableState;
+use RuntimeException;
 
 trait MigrationGenerates
 {
@@ -64,7 +66,7 @@ trait MigrationGenerates
     public function generate(): MigrationListState
     {
         if ($this->alreadyGenerated) {
-            throw new \RuntimeException('Migrations already generated.');
+            throw new RuntimeException('Migrations already generated.');
         }
 
         $this->alreadyGenerated = true;
@@ -437,15 +439,15 @@ trait MigrationGenerates
                         !($newState = $this->outlookState->get($table)) ||
                         !($previousState = $this->currentState->get($table))
                     ) {
-                        throw new \Exception("Travel [$relativePath] depended on [$table] table that not exists!");
+                        throw new Exception("Travel [$relativePath] depended on [$table] table that not exists!");
                     }
 
                     if ($previousState->hasColumn($column)) {
-                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is added, but it's already exists!");
+                        throw new Exception("Travel [$relativePath] needs to run when [$table.$column] is added, but it's already exists!");
                     }
 
                     if (!$newState->hasColumn($column)) {
-                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is added, but it doesn't exists!");
+                        throw new Exception("Travel [$relativePath] needs to run when [$table.$column] is added, but it doesn't exists!");
                     }
 
                     $columnFluent = $newState->columns[$column];
@@ -471,19 +473,19 @@ trait MigrationGenerates
                         !($newState = $this->outlookState->get($table)) ||
                         !($previousState = $this->currentState->get($table))
                     ) {
-                        throw new \Exception("Travel [$relativePath] depended on [$table] table that not exists!");
+                        throw new Exception("Travel [$relativePath] depended on [$table] table that not exists!");
                     }
 
                     if (!isset($previousState->columns[$from])) {
-                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$from] is renamed, but it doesn't exists!");
+                        throw new Exception("Travel [$relativePath] needs to run when [$table.$from] is renamed, but it doesn't exists!");
                     }
 
                     if (!$newState->hasColumn($to)) {
-                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$from] is renamed to [$table.$to], but it's already exists!");
+                        throw new Exception("Travel [$relativePath] needs to run when [$table.$from] is renamed to [$table.$to], but it's already exists!");
                     }
 
                     if ($this->findColumnOldName($table, $newState->columns[$to]) !== $from) {
-                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$from] is renamed to [$table.$to], but it doesn't renamed!");
+                        throw new Exception("Travel [$relativePath] needs to run when [$table.$from] is renamed to [$table.$to], but it doesn't renamed!");
                     }
 
                     $prepares[$table]->columns->renamed($from, $to);
@@ -503,15 +505,15 @@ trait MigrationGenerates
                         !($newState = $this->outlookState->get($table)) ||
                         !($previousState = $this->currentState->get($table))
                     ) {
-                        throw new \Exception("Travel [$relativePath] depended on [$table] table that not exists!");
+                        throw new Exception("Travel [$relativePath] depended on [$table] table that not exists!");
                     }
 
                     if (!$previousState->hasColumn($column)) {
-                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is changed, but it doesn't exists!");
+                        throw new Exception("Travel [$relativePath] needs to run when [$table.$column] is changed, but it doesn't exists!");
                     }
 
                     if (!$newState->hasColumn($column)) {
-                        throw new \Exception("Travel [$relativePath] needs to run when [$table.$column] is changed, but it doesn't exists!");
+                        throw new Exception("Travel [$relativePath] needs to run when [$table.$column] is changed, but it doesn't exists!");
                     }
 
                     $columnFluent = $newState->columns[$column];

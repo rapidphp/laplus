@@ -7,6 +7,7 @@ use Illuminate\Support\Traits\Conditionable;
 use Rapid\Laplus\Editors\GitIgnoreEditor;
 use Rapid\Laplus\Resources\Resource;
 use Rapid\Laplus\Resources\ResourceObject;
+use RuntimeException;
 
 class Generate
 {
@@ -124,7 +125,7 @@ class Generate
         foreach ($exporter->exportMigrationStubs($files) as $name => $stub) {
             $migrationsPath = $files->files[$name]->tag;
             if (file_exists("$migrationsPath/$name.php")) {
-                throw new \RuntimeException("Migration [$migrationsPath/$name.php] is already exists");
+                throw new RuntimeException("Migration [$migrationsPath/$name.php] is already exists");
             }
 
             file_put_contents("$migrationsPath/$name.php", $stub);

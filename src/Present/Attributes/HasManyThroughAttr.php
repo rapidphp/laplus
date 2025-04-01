@@ -44,7 +44,7 @@ class HasManyThroughAttr extends Attribute implements RelationAttr
      * Get relation value
      *
      * @param Model $model
-     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     * @return HasManyThrough
      */
     public function getRelation(Model $model)
     {

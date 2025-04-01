@@ -2,6 +2,7 @@
 
 namespace Rapid\Laplus\Validation;
 
+use ArrayIterator;
 use Closure;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
@@ -168,6 +169,6 @@ class PendingRules implements Arrayable, IteratorAggregate
 
     public function getIterator(): Traversable
     {
-        return new \ArrayIterator($this->toArray());
+        return new ArrayIterator($this->toArray());
     }
 }

@@ -42,7 +42,7 @@ class HasOneAttr extends Attribute implements RelationAttr
      * Get relation value
      *
      * @param Model $model
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne
      */
     public function getRelation(Model $model)
     {

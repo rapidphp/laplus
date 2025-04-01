@@ -5,6 +5,7 @@ namespace Rapid\Laplus\Present\Generate;
 use Rapid\Laplus\Present\Generate\Structure\MigrationFileListState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationListState;
 use Rapid\Laplus\Present\Generate\Structure\MigrationState;
+use RuntimeException;
 
 class MigrationExporter
 {
@@ -121,7 +122,7 @@ class MigrationExporter
                 break;
 
             default:
-                throw new \RuntimeException("Unknown command [{$migration->command}] dispatched.");
+                throw new RuntimeException("Unknown command [{$migration->command}] dispatched.");
         }
     }
 

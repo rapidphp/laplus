@@ -40,7 +40,7 @@ class MorphManyAttr extends Attribute implements RelationAttr
      * Get relation value
      *
      * @param Model $model
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     * @return MorphMany
      */
     public function getRelation(Model $model)
     {

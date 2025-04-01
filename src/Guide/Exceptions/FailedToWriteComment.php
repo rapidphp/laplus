@@ -2,6 +2,8 @@
 
 namespace Rapid\Laplus\Guide\Exceptions;
 
-class FailedToWriteComment extends \Exception
+use Exception;
+
+class FailedToWriteComment extends Exception
 {
 }

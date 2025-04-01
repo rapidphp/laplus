@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
+use InvalidArgumentException;
 use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Attributes\Attribute;
 use Rapid\Laplus\Present\Attributes\Column;
@@ -331,7 +332,7 @@ abstract class Present
         }
 
         if (array_key_exists($attribute->name, $this->attributes)) {
-            throw new \InvalidArgumentException("Duplicated attribute name [$attribute->name]");
+            throw new InvalidArgumentException("Duplicated attribute name [$attribute->name]");
         }
 
         if (isset($get)) {
@@ -377,7 +378,7 @@ abstract class Present
     public function addIndex(Index $index)
     {
         if (array_key_exists($index->name, $this->attributes)) {
-            throw new \InvalidArgumentException("Duplicated attribute name [$index->name]");
+            throw new InvalidArgumentException("Duplicated attribute name [$index->name]");
         }
 
         $this->indexes[$index->name] = $index;

@@ -72,7 +72,7 @@ class BelongsToAttr extends Column implements RelationAttr
      * Get relation value
      *
      * @param Model $model
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function getRelation(Model $model)
     {

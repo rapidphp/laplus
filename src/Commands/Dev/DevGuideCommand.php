@@ -2,6 +2,7 @@
 
 namespace Rapid\Laplus\Commands\Dev;
 
+use Exception;
 use Illuminate\Console\Command;
 use Rapid\Laplus\Guide\Guides\DocblockGuide;
 use Rapid\Laplus\Guide\Guides\MixinGuide;
@@ -21,7 +22,7 @@ class DevGuideCommand extends Command
         $guide = match (config('laplus.guide.type')) {
             'docblock' => new DocblockGuide(),
             'mixin'    => new MixinGuide(config('laplus.guide.mixin.path'), config('laplus.guide.mixin.namespace'), config('laplus.guide.mixin.git_ignore')),
-            default    => throw new \Exception(sprintf('Guide type [%s] not supported', config('laplus.guide.type'))),
+            default    => throw new Exception(sprintf('Guide type [%s] not supported', config('laplus.guide.type'))),
         };
 
         $authors = [];

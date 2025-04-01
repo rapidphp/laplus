@@ -3,6 +3,7 @@
 namespace Rapid\Laplus\Present\Attributes;
 
 use Closure;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Traits\Macroable;
 use Rapid\Laplus\Guide\GuideScope;
@@ -152,7 +153,7 @@ class Attribute
      */
     public function readonly()
     {
-        return $this->setUsing(fn() => throw new \Exception("Failed to set readonly attribute [$this->name]"));
+        return $this->setUsing(fn() => throw new Exception("Failed to set readonly attribute [$this->name]"));
     }
 
     /**
@@ -174,7 +175,7 @@ class Attribute
      */
     public function setonly()
     {
-        return $this->getUsing(fn() => throw new \Exception("Failed to get setonly attribute [$this->name]"));
+        return $this->getUsing(fn() => throw new Exception("Failed to get setonly attribute [$this->name]"));
     }
 
     public function getGetter()

@@ -2,8 +2,10 @@
 
 namespace Rapid\Laplus\Present\Concerns;
 
+use BackedEnum;
 use Closure;
 use Rapid\Laplus\Present\Attributes\Column;
+use TypeError;
 
 /**
  * @internal
@@ -175,8 +177,8 @@ trait Columns
     public function enum(string $column, array|string $allowed)
     {
         if (is_string($allowed)) {
-            if (!is_a($allowed, \BackedEnum::class, true)) {
-                throw new \TypeError("Expected BackedEnum, given [{$allowed}]");
+            if (!is_a($allowed, BackedEnum::class, true)) {
+                throw new TypeError("Expected BackedEnum, given [{$allowed}]");
             }
 
             return $this

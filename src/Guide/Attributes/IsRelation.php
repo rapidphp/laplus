@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Rapid\Laplus\Guide\GuideScope;
 use ReflectionMethod;
+use TypeError;
 
 #[Attribute(Attribute::TARGET_METHOD)]
 class IsRelation implements DocblockAttributeContract
@@ -58,7 +59,7 @@ class IsRelation implements DocblockAttributeContract
                 ];
             }
 
-            throw new \TypeError(sprintf(
+            throw new TypeError(sprintf(
                 "Method %s::%s() is not a relationship",
                 $reflection->getDeclaringClass()->getName(),
                 $reflection->getName(),

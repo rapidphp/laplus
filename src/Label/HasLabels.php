@@ -2,6 +2,7 @@
 
 namespace Rapid\Laplus\Label;
 
+use InvalidArgumentException;
 use Rapid\Laplus\Present\Present;
 
 trait HasLabels
@@ -59,7 +60,7 @@ trait HasLabels
             return $attr->getLabelFor($this->getAttribute($name), $args);
         }
 
-        throw new \InvalidArgumentException(sprintf("Label [%s] is not defined in [%s]", $name, static::class));
+        throw new InvalidArgumentException(sprintf("Label [%s] is not defined in [%s]", $name, static::class));
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace Rapid\Laplus\Editors;
 
+use RuntimeException;
+
 class GitIgnoreEditor
 {
     protected array $lines;
@@ -21,7 +23,7 @@ class GitIgnoreEditor
                 @mkdir(dirname($this->path), recursive: true);
                 touch($this->path);
             } else {
-                throw new \RuntimeException("File [$this->path] is not exists.");
+                throw new RuntimeException("File [$this->path] is not exists.");
             }
         }
 

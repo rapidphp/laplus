@@ -8,6 +8,7 @@ use Illuminate\Database\Schema\ColumnDefinition;
 use Illuminate\Support\Fluent;
 use Rapid\Laplus\Present\Generate\Structure\DatabaseState;
 use Rapid\Laplus\Present\Generate\Structure\TableState;
+use RuntimeException;
 
 class SchemaTracker
 {
@@ -105,7 +106,7 @@ class SchemaTracker
                     break;
 
                 default:
-                    throw new \RuntimeException("Internal error: unknown command " . print_r($command, true));
+                    throw new RuntimeException("Internal error: unknown command " . print_r($command, true));
             }
         }
 

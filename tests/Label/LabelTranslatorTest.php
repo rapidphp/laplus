@@ -9,6 +9,7 @@ use Rapid\Laplus\Label\LabelTranslator;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
 use Rapid\Laplus\Tests\TestCase;
+use stdClass;
 
 class LabelTranslatorTest extends TestCase
 {
@@ -118,7 +119,7 @@ class LabelTranslatorTest extends TestCase
 
     public function test_label_type_error()
     {
-        $record = $this->make(['empty' => new \stdClass()]);
+        $record = $this->make(['empty' => new stdClass()]);
 
         $this->expectExceptionMessageMatches('/^Label \[empty\] in \[.*\] returned \[stdClass\], expected \[string\]$/');
         $record->empty_label;

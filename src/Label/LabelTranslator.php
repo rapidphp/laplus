@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
+use ReflectionClass;
 use ReflectionMethod;
 
 /**
@@ -74,7 +76,7 @@ class LabelTranslator
 
         $list = [];
 
-        foreach ((new \ReflectionClass($this))->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+        foreach ((new ReflectionClass($this))->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
             $name = $method->getName();
 
             if (
@@ -134,7 +136,7 @@ class LabelTranslator
             return $this->{'get' . $name}();
         }
 
-        throw new \InvalidArgumentException(sprintf("Property [%s] not found in [%s]", $name, static::class));
+        throw new InvalidArgumentException(sprintf("Property [%s] not found in [%s]", $name, static::class));
     }
 
     protected function getUndefined(): string

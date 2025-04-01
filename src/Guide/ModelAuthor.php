@@ -8,6 +8,8 @@ use Rapid\Laplus\Label\HasLabels;
 use Rapid\Laplus\Label\LabelTranslator;
 use Rapid\Laplus\Present\HasPresent;
 use Rapid\Laplus\Present\Present;
+use ReflectionClass;
+use ReflectionMethod;
 
 /**
  * @internal
@@ -46,7 +48,7 @@ class ModelAuthor extends GuideAuthor
         $docblock = [];
 
         foreach ($label->extractLabelNames() as $name) {
-            $ref = new \ReflectionMethod($label, Str::camel($name));
+            $ref = new ReflectionMethod($label, Str::camel($name));
 
             $info = $scope->summary($ref->getDocComment());
 
@@ -86,7 +88,7 @@ class ModelAuthor extends GuideAuthor
         $attributes = [];
         $docblock = [];
 
-        foreach ((new \ReflectionClass($this->class))->getMethods() as $method) {
+        foreach ((new ReflectionClass($this->class))->getMethods() as $method) {
             if (preg_match('/^(get|set)([A-Z][a-zA-Z0-9_]*)Attribute$/', $method->name, $matches)) {
                 if (!in_array($matches[2], ['ClassCastable', 'EnumCastable'])) {
                     $name = Str::snake($matches[2]);
@@ -129,7 +131,7 @@ class ModelAuthor extends GuideAuthor
     protected function guideAttributes(GuideScope $scope): array
     {
         $docblock = [];
-        $class = new \ReflectionClass($this->class);
+        $class = new ReflectionClass($this->class);
 
         foreach ($class->getAttributes() as $attribute) {
             if (is_a($attribute->getName(), DocblockAttributeContract::class, true)) {

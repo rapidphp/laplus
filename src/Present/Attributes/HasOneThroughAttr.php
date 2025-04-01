@@ -45,7 +45,7 @@ class HasOneThroughAttr extends Attribute implements RelationAttr
      * Get relation value
      *
      * @param Model $model
-     * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
+     * @return HasOneThrough
      */
     public function getRelation(Model $model)
     {

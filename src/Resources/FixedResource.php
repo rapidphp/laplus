@@ -3,6 +3,7 @@
 namespace Rapid\Laplus\Resources;
 
 use Illuminate\Support\Arr;
+use InvalidArgumentException;
 
 readonly class FixedResource extends Resource
 {
@@ -19,7 +20,7 @@ readonly class FixedResource extends Resource
     public static function fromConfig(string $name, array $config): Resource
     {
         if (!Arr::has($config, ['models', 'migrations', 'dev_migrations', 'travels'])) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 "Laplus config [$name] should contains [models], [migrations], [dev_migrations] and [travels] values"
             );
         }

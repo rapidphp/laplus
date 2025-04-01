@@ -44,7 +44,7 @@ class BelongsToManyAttr extends Attribute implements RelationAttr
      * Get relation value
      *
      * @param Model $model
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function getRelation(Model $model)
     {
