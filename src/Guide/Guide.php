@@ -116,7 +116,7 @@ abstract class Guide
                 $left = substr_replace(
                     $left,
                     implode($enter, $comment),
-                    $commentMatches[1][1] + $tagMatches[1][1],
+                    +$commentMatches[1][1] + +$tagMatches[1][1],
                     strlen($tagMatches[1][0]),
                 );
             } else {
