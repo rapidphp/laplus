@@ -42,33 +42,4 @@ trait MigrationResolves
 
         $this->resolvedTravels = $schema->travels;
     }
-
-    /**
-     * Resolve current table status from database
-     *
-     * @return void
-     */
-    public function resolveTableFromDatabase(): void
-    {
-        // TODO : This function is soon feature
-//        Schema::create('users', function (Blueprint $table) {
-//            $table->id();
-//            $table->text('name');
-//        });
-//        $this->resolvedState = [];
-//        foreach (Schema::getTables() as $table) {
-//            $name = $table['name'];
-//
-//            foreach (Schema::getColumns($name) as $column) {
-//                @$this->resolvedState[$name]['columns'][$column['name']] =
-//                    new ColumnDefinition(Arr::mapWithKeys($column, fn($value, $key) => [Str::camel($key) => $value]));
-//            }
-//
-//            foreach (Schema::getIndexes($name) as $index) {
-//                @$this->resolvedState[$name]['indexes'][$index['name']] =
-//                    new ColumnDefinition(Arr::mapWithKeys($index, fn($value, $key) => [Str::camel($key) => $value]));
-//            }
-//        }
-    }
-
 }

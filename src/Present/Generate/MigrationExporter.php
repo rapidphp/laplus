@@ -14,23 +14,22 @@ class MigrationExporter
      * @param MigrationGenerator[] $generators
      * @return MigrationFileListState
      */
-    public function exportMigrationFiles(array $generators)
+    public function exportMigrationFiles(array $generators): MigrationFileListState
     {
-        $generates = [];
-        foreach ($generators as $tag => $generator) {
-            $generates[$tag] = [$generator, $generator->generate()];
-        }
+        $generators = array_map(function ($generator) {
+            return [$generator, $generator->generate()];
+        }, $generators);
 
-        return $this->exportMigrationFilesFrom($generates);
+        return $this->exportMigrationFilesFrom($generators);
     }
 
     /**
      * Export migration files from MigrationListState object
      *
-     * @param MigrationListState[] $migrationsAll
+     * @param array<MigrationListState|MigrationGenerator>[] $migrationsAll
      * @return MigrationFileListState
      */
-    protected function exportMigrationFilesFrom(array $migrationsAll)
+    protected function exportMigrationFilesFrom(array $migrationsAll): MigrationFileListState
     {
         $files = new MigrationFileListState();
         $dateIndex = time();
@@ -119,9 +118,10 @@ class MigrationExporter
             case MigrationState::COMMAND_TRAVEL:
                 $files->files[$name] = $this->makeTravel($migration);
                 $files->files[$name]->tag = $tag;
+                break;
 
             default:
-                // die("Error"); // TODO : Should change
+                throw new \RuntimeException("Unknown command [{$migration->command}] dispatched.");
         }
     }
 
@@ -131,7 +131,7 @@ class MigrationExporter
      * @param MigrationFileListState $files
      * @return array<string, string>
      */
-    public function exportMigrationStubs(MigrationFileListState $files)
+    public function exportMigrationStubs(MigrationFileListState $files): array
     {
         $stub = file_get_contents(__DIR__ . '/../../Commands/Make/stubs/migration.stub');
 
