@@ -189,10 +189,25 @@ Find `database/migrations/0001_01_01_000000_create_users_table.php` file and mov
 
 ## Development Utils
 
+To be able to update your tables during development, you can use the following command:
+
+```shell
+php artisan dev:migrate --guide
+```
+
 [Read more...](doc/dev.md)
+
 
 ## Deployment
 
+When deploying the project to production, you can create the final migrations with the following command:
+
+```shell
+php artisan deploy:migrate
+```
+
+> For greater project safety, you can follow the scenario we have written on the page below.
+> 
 [Read more...](doc/deploy.md)
 
 ## Make model & present
@@ -201,20 +216,20 @@ You can use this command to create a model and a present:
 php artisan make:model-laplus Name
 ```
 
-This command will create `app/Models/Name.php` model and `app/Presents/NamePresent.php` present.
+This command will create `app/Models/Name.php` with inline presentation.
 
 [Read more...](doc/present.md#make-presentable-model)
 
 
-## Make model with inline present
-You can use this command to create a model with inline present:
+## Make model with separately present
+You can use this command to create a model with present class:
 ```shell
-php artisan make:model-laplus --inline Name
+php artisan make:model-laplus --present Name
 ```
 
-This command will create `app/Models/Name.php` model.
+This command will create `app/Models/Name.php` model and `app/Presents/NamePresent.php` present.
 
-[Read more...](doc/present.md#inline-present)
+[Read more...](doc/present.md#separately-present)
 
 
 ## Migrations
