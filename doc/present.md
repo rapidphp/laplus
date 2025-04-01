@@ -12,7 +12,7 @@ This command will create `app/Models/Name.php` with inline present.
 
 
 ### Separately Present
-Add `--present` or `-p` in the command:
+Add `--present` or `-P` in the command:
 ```php
 php artisan make:model+ Name --present
 ```

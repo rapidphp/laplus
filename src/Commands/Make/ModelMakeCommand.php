@@ -85,7 +85,7 @@ class ModelMakeCommand extends ConsoleModelMakeCommand
     {
         return [
             ...parent::getOptions(),
-            ['present', 'p', InputOption::VALUE_NONE, 'Include making present class'],
+            ['present', 'P', InputOption::VALUE_NONE, 'Include making present class'],
             ['label', 'l', InputOption::VALUE_NONE, 'Include making label translator'],
         ];
     }

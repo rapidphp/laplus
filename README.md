@@ -210,7 +210,7 @@ php artisan deploy:migrate
 > 
 [Read more...](doc/deploy.md)
 
-## Make model & present
+## Make model
 You can use this command to create a model and a present:
 ```shell
 php artisan make:model-laplus Name
