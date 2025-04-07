@@ -11,6 +11,7 @@ use Rapid\Laplus\Label\LabelTypeException;
 use Rapid\Laplus\Label\Translate;
 use Rapid\Laplus\Present\Present;
 use Rapid\Laplus\Present\PresentAttributeCast;
+use Rapid\Laplus\Support\Traits\HasPresentAttributes;
 
 class Attribute
 {

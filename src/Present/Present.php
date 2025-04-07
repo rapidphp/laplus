@@ -11,6 +11,7 @@ use Rapid\Laplus\Guide\GuideScope;
 use Rapid\Laplus\Present\Attributes\Attribute;
 use Rapid\Laplus\Present\Attributes\Column;
 use Rapid\Laplus\Present\Attributes\Index;
+use Rapid\Laplus\Support\Traits\HasPresentAttributes;
 use Rapid\Laplus\Travel\Travel;
 
 abstract class Present
@@ -125,6 +126,12 @@ abstract class Present
             }
 
             $attribute->boot($this);
+        }
+
+        if (app()->hasDebugModeEnabled()) {
+            if (($this->getters || $this->setters) && !in_array(HasPresentAttributes::class, class_uses_recursive($this->instance))) {
+                throw new \RuntimeException(sprintf("Model [%s] needs to use [%s]", get_class($this->instance), HasPresentAttributes::class));
+            }
         }
 
         foreach ($this->extensions as $extension) {
