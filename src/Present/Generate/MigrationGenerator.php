@@ -5,6 +5,7 @@ namespace Rapid\Laplus\Present\Generate;
 use Illuminate\Database\Schema\Blueprint;
 use Rapid\Laplus\Present\Generate\Testing\GenerateTesting;
 use Rapid\Laplus\Present\Present;
+use Rapid\Laplus\VersionStabler;
 
 class MigrationGenerator
 {
@@ -36,7 +37,7 @@ class MigrationGenerator
      */
     public function getBlueprintOrCreate(string $name): Blueprint
     {
-        return $this->blueprints[$name] ??= new Blueprint($name);
+        return $this->blueprints[$name] ??= VersionStabler::newBlueprint($name);
     }
 
     /**

@@ -22,6 +22,8 @@ class AnonymousTestingPresentableModel extends Model
 
     protected function present(Present $present)
     {
-        ($this->callback)($present);
+        if (isset($this->callback)) {
+            ($this->callback)($present);
+        }
     }
 }

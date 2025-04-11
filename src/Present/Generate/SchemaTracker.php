@@ -8,36 +8,36 @@ use Illuminate\Database\Schema\ColumnDefinition;
 use Illuminate\Support\Fluent;
 use Rapid\Laplus\Present\Generate\Structure\DatabaseState;
 use Rapid\Laplus\Present\Generate\Structure\TableState;
+use Rapid\Laplus\VersionStabler;
 use RuntimeException;
 
 class SchemaTracker
 {
-
     public DatabaseState $state;
 
     public array $travels;
 
-    public function reset(?DatabaseState $state = null)
+    public function reset(?DatabaseState $state = null): void
     {
         $this->state = $state ?? new DatabaseState();
         $this->travels = [];
     }
 
-    public function create(string $tableName, Closure $callback)
+    public function create(string $tableName, Closure $callback): void
     {
-        $table = new Blueprint($tableName, $callback);
+        $table = VersionStabler::newBlueprint($tableName, $callback);
 
         self::applyBlueprintIntoState($this->state, $table, true);
     }
 
-    public function table(string $tableName, Closure $callback)
+    public function table(string $tableName, Closure $callback): void
     {
-        $table = new Blueprint($tableName, $callback);
+        $table = VersionStabler::newBlueprint($tableName, $callback);
 
         self::applyBlueprintIntoState($this->state, $table);
     }
 
-    public function drop(string $tableName)
+    public function drop(string $tableName): void
     {
         unset($this->state->tables[$tableName]);
     }
